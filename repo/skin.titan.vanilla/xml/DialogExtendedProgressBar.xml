@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Titan-->
+<window>
+	<defaultcontrol always="true">401</defaultcontrol>
+	<controls>
+		<control type="group" id="99999">
+			<animation type="WindowOpen" reversible="false">
+				<effect type="slide" start="0,-400" end="0,0" tween="cubic" delay="500" easing="out" time="500" />
+			</animation>
+			<animation type="WindowClose" reversible="false">
+				<effect type="slide" start="0,0" end="0,-400" tween="cubic" easing="out" time="500" />
+			</animation>
+			<visible>!Window.IsActive(notification) + !Window.IsActive(fullscreenvideo) + !Window.IsVisible(startup)</visible>
+			<control type="image">
+				<left>0</left>
+				<top>0</top>
+				<width>100%</width>
+				<height>130</height>
+				<texture border="5">diffuse/panel.png</texture>
+				<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
+			</control>
+			<control type="group">
+				<left>60</left>
+				<top>20</top>
+				<control type="label" id="1">
+					<left>-5</left>
+					<top>2</top>
+					<width>90</width>
+					<height>80</height>
+					<align>center</align>
+					<aligny>center</aligny>
+					<font>Reg24</font>
+					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+					<shadowcolor>black</shadowcolor>
+					<label>$INFO[Control.GetLabel(32),,%]</label>
+				</control>
+				<control type="progress" id="32">
+					<left>48</left>
+					<top>10</top>
+					<width>555</width>
+					<height>8</height>
+					<texturebg></texturebg>
+					<midtexture></midtexture>
+					<righttexture></righttexture>
+					<lefttexture></lefttexture>
+				</control>
+				<control type="multiimage">
+					<!--Busy Image-->
+					<description>Busy animation</description>
+					<left>-5</left>
+					<top>0</top>
+					<width>95</width>
+					<height>95</height>
+					<colordiffuse>$INFO[Skin.String(SpinnerTexture.Color)]</colordiffuse>
+					<imagepath>dialogs/extended_progress_bar</imagepath>
+					<timeperimage>100</timeperimage>
+					<fadetime>0</fadetime>
+				</control>
+				<control type="label" id="30">
+					<!--Header-->
+					<left>115</left>
+					<top>0</top>
+					<width>1200</width>
+					<height>50</height>
+					<font>Bold38</font>
+					<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+					<label></label>
+					<scroll>false</scroll>
+				</control>
+				<control type="label" id="31">
+					<!--Current Directory Label-->
+					<left>115</left>
+					<top>40</top>
+					<width>1200</width>
+					<height>50</height>
+					<font>Reg30</font>
+					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+					<label></label>
+					<scroll>false</scroll>
+				</control>
+			</control>
+		</control>
+	</controls>
+</window>

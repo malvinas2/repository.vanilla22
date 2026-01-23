@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+<controls>	
+	<include>DialogOverlayExtra</include>
+	<defaultcontrol always="true">111</defaultcontrol>
+	<control type="group">
+		<left>705</left>
+		<top>378</top>
+		<control type="group">
+			<control type="image">
+				<left>-10</left>
+				<top>-10</top>
+				<width>510</width>
+				<height>330</height>
+				<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
+				<texture border="5">diffuse/panel.png</texture>
+			</control>
+			<control type="image" id="2">
+				<description>background image</description>
+				<left>0</left>
+				<top>0</top>
+	            <width>490</width>
+				<height>310</height>
+				<include>Fade80</include>
+				<texture border="10">dialogs/trakt/trakt-context-bg.png</texture>
+			</control>
+			<control type="list" id="111">
+				<left>20</left>
+				<top>20</top>
+				<width>450</width>
+				<height>483</height>
+				<onup>111</onup>
+				<ondown>111</ondown>
+				<onleft>111</onleft>
+				<onright>111</onright>
+				<scrolltime>200</scrolltime>
+				<itemlayout height="70" width="450">
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>450</width>
+						<height>60</height>
+						<texture border="8" colordiffuse="$INFO[Skin.String(ButtonColor)]">diffuse/panel.png</texture>
+					</control>
+					<control type="label">
+						<left>0</left>
+						<top>0</top>
+						<width>450</width>
+						<height>60</height>
+						<font>font13</font>
+						<textcolor fallback="white">$INFO[Skin.String(GeneralTextColor)]</textcolor>
+						<shadowcolor>black</shadowcolor>
+						<selectedcolor>FFFFFF33</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<info>ListItem.Label</info>
+					</control>
+				</itemlayout>
+				<focusedlayout height="70" width="450">
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>450</width>
+						<height>60</height>
+						<texture border="8" colordiffuse="$INFO[Skin.String(ButtonColor)]">diffuse/panel.png</texture>
+						<visible>!Control.HasFocus(111)</visible>
+						<animation effect="fade" time="300">Visible</animation>
+						<animation effect="fade" time="300">Hidden</animation>
+					</control>
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>450</width>
+						<height>60</height>
+						<texture border="8" colordiffuse="$INFO[Skin.String(ButtonFocusColor)]">diffuse/panel.png</texture>
+						<visible>Control.HasFocus(111)</visible>
+						<animation effect="fade" time="300">Visible</animation>
+						<animation effect="fade" time="300">Hidden</animation>
+					</control>
+					<control type="label">
+						<left>0</left>
+						<top>0</top>
+						<width>450</width>
+						<height>60</height>
+						<font>font13</font>
+						<textcolor fallback="white">$INFO[Skin.String(ButtonTextColor)]</textcolor>
+						<shadowcolor>black</shadowcolor>
+						<selectedcolor>FFFFFF33</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<visible>!Control.HasFocus(111)</visible>
+						<info>ListItem.Label</info>
+						<animation effect="fade" time="300">Visible</animation>
+						<animation effect="fade" time="300">Hidden</animation>
+					</control>
+					<control type="label">
+						<left>0</left>
+						<top>0</top>
+						<width>450</width>
+						<height>60</height>
+						<font>font13</font>
+						<textcolor fallback="white">$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
+						<shadowcolor>black</shadowcolor>
+						<selectedcolor>FFFFFF33</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<visible>Control.HasFocus(111)</visible>
+						<info>ListItem.Label</info>
+						<animation effect="fade" time="300">Visible</animation>
+						<animation effect="fade" time="300">Hidden</animation>
+					</control>
+				</focusedlayout>
+			</control>
+		</control>
+	</control>
+</controls>
+</window>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window id="9999">
+	<defaultcontrol always="true">9001</defaultcontrol>
+	<controls>
+		<include>DialogOverlayExtra</include>
+		<control type="group">
+			<left>360</left>
+			<top>255</top>
+			<include>animation_window_open_close</include>
+			<control type="group">
+				<control type="image">
+					<description>Background Image</description>
+					<left>-20</left>
+					<top>-20</top>
+					<width>1240</width>
+					<height>550</height>
+					<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
+					<texture border="5">diffuse/panel.png</texture>
+				</control>
+				<control type="image">
+					<description>Background Image</description>
+					<left>0</left>
+					<top>0</top>
+					<width>1200</width>
+					<height>510</height>
+					<texture border="10">dialogs/trakt/trakt-auth-bg.png</texture>
+				</control>
+				<control type="label">
+					<description>header label</description>
+					<left>230</left>
+					<top>22</top>
+					<width>740</width>
+					<height>40</height>
+					<label>$ADDON[script.trakt 32153]</label>
+					<align>center</align>
+					<aligny>center</aligny>
+					<font>Bold38</font>
+					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+					<shadowcolor>black</shadowcolor>
+				</control>
+				<control type="button">
+					<description>Close Window button</description>
+					<left>0</left>
+					<top>-48</top>
+					<width>96</width>
+					<height>48</height>
+					<label></label>
+					<font></font>
+					<onclick>PreviousMenu</onclick>
+					<texturefocus>dialogs/trakt/close-fo.png</texturefocus>
+					<texturenofocus>dialogs/trakt/close-nofo.png</texturenofocus>
+					<visible>Skin.HasSetting(EnableTouchSupport)</visible>
+				</control>
+			</control>
+			<control type="group">
+				<control type="label" id="203">
+					<description>Instructions Label</description>
+					<left>400</left>
+					<top>110</top>
+					<width>360</width>
+					<height>80</height>
+					<font>Bold32</font>
+					<textcolor>black</textcolor>
+					<shadowcolor>lightgrey</shadowcolor>
+					<wrapmultiline>true</wrapmultiline>
+					<label></label><!-- this is set from the code -->
+					<align>center</align>
+					<aligny>center</aligny>
+				</control>
+				<control type="label" id="204">
+					<description>Code Label</description>
+					<left>400</left>
+					<top>200</top>
+					<width>360</width>
+					<height>80</height>
+					<font>Bold32</font>
+					<label></label><!-- this is set from the code -->
+					<textcolor>red</textcolor>
+					<shadowcolor>black</shadowcolor>
+					<align>center</align>
+					<aligny>center</aligny>
+				</control>
+				<control type="label" id="205">
+					<description>Warning Label</description>
+					<left>340</left>
+					<top>280</top>
+					<width>480</width>
+					<height>120</height>
+					<font>Reg30</font>
+					<wrapmultiline>true</wrapmultiline>
+					<label></label><!-- this is set from the code -->
+					<textcolor>black</textcolor>
+					<shadowcolor>lightgrey</shadowcolor>
+					<align>center</align>
+					<aligny>center</aligny>
+				</control>
+			</control>
+			<control type="image">
+				<description>QR Code</description>
+				<left>861</left>
+				<top>95</top>
+				<width>336</width>
+				<height>336</height>
+				<texture>dialogs/trakt/qr_code.png</texture>
+				<aspectratio>keep</aspectratio>
+			</control>
+			<control type="grouplist" id="9001">
+				<left>0</left>
+				<top>440</top>
+				<width>1200</width>
+				<height>60</height>
+				<align>center</align>
+				<itemgap>45</itemgap>
+				<orientation>horizontal</orientation>
+				<control type="button" id="201">
+					<description>Later Button</description>
+					<width>320</width>
+					<height>60</height>
+					<align>center</align>
+					<aligny>center</aligny>
+					<label>$ADDON[script.trakt 32155]</label>
+					<textcolor fallback="white">$INFO[Skin.String(ButtonTextColor)]</textcolor>
+					<focusedcolor>$INFO[Skin.String(ButtonFocusTextColor)]</focusedcolor>
+					<disabledcolor>aaffffff</disabledcolor>
+					<pulseonselect>false</pulseonselect>
+			        <textoffsetx>10</textoffsetx>
+				</control>
+				<control type="button" id="202">
+					<description>Never Button</description>
+					<width>320</width>
+					<height>60</height>
+					<align>center</align>
+					<aligny>center</aligny>
+					<label>$ADDON[script.trakt 32156]</label>
+					<textcolor fallback="white">$INFO[Skin.String(ButtonTextColor)]</textcolor>
+					<focusedcolor>$INFO[Skin.String(ButtonFocusTextColor)]</focusedcolor>
+					<disabledcolor>aaffffff</disabledcolor>
+					<pulseonselect>false</pulseonselect>
+			        <textoffsetx>10</textoffsetx>
+				</control>
+			</control>
+		</control>
+	</controls>
+</window>
