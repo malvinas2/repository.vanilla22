@@ -100,11 +100,6 @@
 		<animation effect="fade" time="100" delay="200">Visible</animation>
 		<animation effect="fade" time="50">Hidden</animation>
 	</include>
-	
-	<include name="backgroundfade">
-		<animation effect="fade" time="150">Visible</animation>
-		<animation effect="fade" time="150">Hidden</animation>
-	</include>
 
 	<include name="snow">
 		<control type="group">

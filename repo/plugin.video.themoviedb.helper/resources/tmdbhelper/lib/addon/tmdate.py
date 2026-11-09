@@ -8,6 +8,16 @@ get_timestamp = jurialmunkey_tmdate.get_timestamp
 set_timestamp = jurialmunkey_tmdate.set_timestamp
 
 
+def get_time_difference(timestamp=None):
+    now = time.time()
+    tmp = timestamp or now
+    return tmp - now
+
+
+def get_datetime_from_epoch(timestamp_in_seconds_from_epoch):
+    return datetime.datetime.fromtimestamp(timestamp_in_seconds_from_epoch)
+
+
 def get_datetime_combine(*args, **kwargs):
     return datetime.datetime.combine(*args, **kwargs)
 
@@ -17,15 +27,27 @@ def get_datetime_time(*args, **kwargs):
 
 
 def get_datetime_utcnow_isoformat():
-    return f'{datetime.datetime.utcnow().isoformat()}Z'
+    return f'{get_datetime_utcnow().isoformat()}Z'
 
 
 def get_datetime_now():
     return datetime.datetime.now()
 
 
+def get_datetime_utcnow():
+    return datetime.datetime.now(datetime.timezone.utc)
+
+
 def get_datetime_today():
     return datetime.datetime.today()
+
+
+def get_timestring_zulu(date_time):
+    return date_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+
+
+def get_timestring_zulu_now():
+    return get_timestring_zulu(get_datetime_utcnow())
 
 
 def get_timedelta(*args, **kwargs):
@@ -44,10 +66,7 @@ def convert_to_timestamp(date_time):
         return 2145916800  # Y2038 bug in time.mktime on 32bit float systems. Use 2038 Jan 1 UTC for db timestamp instead.
 
 
-def format_date(time_str, str_fmt="%A", time_fmt="%Y-%m-%d", time_lim=10, utc_convert=False, region_fmt=None):
-    if not time_str:
-        return
-    time_obj = convert_timestamp(time_str, time_fmt, time_lim, utc_convert=utc_convert)
+def format_date_obj(time_obj, str_fmt="%A", region_fmt=None):
     if not time_obj:
         return
     if not region_fmt:
@@ -55,26 +74,36 @@ def format_date(time_str, str_fmt="%A", time_fmt="%Y-%m-%d", time_lim=10, utc_co
     return get_region_date(time_obj, region_fmt)
 
 
+def format_date(time_str, str_fmt="%A", time_fmt="%Y-%m-%d", time_lim=10, utc_convert=False, region_fmt=None):
+    if not time_str:
+        return
+    time_obj = convert_timestamp(time_str, time_fmt, time_lim, utc_convert=utc_convert)
+    return format_date_obj(time_obj, str_fmt=str_fmt, region_fmt=region_fmt)
+
+
 def date_in_range(date_str, days=1, start_date=0, date_fmt="%Y-%m-%dT%H:%M:%S", date_lim=19, utc_convert=False):
+    datetime_object = convert_timestamp(date_str, date_fmt, date_lim, utc_convert=utc_convert)
+    return datetime_in_range(datetime_object, days=days, start_date=start_date)
+
+
+def datetime_in_range(datetime_object, days=1, start_date=0):
+    if not datetime_object:
+        return
     date_a = datetime.date.today() + datetime.timedelta(days=start_date)
-    if not date_a:
-        return
     date_z = date_a + datetime.timedelta(days=days)
-    if not date_z:
+    mydate = datetime_object.date()
+    if mydate < date_a:
         return
-    mydate = convert_timestamp(date_str, date_fmt, date_lim, utc_convert=utc_convert)
-    if not mydate:
+    if mydate >= date_z:
         return
-    mydate = mydate.date()
-    if mydate >= date_a and mydate < date_z:
-        return date_str
+    return datetime_object
 
 
 def get_region_date(date_obj, region_fmt='dateshort', del_fmt=':%S'):
     from xbmc import getRegion
     xbmc_region = getRegion(region_fmt).replace(del_fmt, '')  # Strip seconds from formatting durations
     date_string = date_obj.strftime(xbmc_region.encode('unicode-escape').decode())  # Avoid UnicodeEncode errors in strftime
-    return date_string.encode().decode('unicode-escape')  # Restore Unicode characters
+    return date_string.encode('raw-unicode-escape').decode('unicode-escape')  # Restore format literals and preserve localized names
 
 
 def is_future_timestamp(time_str, time_fmt="%Y-%m-%dT%H:%M:%S", time_lim=19, utc_convert=False, use_today=False, days=0):
@@ -133,6 +162,12 @@ def get_calendar_name(startdate=0, days=1):
             return get_localized(32326)  # This Month
         if startdate == -30:
             return get_localized(32327)  # Last Month
+
+
+def get_days_to_air(datetime_object):
+    """ Returns tuple of number of days and bool if object has aired yet """
+    days = (datetime_object.date() - get_datetime_today().date()).days
+    return abs(days), days < 0
 
 
 def convert_timestamp(time_str, time_fmt="%Y-%m-%dT%H:%M:%S", time_lim=19, utc_convert=False):

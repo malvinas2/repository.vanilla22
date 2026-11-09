@@ -1,0 +1,2215 @@
+import os
+import sys
+import types
+import tempfile
+import unittest
+
+REPO_ROOT = os.path.dirname(__file__)
+LIB_DIR = os.path.join(REPO_ROOT, "resources", "lib")
+_TEST_PROFILE = tempfile.TemporaryDirectory(prefix="spotify-fastpath-")
+
+
+class FakeAddon:
+    def getLocalizedString(self, string_id):
+        return f"str-{string_id}"
+
+    def getAddonInfo(self, key):
+        return "SpotifyKodiConnect"
+
+    def getSetting(self, key):
+        return ""
+
+    def setSetting(self, key, value):
+        pass
+
+
+class FakeWindow:
+    """Singleton-per-window-id, matching real Kodi semantics.
+
+    Real Kodi returns the same Window object for the same id, so plugin
+    writes (PluginContent.__win) and play_queue reads (_window()) land on
+    the same property store. Per-call instances would silently drop state.
+    """
+
+    windows = {}
+
+    def __new__(cls, window_id=None):
+        if window_id not in cls.windows:
+            instance = super().__new__(cls)
+            instance.properties = {}
+            cls.windows[window_id] = instance
+        return cls.windows[window_id]
+
+    def getProperty(self, key):
+        return self.properties.get(key, "")
+
+    def setProperty(self, key, value):
+        self.properties[key] = value
+
+    def clearProperty(self, key):
+        self.properties.pop(key, None)
+
+
+class FakeMusicInfoTag:
+    def __getattr__(self, name):
+        if name.startswith("set"):
+            return lambda *args, **kwargs: None
+        raise AttributeError(name)
+
+
+class FakeListItem:
+    def __init__(self, label="", path=None, offscreen=False):
+        self.label = label
+        self.path = path
+        self.context_items = []
+        self.properties = {}
+
+    def getMusicInfoTag(self):
+        return FakeMusicInfoTag()
+
+    def setProperty(self, key, value):
+        self.properties[key] = value
+
+    def setLabel2(self, label):
+        self.label2 = label
+
+    def setArt(self, art):
+        self.art = art
+
+    def setContentLookup(self, value):
+        self.content_lookup = value
+
+    def addContextMenuItems(self, items, replaceItems=False):
+        self.context_items.extend(items or [])
+
+    def setMimeType(self, mime_type):
+        self.mime_type = mime_type
+
+
+class FakeMonitor:
+    wait_calls = 0
+    on_wait = None
+
+    def abortRequested(self):
+        return False
+
+    def waitForAbort(self, timeout=None):
+        FakeMonitor.wait_calls += 1
+        if FakeMonitor.on_wait:
+            FakeMonitor.on_wait()
+        return False
+
+
+class RecordingPlaylist:
+    instances = []
+
+    def __init__(self, playlist_id):
+        self.playlist_id = playlist_id
+        self.items = []
+        RecordingPlaylist.instances.append(self)
+
+    def clear(self):
+        self.items.clear()
+
+    def add(self, url, listitem):
+        self.items.append((url, listitem))
+
+
+class RecordingPlayer:
+    events = []
+
+    def play(self, playlist):
+        RecordingPlayer.events.append("play")
+
+
+class InlineExecutor:
+    """ThreadPoolExecutor stand-in that runs each page fetch at submit time."""
+
+    def __init__(self, max_workers=None):
+        self.submitted = 0
+
+    def submit(self, fn, *args):
+        from concurrent.futures import Future
+
+        self.submitted += 1
+        future = Future()
+        try:
+            future.set_result(fn(*args))
+        except Exception as exc:
+            future.set_exception(exc)
+        return future
+
+    def shutdown(self, wait=True):
+        pass
+
+
+class DeferredThread:
+    started_targets = []
+
+    def __init__(self, target, daemon=False):
+        self.target = target
+        self.daemon = daemon
+
+    def start(self):
+        if getattr(self.target, "__name__", "") in ("add_remaining", "_run"):
+            DeferredThread.started_targets.append(self.target)
+            return
+        self.target()
+
+    def join(self):
+        pass
+
+
+class FakeCache:
+    def __init__(self):
+        self.values = {}
+
+    def get(self, key, checksum=None, **kwargs):
+        item = self.values.get(key)
+        if not item:
+            return None
+        value, item_checksum = item
+        # Like simplecache: an empty checksum matches any row.
+        if checksum and item_checksum != checksum:
+            return None
+        return value
+
+    def set(self, key, value, checksum=None, **kwargs):
+        self.values[key] = (value, checksum)
+        self.set_calls = getattr(self, "set_calls", [])
+        self.set_calls.append((key, kwargs))
+
+    def get_many(self, keys, checksum=None, **kwargs):
+        self.get_many_calls = getattr(self, "get_many_calls", 0) + 1
+        result = {}
+        for key in keys:
+            value = self.get(key, checksum=checksum, **kwargs)
+            if value is not None:
+                result[key] = value
+        return result
+
+    def set_many(self, items, checksum=None, **kwargs):
+        self.set_many_calls = getattr(self, "set_many_calls", 0) + 1
+        items = dict(items)
+        self.set_many_log = getattr(self, "set_many_log", [])
+        self.set_many_log.append((list(items), kwargs))
+        for key, value in items.items():
+            self.values[key] = (value, checksum)
+
+
+def read_chunked(cache, key):
+    """(head, items) of a chunked paged collection stored in a FakeCache."""
+    head = cache.values[key][0]
+    items = []
+    for index in range(head.get("_chunks") or 0):
+        items.extend(cache.values[f"{key}.chunk{index}"][0])
+    return head, items
+
+
+def rendered_context_items(plugin_content, content, kind, items, **kwargs):
+    """Render items through the plugin's add_*_listitems and return each
+    ListItem's context menu (menus are built at render time)."""
+    rendered = []
+    module = plugin_content.xbmcplugin
+    saved = (module.addDirectoryItem, module.addDirectoryItems)
+
+    def add_item(handle=None, url=None, listitem=None, isFolder=None, totalItems=None):
+        rendered.append(listitem)
+
+    def add_items(handle, items, totalItems=None):
+        rendered.extend(listitem for _url, listitem, _folder in items)
+
+    module.addDirectoryItem = add_item
+    module.addDirectoryItems = add_items
+    try:
+        getattr(content, f"_PluginContent__add_{kind}_listitems")(items, **kwargs)
+    finally:
+        module.addDirectoryItem, module.addDirectoryItems = saved
+    return [listitem.context_items for listitem in rendered]
+
+
+def install_kodi_stubs():
+    xbmc = types.ModuleType("xbmc")
+    xbmc.LOGDEBUG = 0
+    xbmc.LOGINFO = 1
+    xbmc.LOGWARNING = 2
+    xbmc.LOGERROR = 3
+    xbmc.Monitor = FakeMonitor
+    xbmc.PlayList = RecordingPlaylist
+    xbmc.Player = RecordingPlayer
+    xbmc.sleep = lambda millis: None
+    xbmc.getLocalizedString = lambda string_id: f"kodi-{string_id}"
+    xbmc.getInfoLabel = lambda label: ""
+    xbmc.executebuiltin = lambda command: None
+    xbmc.log = lambda message, level=0: None
+    sys.modules["xbmc"] = xbmc
+
+    xbmcaddon = types.ModuleType("xbmcaddon")
+    xbmcaddon.Addon = lambda id=None: FakeAddon()
+    sys.modules["xbmcaddon"] = xbmcaddon
+
+    xbmcgui = types.ModuleType("xbmcgui")
+    xbmcgui.Window = FakeWindow
+    xbmcgui.ListItem = FakeListItem
+    xbmcgui.Dialog = lambda: None
+    sys.modules["xbmcgui"] = xbmcgui
+
+    xbmcplugin = types.ModuleType("xbmcplugin")
+    xbmcplugin.SORT_METHOD_UNSORTED = 0
+    xbmcplugin.addDirectoryItems = lambda *args, **kwargs: None
+    xbmcplugin.addDirectoryItem = lambda *args, **kwargs: None
+    xbmcplugin.addSortMethod = lambda *args, **kwargs: None
+    xbmcplugin.endOfDirectory = lambda *args, **kwargs: None
+    xbmcplugin.setContent = lambda *args, **kwargs: None
+    xbmcplugin.setPluginCategory = lambda *args, **kwargs: None
+    xbmcplugin.setProperty = lambda *args, **kwargs: None
+    sys.modules["xbmcplugin"] = xbmcplugin
+
+    xbmcvfs = types.ModuleType("xbmcvfs")
+    xbmcvfs.translatePath = lambda path: (
+        _TEST_PROFILE.name if path.startswith("special://profile/") else path
+    )
+    sys.modules["xbmcvfs"] = xbmcvfs
+
+    simplecache = types.ModuleType("simplecache")
+    simplecache.SimpleCache = lambda addon_id=None: FakeCache()
+    sys.modules["simplecache"] = simplecache
+
+    spotipy = types.ModuleType("spotipy")
+    spotipy.Spotify = lambda auth=None: None
+    sys.modules["spotipy"] = spotipy
+
+    spotty = types.ModuleType("spotty")
+    spotty.Spotty = object
+    spotty.get_spotty = lambda helper: None
+    sys.modules["spotty"] = spotty
+
+    spotty_auth = types.ModuleType("spotty_auth")
+    spotty_auth.SpottyAuth = object
+    sys.modules["spotty_auth"] = spotty_auth
+
+    spotty_helper = types.ModuleType("spotty_helper")
+    spotty_helper.SpottyHelper = object
+    sys.modules["spotty_helper"] = spotty_helper
+
+
+def import_plugin_content():
+    install_kodi_stubs()
+    if LIB_DIR not in sys.path:
+        sys.path.insert(0, LIB_DIR)
+    sys.argv = ["plugin://plugin.audio.spotifykodiconnect", "1", "?"]
+    sys.modules.pop("plugin_content", None)
+    sys.modules.pop("play_queue", None)
+    sys.modules.pop("utils", None)
+    # Other test modules install partial string_ids stubs; use the real one.
+    if not hasattr(sys.modules.get("string_ids"), "SPOTIFY_CONNECTING_STR_ID"):
+        sys.modules.pop("string_ids", None)
+    import plugin_content
+
+    if plugin_content.threading.Thread is not DeferredThread:
+        DeferredThread.real_thread = plugin_content.threading.Thread
+    plugin_content.threading.Thread = DeferredThread
+    plugin_content._PAGE_FETCH_EXECUTOR = InlineExecutor
+    return plugin_content
+
+
+def spotify_track(index):
+    return {
+        "id": f"track-{index}",
+        "uri": f"spotify:track:track-{index}",
+        "name": f"Track {index}",
+        "duration_ms": 180000,
+        "popularity": 50,
+        "artists": [{"id": f"artist-{index}", "name": f"Artist {index}"}],
+        "album": {
+            "name": "Album",
+            "images": [],
+            "album_type": "album",
+            "release_date": "2024-01-01",
+            "genres": [],
+        },
+    }
+
+
+class FakeSpotify:
+    def __init__(self, events, total=75):
+        self.events = events
+        self.total = total
+        self.saved_track_calls = 0
+        self.saved_album_calls = 0
+        self.followed_artist_calls = 0
+        self.artist_calls = 0
+        self.saved_track_contains_requests = []
+        self.saved_album_contains_requests = []
+        self.following_artist_requests = []
+        self.playlist_follow_requests = []
+        self.track_detail_requests = []
+        self.playlist_detail_requests = []
+        self.category_requests = []
+        self.category_playlist_requests = []
+        self.featured_playlist_requests = []
+        self.user_playlist_requests = []
+        self.new_release_requests = []
+        self.album_detail_requests = []
+
+    def playlist(self, playlist_id, fields="", market=None):
+        self.playlist_detail_requests.append((playlist_id, fields, market))
+        return {
+            "id": playlist_id,
+            "name": "Fast Playlist",
+            "owner": {"id": "owner"},
+            "snapshot_id": "snapshot-1",
+            "tracks": {"total": self.total},
+        }
+
+    def playlist_items(self, playlist_id, market=None, fields="", limit=50, offset=0):
+        self.events.append(f"fetch:{offset}")
+        end = min(offset + limit, self.total)
+        return {"items": [{"track": spotify_track(i)} for i in range(offset, end)]}
+
+    def tracks(self, track_ids, market=None):
+        self.track_detail_requests.append((tuple(track_ids), market))
+        tracks = []
+        for track_id in track_ids:
+            index = int(str(track_id).split("-")[-1])
+            tracks.append(spotify_track(index))
+        return {"tracks": tracks}
+
+    def current_user_saved_tracks(self, limit=50, offset=0, market=None):
+        self.saved_track_calls += 1
+        return {"total": 0, "items": []}
+
+    def current_user_saved_albums(self, limit=50, offset=0, market=None):
+        self.saved_album_calls += 1
+        return {"total": 0, "items": []}
+
+    def current_user_followed_artists(self, limit=50, after=None):
+        self.followed_artist_calls += 1
+        return {"artists": {"total": 0, "items": [], "cursors": {"after": None}}}
+
+    def artists(self, artist_ids):
+        self.artist_calls += 1
+        return {"artists": [{"id": artist_id, "images": []} for artist_id in artist_ids]}
+
+    def current_user_saved_tracks_contains(self, track_ids):
+        self.saved_track_contains_requests.append(tuple(track_ids))
+        return [False for _ in track_ids]
+
+    def current_user_saved_albums_contains(self, album_ids):
+        self.saved_album_contains_requests.append(tuple(album_ids))
+        return [False for _ in album_ids]
+
+    def current_user_following_artists(self, artist_ids):
+        self.following_artist_requests.append(tuple(artist_ids))
+        return [False for _ in artist_ids]
+
+    def playlist_is_following(self, playlist_id, user_ids):
+        self.playlist_follow_requests.append((playlist_id, tuple(user_ids)))
+        return [False]
+
+    def albums(self, album_ids, market=None):
+        self.album_detail_requests.append((tuple(album_ids), market))
+        return {"albums": [spotify_album(str(album_id).split("-")[-1]) for album_id in album_ids]}
+
+
+class FanartSpotify(FakeSpotify):
+    def artists(self, artist_ids):
+        self.artist_calls += 1
+        return {
+            "artists": [
+                {
+                    "id": artist_id,
+                    "images": [{"url": f"https://images.example/{artist_id}.jpg"}],
+                }
+                for artist_id in artist_ids
+            ]
+        }
+
+
+class FailingFanartSpotify(FakeSpotify):
+    def artists(self, artist_ids):
+        self.artist_calls += 1
+        raise RuntimeError("artist api failed")
+
+
+def spotify_artist(index):
+    return {
+        "id": f"artist-{index}",
+        "name": f"Artist {index}",
+        "images": [],
+        "genres": [],
+        "popularity": 0,
+        "followers": {"total": 0},
+    }
+
+
+def spotify_album(index):
+    return {
+        "id": f"album-{index}",
+        "name": f"Album {index}",
+        "images": [],
+        "artists": [{"id": f"artist-{index}", "name": f"Artist {index}"}],
+        "genres": [],
+        "popularity": 50,
+        "release_date": "2024-01-01",
+    }
+
+
+def spotify_playlist(index, owner_id="other-user"):
+    return {
+        "id": f"playlist-{index}",
+        "name": f"Playlist {index}",
+        "images": [],
+        "owner": {"id": owner_id},
+    }
+
+
+def spotify_daylist():
+    return {
+        "id": "37i9dQZF1EP6YuccBxUcC1",
+        "name": "daylist",
+        "images": [],
+        "owner": {"id": "spotify"},
+    }
+
+
+class DynamicDaylistSpotify(FakeSpotify):
+    def playlist(self, playlist_id, fields="", market=None):
+        self.playlist_detail_requests.append((playlist_id, fields, market))
+        return {
+            "id": playlist_id,
+            "name": "daylist - synthpop saturday morning",
+            "owner": {"id": "spotify"},
+            "snapshot_id": "snapshot-daylist",
+            "tracks": {"total": 50},
+        }
+
+
+class GenericDaylistSpotify(FakeSpotify):
+    def playlist(self, playlist_id, fields="", market=None):
+        self.playlist_detail_requests.append((playlist_id, fields, market))
+        return {
+            "id": playlist_id,
+            "name": "daylist",
+            "description": "Your day in a playlist.",
+            "images": [
+                {
+                    "url": "https://daylist.spotifycdn.com/playlist-covers-mix/en/afternoon_default.jpg"
+                }
+            ],
+            "owner": {"id": "spotify"},
+            "snapshot_id": "snapshot-daylist",
+            "tracks": {"total": 50},
+        }
+
+
+class EventuallyDynamicDaylistSpotify(FakeSpotify):
+    def __init__(self, events, total=1):
+        super().__init__(events, total=total)
+        self.playlist_names = ["daylist", "daylist - jazz rap funky hip hop sunday afternoon"]
+
+    def playlist(self, playlist_id, fields="", market=None):
+        self.playlist_detail_requests.append((playlist_id, fields, market))
+        name = (
+            self.playlist_names.pop(0)
+            if self.playlist_names
+            else "daylist - jazz rap funky hip hop sunday afternoon"
+        )
+        return {
+            "id": playlist_id,
+            "name": name,
+            "description": "Your day in a playlist.",
+            "images": [
+                {
+                    "url": "https://daylist.spotifycdn.com/playlist-covers-mix/en/afternoon_default.jpg"
+                }
+            ],
+            "owner": {"id": "spotify"},
+            "snapshot_id": "snapshot-daylist",
+            "tracks": {"total": 50},
+        }
+
+
+class CategoryPlaylistsSpotify(DynamicDaylistSpotify):
+    def category(self, category_id, country=None, locale=None):
+        self.category_requests.append((category_id, country, locale))
+        return {"id": category_id, "name": "Made For You"}
+
+    def category_playlists(self, category_id, country=None, limit=50, offset=0):
+        self.category_playlist_requests.append((category_id, country, limit, offset))
+        return {
+            "playlists": {
+                "total": 2,
+                "items": [spotify_daylist(), spotify_playlist(2)],
+            }
+        }
+
+
+class LegacyMadeForYouCategorySpotify(CategoryPlaylistsSpotify):
+    current_made_for_you_id = "0JQ5DAt0tbjZptfcdMSKl3"
+
+    def categories(self, country=None, locale=None, limit=50, offset=0):
+        return {
+            "categories": {
+                "total": 1,
+                "items": [
+                    {
+                        "id": self.current_made_for_you_id,
+                        "name": "Made For You",
+                        "icons": [],
+                    }
+                ],
+            }
+        }
+
+    def category(self, category_id, country=None, locale=None):
+        if category_id == "made-for-you":
+            raise RuntimeError("legacy category slug unavailable")
+        return super().category(category_id, country=country, locale=locale)
+
+
+class FeaturedPlaylistsSpotify(FakeSpotify):
+    def featured_playlists(self, country=None, limit=50, offset=0):
+        self.featured_playlist_requests.append((country, limit, offset))
+        return {
+            "message": "Featured playlists",
+            "playlists": {"total": 1, "items": [spotify_playlist(1)]},
+        }
+
+
+class FailingFeaturedPlaylistsSpotify(FakeSpotify):
+    def featured_playlists(self, country=None, limit=50, offset=0):
+        raise RuntimeError("featured playlists unavailable")
+
+
+class FailingCategoryPlaylistsSpotify(DynamicDaylistSpotify):
+    def category(self, category_id, country=None, locale=None):
+        raise RuntimeError("category unavailable")
+
+    def category_playlists(self, category_id, country=None, limit=50, offset=0):
+        raise RuntimeError("category playlists unavailable")
+
+
+class UserPlaylistsSpotify(FakeSpotify):
+    def user_playlists(self, userid, limit=50, offset=0):
+        self.user_playlist_requests.append((userid, limit, offset))
+        return {"total": 1, "items": [spotify_playlist(1, owner_id=userid)]}
+
+
+class NewReleasesSpotify(FakeSpotify):
+    def new_releases(self, country=None, limit=50, offset=0):
+        self.new_release_requests.append((country, limit, offset))
+        return {"albums": {"total": 1, "items": [spotify_album(1)]}}
+
+
+class ChecksumSpotify(FakeSpotify):
+    def __init__(self, events, saved_track_total=3, saved_album_total=5, followed_total=7):
+        super().__init__(events, total=1)
+        self.saved_track_total = saved_track_total
+        self.saved_album_total = saved_album_total
+        self.followed_total = followed_total
+        self.saved_track_requests = []
+        self.saved_album_requests = []
+        self.followed_artist_requests = []
+
+    def current_user_saved_tracks(self, limit=50, offset=0, market=None):
+        self.saved_track_calls += 1
+        self.saved_track_requests.append((limit, offset, market))
+        return {
+            "total": self.saved_track_total,
+            "items": [
+                {"track": spotify_track(i)}
+                for i in range(offset, min(offset + limit, self.saved_track_total))
+            ],
+        }
+
+    def current_user_saved_albums(self, limit=50, offset=0, market=None):
+        self.saved_album_calls += 1
+        self.saved_album_requests.append((limit, offset))
+        return {
+            "total": self.saved_album_total,
+            "items": [
+                {"album": {"id": f"album-{i}"}}
+                for i in range(offset, min(offset + limit, self.saved_album_total))
+            ],
+        }
+
+    def current_user_followed_artists(self, limit=50, after=None):
+        self.followed_artist_calls += 1
+        self.followed_artist_requests.append((limit, after))
+        start = int(after or 0)
+        end = min(start + limit, self.followed_total)
+        next_after = str(end) if end < self.followed_total else None
+        return {
+            "artists": {
+                "total": self.followed_total,
+                "items": [spotify_artist(i) for i in range(start, end)],
+                "cursors": {"after": next_after},
+            }
+        }
+
+
+class SavedTracksSpotify(FakeSpotify):
+    def __init__(self, events, saved_track_total=75):
+        super().__init__(events, total=1)
+        self.saved_track_total = saved_track_total
+        self.saved_track_requests = []
+
+    def current_user_saved_tracks(self, limit=50, offset=0, market=None):
+        self.saved_track_calls += 1
+        self.saved_track_requests.append((limit, offset, market))
+        return {
+            "total": self.saved_track_total,
+            "items": [
+                {"track": spotify_track(i)}
+                for i in range(offset, min(offset + limit, self.saved_track_total))
+            ],
+        }
+
+
+class PlaylistFastPathTests(unittest.TestCase):
+    def setUp(self):
+        self.plugin_content = import_plugin_content()
+        RecordingPlaylist.instances.clear()
+        RecordingPlayer.events.clear()
+        DeferredThread.started_targets.clear()
+        FakeWindow.windows.clear()
+
+    def build_content(self, spotify):
+        content = object.__new__(self.plugin_content.PluginContent)
+        content.cache = FakeCache()
+        content._PluginContent__spotipy = spotify
+        content._PluginContent__user_country = "US"
+        content._PluginContent__userid = "user"
+        content._PluginContent__playlist_id = "playlist-1"
+        content._PluginContent__addon = FakeAddon()
+        content._PluginContent__addon_handle = 1
+        content._PluginContent__base_url = "plugin://plugin.audio.spotifykodiconnect"
+        content._PluginContent__params = {}
+        content._PluginContent__cached_checksum = ""
+        content._PluginContent__addon_icon_path = "icons"
+        return content
+
+    def set_active_listing(self, content):
+        target_url = content._PluginContent__current_request_url()
+        self.plugin_content.xbmc.getInfoLabel = lambda label, target_url=target_url: target_url
+        return target_url
+
+    def record_plugin_properties(self):
+        calls = []
+        module = self.plugin_content.xbmcplugin
+        original = module.setProperty
+        module.setProperty = lambda *args, **kwargs: calls.append((args, kwargs))
+        self.addCleanup(setattr, module, "setProperty", original)
+        return calls
+
+    def test_browse_top_artists_sets_localized_folder_name(self):
+        content = self.build_content(FakeSpotify(RecordingPlayer.events))
+        content.cache.get = lambda *args, **kwargs: [{}]
+        content._PluginContent__add_artist_listitems = lambda artists: None
+        properties = self.record_plugin_properties()
+
+        content.browse_top_artists()
+
+        self.assertIn(((1, "FolderName", "str-11023"), {}), properties)
+
+    def test_browse_top_tracks_sets_localized_folder_name(self):
+        content = self.build_content(FakeSpotify(RecordingPlayer.events))
+        content.cache.get = lambda *args, **kwargs: [{}]
+        content._PluginContent__add_track_listitems = lambda tracks, *_args: None
+        properties = self.record_plugin_properties()
+
+        content.browse_top_tracks()
+
+        self.assertIn(((1, "FolderName", "str-11024"), {}), properties)
+
+    def test_browse_saved_tracks_sets_liked_songs_folder_name(self):
+        content = self.build_content(FakeSpotify(RecordingPlayer.events))
+        content._PluginContent__get_saved_tracks = lambda: []
+        content._PluginContent__add_track_listitems = lambda tracks, *_args: None
+        properties = self.record_plugin_properties()
+
+        content.browse_saved_tracks()
+
+        self.assertIn(((1, "FolderName", "str-11154"), {}), properties)
+
+    def test_my_music_saved_tracks_entry_uses_liked_songs_label(self):
+        content = self.build_content(FakeSpotify(RecordingPlayer.events))
+        items = []
+        module = self.plugin_content.xbmcplugin
+        original = module.addDirectoryItem
+        module.addDirectoryItem = lambda *args, **kwargs: items.append(kwargs["listitem"])
+        self.addCleanup(setattr, module, "addDirectoryItem", original)
+
+        content.browse_main_library()
+
+        entry = next(item for item in items if "action=browse_saved_tracks" in item.path)
+        self.assertEqual("str-11154", entry.label)
+
+    def test_play_playlist_starts_after_first_page_before_fetching_remaining_pages(self):
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=75)
+        content = self.build_content(spotify)
+
+        content.play_playlist()
+
+        self.assertEqual(["fetch:0", "play"], events[:2])
+        self.assertEqual(1, len(DeferredThread.started_targets))
+        self.assertEqual(50, len(RecordingPlaylist.instances[0].items))
+        # The URL duration sets the WAV length and must keep millisecond precision.
+        url = RecordingPlaylist.instances[0].items[0][0]
+        self.assertRegex(url, r"/track/track-\d+/180000ms\.xwav$")
+
+    def test_old_track_advance_during_first_page_preserves_full_replacement(self):
+        import test_main_service_osd as osd
+
+        for boundary in ("fetch", "prepare", "track"):
+            with self.subTest(boundary=boundary):
+                self.setUp()
+                queue = self._shared_queue()
+                content_a = self.build_content(FakeSpotify(RecordingPlayer.events, total=75))
+                content_a.play_playlist()
+                old_items = list(queue.items)
+                DeferredThread.started_targets.clear()
+                labels = {}
+                string_ids = sys.modules["string_ids"]
+                main_service = osd.import_main_service(labels)
+                sys.modules["string_ids"] = string_ids
+                main_service._start_daemon_thread = lambda target, **kwargs: target()
+                main_service.xbmcgui.Window = FakeWindow
+                import play_queue
+
+                def expose(entry):
+                    url, listitem = entry
+                    labels["Player.FileNameAndPath"] = url
+                    labels["MusicPlayer.Property(spotifytrackid)"] = listitem.properties["spotifytrackid"]
+                    labels["MusicPlayer.Property(_spotify_queue_owner)"] = listitem.properties.get("_spotify_queue_owner", "")
+
+                expose(old_items[0])
+                monitor = main_service._SpotifyOSDPlayerMonitor()
+                monitor.onPlayBackStarted()
+                content_b = self.build_content(FakeSpotify(RecordingPlayer.events, total=100))
+                name = {
+                    "fetch": "_PluginContent__get_playlist_items_page",
+                    "prepare": "_PluginContent__prepare_playlist_items_page",
+                    "track": "_PluginContent__get_track_item",
+                }[boundary]
+                original = getattr(content_b, name)
+                advanced = []
+
+                def advance(*args, **kwargs):
+                    if not advanced:
+                        advanced.append(True)
+                        expose(old_items[1])
+                        monitor.onPlayBackStarted()
+                    return original(*args, **kwargs)
+
+                setattr(content_b, name, advance)
+                transport = []
+
+                class Player:
+                    def play(self, playlist):
+                        transport.append((monitor.onPlayBackStopped, playlist.items[0]))
+
+                self.plugin_content.xbmc.Player = Player
+                self.plugin_content.threading.Thread = DeferredThread
+                content_b.play_playlist()
+                owner_b = play_queue.session_id()
+                self.assertEqual(50, len(queue.items))
+                stopped, first_b = transport[0]
+                stopped()
+                self.assertEqual(owner_b, play_queue.session_id())
+                self.assertFalse(play_queue.should_fire_autoplay())
+                expose(first_b)
+                monitor.onPlayBackStarted()
+                DeferredThread.started_targets[0]()
+                self.assertEqual(100, len(queue.items))
+                self.assertEqual("100", self._play_queue_window().getProperty(play_queue.PROP_ORIGINAL_LOADED))
+                self.assertTrue(play_queue.is_original_complete())
+                self.assertEqual(100, len({id(listitem) for _url, listitem in queue.items}))
+                for _url, listitem in queue.items:
+                    track_id = listitem.properties["spotifytrackid"]
+                    self.assertEqual(f"{owner_b}:{track_id}", listitem.properties.get("_spotify_queue_owner"))
+                monitor.onPlayBackStopped()
+                self.assertEqual("", play_queue.session_id())
+                self.assertTrue(play_queue.should_fire_autoplay())
+
+    def test_track_renderer_stamps_default_no_session_and_distinct_owned_items(self):
+        content = self.build_content(FakeSpotify([]))
+        render = content._PluginContent__get_track_item
+        track = spotify_track(7)
+        default = render(track)[1]
+        first = render(track, queue_owner="owner-a")[1]
+        second = render(track, queue_owner="owner-b")[1]
+        self.assertEqual(":track-7", default.properties.get("_spotify_queue_owner"))
+        self.assertEqual("owner-a:track-7", first.properties.get("_spotify_queue_owner"))
+        self.assertEqual("owner-b:track-7", second.properties.get("_spotify_queue_owner"))
+        self.assertIsNot(first, second)
+
+    def test_play_playlist_skips_browse_only_metadata_calls(self):
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=1)
+        content = self.build_content(spotify)
+
+        content.play_playlist()
+
+        self.assertEqual(0, spotify.saved_track_calls)
+        self.assertEqual(0, spotify.saved_album_calls)
+        self.assertEqual(0, spotify.followed_artist_calls)
+        self.assertEqual(0, spotify.artist_calls)
+
+    # --- play-queue session coordination --------------------------------------
+
+    def _play_queue_window(self):
+        """Grab the singleton FakeWindow play_queue writes to."""
+        return self.plugin_content.xbmcgui.Window(self.plugin_content.utils.ADDON_WINDOW_ID)
+
+    def test_play_playlist_opens_loading_session_for_multi_page_playlist(self):
+        """Multi-page playlist must start a play-queue session in "loading"
+        state so the service suppresses autoplay until paging completes."""
+        spotify = FakeSpotify(RecordingPlayer.events, total=75)
+        content = self.build_content(spotify)
+
+        content.play_playlist()
+
+        win = self._play_queue_window()
+        self.assertTrue(win.getProperty("Spotify.PlayQueue.SessionId"))
+        self.assertEqual("75", win.getProperty("Spotify.PlayQueue.OriginalTotal"))
+        self.assertEqual("50", win.getProperty("Spotify.PlayQueue.OriginalLoaded"))
+        self.assertEqual("false", win.getProperty("Spotify.PlayQueue.OriginalComplete"))
+        self.assertEqual("false", win.getProperty("Spotify.PlayQueue.AutoplayFetched"))
+
+    def test_play_playlist_marks_complete_immediately_for_single_page_playlist(self):
+        """Single-page playlist fits in one fetch — no paging thread needed,
+        original_complete must be true right away so the service can fire
+        autoplay when this playlist genuinely runs out."""
+        spotify = FakeSpotify(RecordingPlayer.events, total=1)
+        content = self.build_content(spotify)
+
+        content.play_playlist()
+
+        win = self._play_queue_window()
+        self.assertEqual("true", win.getProperty("Spotify.PlayQueue.OriginalComplete"))
+        # No paging thread should have been scheduled.
+        self.assertEqual(0, len(DeferredThread.started_targets))
+
+    def test_play_playlist_paging_thread_marks_complete_when_done(self):
+        """The deferred add_remaining thread must mark the original as
+        complete when it finishes paging, so the service can proceed."""
+        spotify = FakeSpotify(RecordingPlayer.events, total=75)
+        content = self.build_content(spotify)
+
+        content.play_playlist()
+        # Simulate the background thread actually running to completion.
+        DeferredThread.started_targets[0]()
+
+        win = self._play_queue_window()
+        self.assertEqual("true", win.getProperty("Spotify.PlayQueue.OriginalComplete"))
+        self.assertEqual("75", win.getProperty("Spotify.PlayQueue.OriginalLoaded"))
+
+    def test_play_playlist_with_no_playable_tracks_marks_session_complete(self):
+        spotify = FakeSpotify(RecordingPlayer.events, total=3)
+        spotify.playlist_items = lambda *args, **kwargs: {"items": [{"track": {"id": None}}]}
+        content = self.build_content(spotify)
+        ended = []
+        self.plugin_content.xbmcplugin.endOfDirectory = lambda *a, **kw: ended.append(kw)
+
+        content.play_playlist()
+
+        win = self._play_queue_window()
+        self.assertEqual("true", win.getProperty("Spotify.PlayQueue.OriginalComplete"))
+        self.assertEqual([], DeferredThread.started_targets)
+        self.assertEqual([{"handle": 1, "succeeded": False}], ended)
+
+    def test_play_playlist_first_page_failure_marks_session_complete(self):
+        spotify = FakeSpotify(RecordingPlayer.events, total=3)
+
+        def boom(*args, **kwargs):
+            raise RuntimeError("network")
+
+        spotify.playlist_items = boom
+        content = self.build_content(spotify)
+
+        with self.assertRaises(RuntimeError):
+            content.play_playlist()
+        win = self._play_queue_window()
+        self.assertEqual("true", win.getProperty("Spotify.PlayQueue.OriginalComplete"))
+
+    def test_saved_tracks_checksum_tracks_head_item(self):
+        content = self.build_content(FakeSpotify(RecordingPlayer.events, total=1))
+        checksum = content._PluginContent__saved_tracks_cache_checksum
+        first = [{"added_at": "2026-01-01T00:00:00Z", "track": {"id": "a"}}]
+        swapped = [{"added_at": "2026-01-02T00:00:00Z", "track": {"id": "b"}}]
+        self.assertNotEqual(checksum(10, first), checksum(10, swapped))
+        self.assertEqual(checksum(10, first), checksum(10, list(first)))
+        self.assertNotEqual(checksum(10, first), checksum(11, first))
+        self.assertTrue(checksum(0, []))
+
+    def test_play_playlist_paging_thread_marks_complete_even_on_empty_page(self):
+        """If paging exits early (e.g. Spotify returns an empty page mid-way),
+        the finally block must still mark original_complete. Without this,
+        a transient API hiccup would leave the session stuck in 'loading'
+        and autoplay would never fire."""
+        spotify = FakeSpotify(RecordingPlayer.events, total=75)
+        spotify._empty_after_offset = 50  # type: ignore[attr-defined]
+
+        def maybe_empty(playlist_id, market=None, fields="", limit=50, offset=0):
+            if offset >= 50:
+                return {"items": []}
+            return spotify.__class__.playlist_items(
+                spotify, playlist_id, market=market, fields=fields, limit=limit, offset=offset
+            )
+
+        spotify.playlist_items = maybe_empty
+        content = self.build_content(spotify)
+
+        content.play_playlist()
+        DeferredThread.started_targets[0]()
+
+        win = self._play_queue_window()
+        self.assertEqual(
+            "true",
+            win.getProperty("Spotify.PlayQueue.OriginalComplete"),
+            "finally block must mark complete even when paging exits early",
+        )
+
+    def _shared_queue(self):
+        queue = RecordingPlaylist(0)
+        self.plugin_content.xbmc.PlayList = lambda playlist_id: queue
+        return queue
+
+    def test_stale_loader_cannot_change_replacement_queue(self):
+        import play_queue
+
+        queue = self._shared_queue()
+        self.build_content(FakeSpotify(RecordingPlayer.events, total=75)).play_playlist()
+        loader = DeferredThread.started_targets[0]
+        play_queue.clear()
+        self.build_content(FakeSpotify(RecordingPlayer.events, total=100)).play_playlist()
+        expected = list(queue.items)
+        token = play_queue.session_id()
+        loader()
+        self.assertEqual(expected, queue.items)
+        self.assertEqual(token, play_queue.session_id())
+        self.assertEqual("50", self._play_queue_window().getProperty(play_queue.PROP_ORIGINAL_LOADED))
+        self.assertFalse(play_queue.is_original_complete())
+        self.assertFalse(play_queue.should_fire_autoplay())
+
+    def test_stale_loader_abort_cannot_complete_replacement(self):
+        import play_queue
+
+        self._shared_queue()
+        self.build_content(FakeSpotify(RecordingPlayer.events, total=75)).play_playlist()
+        loader = DeferredThread.started_targets[0]
+        self.build_content(FakeSpotify(RecordingPlayer.events, total=100)).play_playlist()
+        self.plugin_content.xbmc.Monitor = lambda: types.SimpleNamespace(abortRequested=lambda: True)
+        loader()
+        self.assertFalse(play_queue.is_original_complete())
+
+    def test_loader_replacement_during_external_work_is_fenced(self):
+        import play_queue
+
+        for boundary in ("fetch", "prepare", "track"):
+            for fails in (False, True):
+                with self.subTest(boundary=boundary, fails=fails):
+                    RecordingPlayer.events.clear()
+                    DeferredThread.started_targets.clear()
+                    queue = self._shared_queue()
+                    content = self.build_content(FakeSpotify(RecordingPlayer.events, total=75))
+                    content.play_playlist()
+                    loader = DeferredThread.started_targets[0]
+                    token = []
+                    def replace():
+                        token.append(play_queue.start_session(100))
+                        queue.clear()
+                        queue.add("replacement", None)
+                        if fails:
+                            raise RuntimeError("external work failed")
+                    if boundary == "fetch":
+                        original = content._PluginContent__get_playlist_items_page
+                        def fetch(*args, **kwargs):
+                            replace()
+                            return original(*args, **kwargs)
+                        content._PluginContent__get_playlist_items_page = fetch
+                    elif boundary == "prepare":
+                        original = content._PluginContent__prepare_playlist_items_page
+                        def prepare(*args, **kwargs):
+                            replace()
+                            return original(*args, **kwargs)
+                        content._PluginContent__prepare_playlist_items_page = prepare
+                    else:
+                        original = content._PluginContent__get_track_item
+                        def track(*args, **kwargs):
+                            if not token:
+                                replace()
+                            return original(*args, **kwargs)
+                        content._PluginContent__get_track_item = track
+                    try:
+                        loader()
+                    except RuntimeError:
+                        if not fails:
+                            raise
+                    self.assertEqual([("replacement", None)], queue.items)
+                    self.assertEqual(token[0], play_queue.session_id())
+                    self.assertEqual("0", self._play_queue_window().getProperty(play_queue.PROP_ORIGINAL_LOADED))
+                    self.assertFalse(play_queue.is_original_complete())
+
+    def test_first_playable_page_starts_before_next_fetch_with_raw_offsets(self):
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=130)
+        original = spotify.playlist_items
+        def page(playlist_id, **kwargs):
+            result = original(playlist_id, **kwargs)
+            offset = kwargs.get("offset", 0)
+            for row in result["items"][:50 if offset == 0 else 30]:
+                row["track"]["id"] = None
+            return result
+        spotify.playlist_items = page
+        self.build_content(spotify).play_playlist()
+        self.assertEqual(["fetch:0", "fetch:50", "play"], events)
+        self.assertEqual(20, len(RecordingPlaylist.instances[0].items))
+        self.assertEqual(1, len(DeferredThread.started_targets))
+        DeferredThread.started_targets[0]()
+        self.assertEqual(["fetch:0", "fetch:50", "play", "fetch:100"], events)
+        self.assertEqual("20", self._play_queue_window().getProperty("Spotify.PlayQueue.OriginalLoaded"))
+        self.assertEqual("true", self._play_queue_window().getProperty("Spotify.PlayQueue.OriginalComplete"))
+
+    def test_unusable_kodi_entries_do_not_hide_later_playable_page(self):
+        events = RecordingPlayer.events
+        content = self.build_content(FakeSpotify(events, total=75))
+        original = content._PluginContent__get_track_item
+        content._PluginContent__get_track_item = lambda track, *args, **kwargs: (
+            None if int(track["id"].split("-")[-1]) < 50 else original(track, *args, **kwargs)
+        )
+        content.play_playlist()
+        self.assertEqual(["fetch:0", "fetch:50", "play"], events)
+        self.assertEqual(25, len(RecordingPlaylist.instances[0].items))
+        self.assertEqual([], DeferredThread.started_targets)
+
+    def test_all_local_and_empty_playlists_terminate_without_play(self):
+        for total in (0, 75):
+            with self.subTest(total=total):
+                RecordingPlayer.events.clear()
+                RecordingPlaylist.instances.clear()
+                spotify = FakeSpotify(RecordingPlayer.events, total=total)
+                original = spotify.playlist_items
+                def page(playlist_id, **kwargs):
+                    result = original(playlist_id, **kwargs)
+                    for row in result["items"]:
+                        row["track"]["id"] = None
+                    return result
+                spotify.playlist_items = page
+                self.build_content(spotify).play_playlist()
+                self.assertEqual(["fetch:0"] if total == 0 else ["fetch:0", "fetch:50"], RecordingPlayer.events)
+                self.assertEqual([], RecordingPlaylist.instances)
+                self.assertEqual([], DeferredThread.started_targets)
+                self.assertEqual("true", self._play_queue_window().getProperty("Spotify.PlayQueue.OriginalComplete"))
+
+    def test_active_abort_leaves_original_incomplete(self):
+        import play_queue
+
+        self.build_content(FakeSpotify(RecordingPlayer.events, total=75)).play_playlist()
+        self.plugin_content.xbmc.Monitor = lambda: types.SimpleNamespace(abortRequested=lambda: True)
+        DeferredThread.started_targets[0]()
+        self.assertFalse(play_queue.is_original_complete())
+
+    def test_initial_fetch_replacement_failure_cannot_complete_new_session(self):
+        import play_queue
+
+        content = self.build_content(FakeSpotify(RecordingPlayer.events, total=75))
+        def fetch(*args, **kwargs):
+            play_queue.start_session(100)
+            raise RuntimeError("network")
+        content._PluginContent__get_playlist_items_page = fetch
+        with self.assertRaises(RuntimeError):
+            content.play_playlist()
+        self.assertFalse(play_queue.is_original_complete())
+
+    def test_initial_external_work_replacement_cannot_clear_or_play_new_queue(self):
+        import play_queue
+
+        for boundary in ("fetch", "prepare", "track"):
+            with self.subTest(boundary=boundary):
+                RecordingPlayer.events.clear()
+                DeferredThread.started_targets.clear()
+                queue = self._shared_queue()
+                content = self.build_content(FakeSpotify(RecordingPlayer.events, total=75))
+                token = []
+                def replace():
+                    if not token:
+                        token.append(play_queue.start_session(100))
+                        queue.add("replacement", None)
+                name = {
+                    "fetch": "_PluginContent__get_playlist_items_page",
+                    "prepare": "_PluginContent__prepare_playlist_items_page",
+                    "track": "_PluginContent__get_track_item",
+                }[boundary]
+                original = getattr(content, name)
+                def external(*args, **kwargs):
+                    replace()
+                    return original(*args, **kwargs)
+                setattr(content, name, external)
+                content.play_playlist()
+                self.assertEqual([("replacement", None)], queue.items)
+                self.assertNotIn("play", RecordingPlayer.events)
+                self.assertEqual(token[0], play_queue.session_id())
+                self.assertEqual("0", self._play_queue_window().getProperty(play_queue.PROP_ORIGINAL_LOADED))
+                self.assertFalse(play_queue.is_original_complete())
+
+    def test_abort_during_track_preparation_prevents_append_and_complete(self):
+        import play_queue
+
+        queue = self._shared_queue()
+        content = self.build_content(FakeSpotify(RecordingPlayer.events, total=75))
+        content.play_playlist()
+        aborted = [False]
+        self.plugin_content.xbmc.Monitor = lambda: types.SimpleNamespace(abortRequested=lambda: aborted[0])
+        original = content._PluginContent__get_track_item
+        def track(*args, **kwargs):
+            aborted[0] = True
+            return original(*args, **kwargs)
+        content._PluginContent__get_track_item = track
+        DeferredThread.started_targets[0]()
+        self.assertEqual(50, len(queue.items))
+        self.assertFalse(play_queue.is_original_complete())
+
+    def test_active_page_failure_completes_only_current_session(self):
+        import play_queue
+
+        content = self.build_content(FakeSpotify(RecordingPlayer.events, total=75))
+        content.play_playlist()
+        def fetch(*args, **kwargs):
+            raise RuntimeError("network")
+        content._PluginContent__get_playlist_items_page = fetch
+        with self.assertRaises(RuntimeError):
+            DeferredThread.started_targets[0]()
+        self.assertTrue(play_queue.is_original_complete())
+        self.assertEqual("50", self._play_queue_window().getProperty(play_queue.PROP_ORIGINAL_LOADED))
+
+    def test_browse_playlist_uses_first_page_and_hidden_continuation(self):
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=75)
+        content = self.build_content(spotify)
+        content._PluginContent__params = {
+            "action": ["browse_playlist"],
+            "playlistid": ["playlist-1"],
+        }
+        content._PluginContent__action = "browse_playlist"
+        self.set_active_listing(content)
+
+        content.browse_playlist()
+
+        self.assertEqual(["fetch:0"], events)
+        self.assertEqual(1, len(DeferredThread.started_targets))
+
+    def test_browse_playlist_pages_hidden_playlist_without_refresh(self):
+        for active_folder in ("", "plugin://plugin.audio.spotifykodiconnect/?action=other"):
+            with self.subTest(active_folder=active_folder or "unknown"):
+                events = RecordingPlayer.events
+                events.clear()
+                DeferredThread.started_targets.clear()
+                spotify = FakeSpotify(events, total=75)
+                content = self.build_content(spotify)
+                content._PluginContent__params = {
+                    "action": ["browse_playlist"],
+                    "playlistid": ["playlist-1"],
+                }
+                content._PluginContent__action = "browse_playlist"
+                self.plugin_content.xbmc.getInfoLabel = (
+                    lambda label, active_folder=active_folder: active_folder
+                )
+
+                commands = []
+                self.plugin_content.xbmc.executebuiltin = commands.append
+
+                content.browse_playlist()
+                self.assertEqual(1, len(DeferredThread.started_targets))
+                DeferredThread.started_targets[0]()
+
+                # Widgets: the rest is cached for the next visit, nothing refreshed.
+                self.assertEqual(["fetch:0", "fetch:50"], events)
+                self.assertEqual([], commands)
+                busy = [
+                    key
+                    for key in content._PluginContent__win.properties
+                    if key.startswith(self.plugin_content.DYNAMIC_PAGING_BUSY_PREFIX)
+                ]
+                self.assertEqual([], busy, "busy flag must be cleared")
+
+    def test_browse_playlist_continuation_waits_for_folder_to_resolve(self):
+        """First navigation: FolderPath is still the parent while the plugin
+        builds the directory, then becomes the target once Kodi resolves it."""
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=75)
+        content = self.build_content(spotify)
+        content._PluginContent__params = {
+            "action": ["browse_playlist"],
+            "playlistid": ["playlist-1"],
+        }
+        content._PluginContent__action = "browse_playlist"
+        target_url = content._PluginContent__current_request_url()
+        folder = ["addons://sources/audio/"]
+        self.plugin_content.xbmc.getInfoLabel = lambda label: folder[0]
+
+        content.browse_playlist()
+        self.assertEqual(1, len(DeferredThread.started_targets))
+        self.assertTrue(
+            any(
+                key.startswith(self.plugin_content.DYNAMIC_PAGING_BUSY_PREFIX)
+                for key in content._PluginContent__win.properties
+            ),
+            "busy flag is held while the continuation is pending",
+        )
+
+        def resolve():
+            folder[0] = target_url
+
+        commands = []
+        self.plugin_content.xbmc.executebuiltin = commands.append
+        FakeMonitor.wait_calls = 0
+        FakeMonitor.on_wait = resolve
+        try:
+            DeferredThread.started_targets[0]()
+        finally:
+            FakeMonitor.on_wait = None
+
+        self.assertGreaterEqual(FakeMonitor.wait_calls, 1)
+        self.assertEqual(["fetch:0", "fetch:50"], events)
+        self.assertEqual(["Container.Refresh"], commands)
+        busy_props = [
+            key
+            for key in content._PluginContent__win.properties
+            if key.startswith(self.plugin_content.DYNAMIC_PAGING_BUSY_PREFIX)
+        ]
+        self.assertEqual([], busy_props, "busy flag must be cleared after the worker")
+
+    def _run_playlist_continuation(self, spotify):
+        content = self.build_content(spotify)
+        content._PluginContent__params = {
+            "action": ["browse_playlist"],
+            "playlistid": ["playlist-1"],
+        }
+        content._PluginContent__action = "browse_playlist"
+        self.set_active_listing(content)
+        content.browse_playlist()
+        content.cache.set_many_log = []
+        try:
+            DeferredThread.started_targets[0]()
+        except RuntimeError:
+            pass
+        key = "spotify.playlistdetails.playlist-1"
+        writes = [(keys, kwargs) for keys, kwargs in content.cache.set_many_log if key in keys]
+        return content, key, writes
+
+    def test_background_paging_writes_every_five_pages_and_at_end(self):
+        # 50 on the first page + 12 continuation pages.
+        spotify = FakeSpotify(RecordingPlayer.events, total=650)
+        content, key, writes = self._run_playlist_continuation(spotify)
+
+        self.assertEqual(3, len(writes), "pages 5 and 10 plus the final write")
+        self.assertTrue(all(kwargs.get("mem_cache") is False for _keys, kwargs in writes))
+        # Only the chunk still filling is rewritten: 300 items -> chunk0,
+        # 550 -> chunk0 (now full) + chunk1, final 650 -> chunk1 only.
+        self.assertEqual(
+            [[f"{key}.chunk0"], [f"{key}.chunk0", f"{key}.chunk1"], [f"{key}.chunk1"]],
+            [[k for k in keys if k != key] for keys, _kwargs in writes],
+        )
+        head, items = read_chunked(content.cache, key)
+        self.assertEqual(650, len(items))
+        self.assertNotIn("items", head["tracks"])
+        self.assertTrue(head["tracks"]["_dynamic_paging_complete"])
+
+    def test_background_paging_persists_progress_when_a_page_fails(self):
+        class FailingThirdPage(FakeSpotify):
+            def playlist_items(self, playlist_id, market=None, fields="", limit=50, offset=0):
+                if offset >= 150:
+                    raise RuntimeError("network")
+                return super().playlist_items(playlist_id, market, fields, limit, offset)
+
+        spotify = FailingThirdPage(RecordingPlayer.events, total=650)
+        content, key, writes = self._run_playlist_continuation(spotify)
+
+        self.assertEqual(1, len(writes))
+        head, items = read_chunked(content.cache, key)
+        self.assertEqual(150, len(items))
+        self.assertFalse(head["tracks"]["_dynamic_paging_complete"])
+
+    def test_continuation_skips_while_rate_limited(self):
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=75)
+        content = self.build_content(spotify)
+        content._PluginContent__params = {
+            "action": ["browse_playlist"],
+            "playlistid": ["playlist-1"],
+        }
+        content._PluginContent__action = "browse_playlist"
+        self.set_active_listing(content)
+        utils_module = self.plugin_content.utils
+        original = utils_module.is_rate_limited
+        self.addCleanup(setattr, utils_module, "is_rate_limited", original)
+        utils_module.is_rate_limited = lambda now=None: True
+
+        content.browse_playlist()
+        DeferredThread.started_targets[0]()
+
+        self.assertEqual(["fetch:0"], events)
+
+    def test_refresh_wait_gives_up_and_clears_busy_flag_when_never_active(self):
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=75)
+        content = self.build_content(spotify)
+        content._PluginContent__params = {
+            "action": ["browse_playlist"],
+            "playlistid": ["playlist-1"],
+        }
+        content._PluginContent__action = "browse_playlist"
+        self.plugin_content.xbmc.getInfoLabel = lambda label: "addons://sources/audio/"
+
+        commands = []
+        self.plugin_content.xbmc.executebuiltin = commands.append
+
+        content.browse_playlist()
+        FakeMonitor.wait_calls = 0
+        DeferredThread.started_targets[0]()
+
+        self.assertEqual(["fetch:0", "fetch:50"], events)
+        self.assertEqual([], commands, "the refresh wait gives up on a hidden listing")
+        expected_polls = int(
+            self.plugin_content.ACTIVE_LISTING_WAIT_SECS
+            / self.plugin_content.ACTIVE_LISTING_POLL_SECS
+        )
+        self.assertEqual(expected_polls, FakeMonitor.wait_calls)
+        busy_props = [
+            key
+            for key in content._PluginContent__win.properties
+            if key.startswith(self.plugin_content.DYNAMIC_PAGING_BUSY_PREFIX)
+        ]
+        self.assertEqual([], busy_props)
+
+    def test_browse_saved_tracks_uses_first_page_and_hidden_continuation(self):
+        events = RecordingPlayer.events
+        spotify = SavedTracksSpotify(events, saved_track_total=75)
+        content = self.build_content(spotify)
+        content._PluginContent__params = {"action": ["browse_saved_tracks"]}
+        content._PluginContent__action = "browse_saved_tracks"
+        self.set_active_listing(content)
+
+        content.browse_saved_tracks()
+
+        self.assertEqual([(50, 0, "US")], spotify.saved_track_requests)
+        self.assertEqual([], spotify.track_detail_requests)
+        self.assertEqual([], spotify.saved_track_contains_requests)
+        self.assertEqual(1, len(DeferredThread.started_targets))
+        cached, items = read_chunked(content.cache, "spotify.savedtracks.user")
+        self.assertEqual(50, len(items))
+        self.assertFalse(cached["_dynamic_paging_complete"])
+
+    def test_saved_tracks_continuation_hydrates_remaining_pages(self):
+        events = RecordingPlayer.events
+        spotify = SavedTracksSpotify(events, saved_track_total=75)
+        content = self.build_content(spotify)
+        content._PluginContent__params = {"action": ["browse_saved_tracks"]}
+        content._PluginContent__action = "browse_saved_tracks"
+        self.set_active_listing(content)
+
+        content.browse_saved_tracks()
+        DeferredThread.started_targets[0]()
+
+        self.assertEqual([(50, 0, "US"), (50, 50, "US")], spotify.saved_track_requests)
+        cached, items = read_chunked(content.cache, "spotify.savedtracks.user")
+        self.assertEqual(75, len(items))
+        self.assertTrue(cached["_dynamic_paging_complete"])
+
+    def test_prepare_tracks_uses_page_local_relation_checks(self):
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=1)
+        content = self.build_content(spotify)
+
+        content._PluginContent__prepare_track_listitems(
+            tracks=[spotify_track(1), spotify_track(2)],
+            include_artist_fanart=False,
+        )
+
+        self.assertEqual(0, spotify.saved_track_calls)
+        self.assertEqual(0, spotify.followed_artist_calls)
+        self.assertEqual([("track-1", "track-2")], spotify.saved_track_contains_requests)
+        self.assertEqual([("artist-1", "artist-2")], spotify.following_artist_requests)
+
+    def test_prepare_albums_uses_page_local_saved_checks(self):
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=1)
+        content = self.build_content(spotify)
+
+        content._PluginContent__prepare_album_listitems(albums=[spotify_album(1), spotify_album(2)])
+
+        self.assertEqual(0, spotify.saved_album_calls)
+        self.assertEqual([("album-1", "album-2")], spotify.saved_album_contains_requests)
+
+    def test_prepare_playlists_does_not_block_on_follow_lookups(self):
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=1)
+        content = self.build_content(spotify)
+
+        playlists = content._PluginContent__prepare_playlist_listitems(
+            [spotify_playlist(1), spotify_playlist(2, owner_id="user")]
+        )
+
+        self.assertEqual([], spotify.playlist_follow_requests)
+        menus = rendered_context_items(self.plugin_content, content, "playlist", playlists)
+        self.assertIsNone(playlists[0]["followed"])
+        self.assertFalse(any("?action=follow_playlist&" in command for _label, command in menus[0]))
+
+    def test_prepare_user_playlists_infers_external_items_are_followed_without_lookup(self):
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=1)
+        content = self.build_content(spotify)
+
+        playlists = content._PluginContent__prepare_playlist_listitems(
+            [spotify_playlist(1), spotify_playlist(2, owner_id="user")],
+            relation_mode="user_collection",
+        )
+
+        self.assertEqual([], spotify.playlist_follow_requests)
+        menus = rendered_context_items(self.plugin_content, content, "playlist", playlists)
+        self.assertTrue(any("unfollow_playlist" in command for _label, command in menus[0]))
+
+    def test_prepare_daylist_uses_dynamic_title_and_daylist_subtitle(self):
+        events = RecordingPlayer.events
+        spotify = DynamicDaylistSpotify(events, total=1)
+        content = self.build_content(spotify)
+
+        playlists = content._PluginContent__prepare_playlist_listitems([spotify_daylist()])
+
+        self.assertEqual("synthpop saturday morning", playlists[0]["name"])
+        self.assertEqual("daylist", playlists[0]["label2"])
+        self.assertEqual(
+            [
+                (
+                    "37i9dQZF1EP6YuccBxUcC1",
+                    "tracks(total),name,description,images,owner(id),id,snapshot_id",
+                    "US",
+                )
+            ],
+            spotify.playlist_detail_requests,
+        )
+
+    def test_prepare_daylist_keeps_generic_title_retryable_when_spotify_title_is_generic(self):
+        events = RecordingPlayer.events
+        spotify = GenericDaylistSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__params = {"action": ["browse_playlists"], "ownerid": ["user"]}
+        self.set_active_listing(content)
+        playlist = spotify_daylist()
+        playlist["description"] = "Your day in a playlist."
+        playlist["images"] = [
+            {"url": "https://daylist.spotifycdn.com/playlist-covers-mix/en/afternoon_default.jpg"}
+        ]
+
+        playlists = content._PluginContent__prepare_playlist_listitems([playlist])
+
+        self.assertEqual("daylist", playlists[0]["name"])
+        self.assertEqual("daylist", playlists[0]["label2"])
+        self.assertNotIn(self.plugin_content.DAYLIST_TITLE_BUCKET_KEY, playlists[0])
+        self.assertEqual(1, len(DeferredThread.started_targets))
+        self.assertEqual(
+            [
+                (
+                    "37i9dQZF1EP6YuccBxUcC1",
+                    "tracks(total),name,description,images,owner(id),id,snapshot_id",
+                    "US",
+                )
+            ],
+            spotify.playlist_detail_requests,
+        )
+
+    def test_daylist_generic_title_retry_refreshes_active_listing_when_dynamic_title_appears(self):
+        events = RecordingPlayer.events
+        spotify = EventuallyDynamicDaylistSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__params = {"action": ["browse_playlists"], "ownerid": ["user"]}
+        target_url = content._PluginContent__current_request_url()
+        commands = []
+        self.plugin_content.xbmc.getInfoLabel = lambda label: target_url
+        self.plugin_content.xbmc.executebuiltin = lambda command: commands.append(command)
+
+        playlists = content._PluginContent__prepare_playlist_listitems([spotify_daylist()])
+        DeferredThread.started_targets[0]()
+
+        self.assertEqual("daylist", playlists[0]["name"])
+        self.assertEqual(["Container.Refresh"], commands)
+        self.assertEqual(2, len(spotify.playlist_detail_requests))
+
+    def test_prepare_daylist_does_not_downgrade_dynamic_source_title_when_summary_is_generic(self):
+        events = RecordingPlayer.events
+        spotify = GenericDaylistSpotify(events, total=1)
+        content = self.build_content(spotify)
+        playlist = spotify_daylist()
+        playlist["name"] = "jazz rap funky hip hop sunday afternoon"
+        playlist["description"] = "Here's some jazz rap inspired by your listening."
+        playlist["images"] = [
+            {"url": "https://daylist.spotifycdn.com/playlist-covers-mix/en/afternoon_default.jpg"}
+        ]
+
+        playlists = content._PluginContent__prepare_playlist_listitems([playlist])
+
+        self.assertEqual("jazz rap funky hip hop sunday afternoon", playlists[0]["name"])
+        self.assertNotIn(self.plugin_content.DAYLIST_TITLE_BUCKET_KEY, playlists[0])
+
+    def test_browse_category_uses_category_sublabel_for_all_playlists(self):
+        events = RecordingPlayer.events
+        spotify = CategoryPlaylistsSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__filter = "made-for-you"
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+
+        content.browse_category()
+
+        self.assertEqual(
+            ["synthpop saturday morning", "Playlist 2"], [item[1].label for item in rendered]
+        )
+        self.assertEqual(["Made For You", "Made For You"], [item[1].label2 for item in rendered])
+
+    def test_browse_category_resolves_legacy_made_for_you_slug(self):
+        events = RecordingPlayer.events
+        spotify = LegacyMadeForYouCategorySpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__filter = "made-for-you"
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+
+        content.browse_category()
+
+        self.assertEqual(
+            [
+                (
+                    LegacyMadeForYouCategorySpotify.current_made_for_you_id,
+                    "US",
+                    self.plugin_content.DYNAMIC_PAGE_LIMIT,
+                    0,
+                )
+            ],
+            spotify.category_playlist_requests,
+        )
+        self.assertEqual(
+            [
+                (
+                    LegacyMadeForYouCategorySpotify.current_made_for_you_id,
+                    "US",
+                    "US",
+                )
+            ],
+            spotify.category_requests,
+        )
+        self.assertEqual(
+            ["synthpop saturday morning", "Playlist 2"], [item[1].label for item in rendered]
+        )
+
+    def test_browse_featured_playlists_uses_featured_message_sublabel(self):
+        events = RecordingPlayer.events
+        spotify = FeaturedPlaylistsSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__filter = "featured"
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+
+        content.browse_playlists()
+
+        self.assertEqual(["Featured playlists"], [item[1].label2 for item in rendered])
+
+    def test_browse_featured_playlists_falls_back_to_cached_rows_when_spotify_fails(self):
+        events = RecordingPlayer.events
+        spotify = FailingFeaturedPlaylistsSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__filter = "featured"
+        cached_playlist = spotify_playlist(1)
+        cached_playlist.update(
+            {
+                "label2": "Featured playlists",
+                "thumb": "DefaultMusicAlbums.png",
+                "url": "plugin://plugin.audio.spotifykodiconnect/?action=browse_playlist",
+                "contextitems": [],
+            }
+        )
+        content.cache.set(
+            "spotify.featuredplaylists",
+            {
+                "message": "Featured playlists",
+                "playlists": {
+                    "total": 1,
+                    "items": [cached_playlist],
+                    self.plugin_content.DYNAMIC_PAGING_LOADED_KEY: 1,
+                    self.plugin_content.DYNAMIC_PAGING_COMPLETE_KEY: True,
+                },
+            },
+            checksum="older-featured-checksum",
+        )
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+
+        content.browse_playlists()
+
+        self.assertEqual(["Playlist 1"], [item[1].label for item in rendered])
+        self.assertEqual(["Featured playlists"], [item[1].label2 for item in rendered])
+
+    def test_browse_category_falls_back_to_cached_rows_when_spotify_fails(self):
+        events = RecordingPlayer.events
+        spotify = FailingCategoryPlaylistsSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__filter = "made-for-you"
+        cached_playlist = spotify_playlist(1)
+        cached_playlist.update(
+            {
+                "label2": "Made For You",
+                "thumb": "DefaultMusicAlbums.png",
+                "url": "plugin://plugin.audio.spotifykodiconnect/?action=browse_playlist",
+                "contextitems": [],
+            }
+        )
+        content.cache.set(
+            "spotify.categoryplaylists.made-for-you",
+            {
+                "category": "Made For You",
+                "playlists": {
+                    "total": 1,
+                    "items": [cached_playlist],
+                    self.plugin_content.DYNAMIC_PAGING_LOADED_KEY: 1,
+                    self.plugin_content.DYNAMIC_PAGING_COMPLETE_KEY: True,
+                },
+            },
+            checksum="older-category-checksum",
+        )
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+
+        content.browse_category()
+
+        self.assertEqual(["Playlist 1"], [item[1].label for item in rendered])
+        self.assertEqual(["Made For You"], [item[1].label2 for item in rendered])
+
+    def test_browse_user_playlists_uses_playlists_sublabel(self):
+        events = RecordingPlayer.events
+        spotify = UserPlaylistsSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__owner_id = "user"
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+
+        content.browse_playlists()
+
+        self.assertEqual(["kodi-136"], [item[1].label2 for item in rendered])
+
+    def test_browse_user_playlists_uses_route_cache_before_spotify_lookup(self):
+        events = RecordingPlayer.events
+        spotify = UserPlaylistsSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__owner_id = "user"
+        cached_playlist = spotify_playlist(1, owner_id="user")
+        cached_playlist.update(
+            {
+                "label2": "kodi-136",
+                "thumb": "DefaultMusicAlbums.png",
+                "url": "plugin://plugin.audio.spotifykodiconnect/?action=browse_playlist",
+                "contextitems": [],
+            }
+        )
+        content.cache.set(
+            "spotify.userplaylists.user",
+            {
+                "items": [cached_playlist],
+                "total": 1,
+                self.plugin_content.DYNAMIC_PAGING_LOADED_KEY: 1,
+                self.plugin_content.DYNAMIC_PAGING_COMPLETE_KEY: True,
+            },
+            checksum=content._PluginContent__user_playlists_checksum("user"),
+        )
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+
+        content.browse_playlists()
+
+        self.assertEqual([], spotify.user_playlist_requests)
+        self.assertEqual(["Playlist 1"], [item[1].label for item in rendered])
+
+    def test_browse_user_playlists_does_not_use_library_checksum_totals(self):
+        events = RecordingPlayer.events
+        spotify = UserPlaylistsSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__owner_id = "user"
+
+        content.browse_playlists()
+
+        self.assertEqual(
+            [("user", self.plugin_content.DYNAMIC_PAGE_LIMIT, 0)], spotify.user_playlist_requests
+        )
+        self.assertEqual(0, spotify.saved_track_calls)
+        self.assertEqual(0, spotify.saved_album_calls)
+        self.assertEqual(0, spotify.followed_artist_calls)
+
+    def test_browse_category_uses_current_cache_before_spotify_lookup(self):
+        events = RecordingPlayer.events
+        spotify = CategoryPlaylistsSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__filter = "made-for-you"
+        cached_playlist = spotify_playlist(1)
+        cached_playlist.update(
+            {
+                "label2": "Made For You",
+                "thumb": "DefaultMusicAlbums.png",
+                "url": "plugin://plugin.audio.spotifykodiconnect/?action=browse_playlist",
+                "contextitems": [],
+            }
+        )
+        content.cache.set(
+            "spotify.categoryplaylists.made-for-you",
+            {
+                "category": "Made For You",
+                "playlists": {
+                    "total": 1,
+                    "items": [cached_playlist],
+                    self.plugin_content.DYNAMIC_PAGING_LOADED_KEY: 1,
+                    self.plugin_content.DYNAMIC_PAGING_COMPLETE_KEY: True,
+                },
+            },
+            checksum=content._PluginContent__playlist_collection_checksum(
+                "category", "made-for-you"
+            ),
+        )
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+
+        content.browse_category()
+
+        self.assertEqual([], spotify.category_requests)
+        self.assertEqual([], spotify.category_playlist_requests)
+        self.assertEqual(["Playlist 1"], [item[1].label for item in rendered])
+
+    def test_browse_featured_uses_current_cache_before_spotify_lookup(self):
+        events = RecordingPlayer.events
+        spotify = FeaturedPlaylistsSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._PluginContent__filter = "featured"
+        cached_playlist = spotify_playlist(1)
+        cached_playlist.update(
+            {
+                "label2": "Featured playlists",
+                "thumb": "DefaultMusicAlbums.png",
+                "url": "plugin://plugin.audio.spotifykodiconnect/?action=browse_playlist",
+                "contextitems": [],
+            }
+        )
+        content.cache.set(
+            "spotify.featuredplaylists",
+            {
+                "message": "Featured playlists",
+                "playlists": {
+                    "total": 1,
+                    "items": [cached_playlist],
+                    self.plugin_content.DYNAMIC_PAGING_LOADED_KEY: 1,
+                    self.plugin_content.DYNAMIC_PAGING_COMPLETE_KEY: True,
+                },
+            },
+            checksum=content._PluginContent__playlist_collection_checksum("featured", "US"),
+        )
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+
+        content.browse_playlists()
+
+        self.assertEqual([], spotify.featured_playlist_requests)
+        self.assertEqual(["Playlist 1"], [item[1].label for item in rendered])
+
+    def test_browse_new_releases_uses_release_page_without_album_detail_hydration(self):
+        events = RecordingPlayer.events
+        spotify = NewReleasesSpotify(events, total=1)
+        content = self.build_content(spotify)
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+
+        content.browse_new_releases()
+
+        self.assertEqual(
+            [("US", self.plugin_content.DYNAMIC_PAGE_LIMIT, 0)], spotify.new_release_requests
+        )
+        self.assertEqual([], spotify.album_detail_requests)
+        self.assertEqual(["Album 1"], [item[1].label for item in rendered])
+
+    def test_dynamic_refresh_skips_when_active_folder_is_unknown(self):
+        events = RecordingPlayer.events
+        spotify = FakeSpotify(events, total=1)
+        content = self.build_content(spotify)
+        commands = []
+
+        self.plugin_content.xbmc.getInfoLabel = lambda label: ""
+        self.plugin_content.xbmc.executebuiltin = lambda command: commands.append(command)
+
+        content._PluginContent__refresh_active_listing(
+            "plugin://plugin.audio.spotifykodiconnect/?action=browse_playlists"
+        )
+
+        self.assertEqual([], commands)
+
+    def test_add_playlists_refreshes_cached_daylist_metadata_before_rendering(self):
+        events = RecordingPlayer.events
+        spotify = DynamicDaylistSpotify(events, total=1)
+        content = self.build_content(spotify)
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+        cached_daylist = spotify_daylist()
+        cached_daylist["name"] = "yesterday afternoon"
+        cached_daylist["description"] = "Your day in a playlist."
+        cached_daylist["url"] = "plugin://plugin.audio.spotifykodiconnect/?action=browse_playlist"
+
+        content._PluginContent__add_playlist_listitems([cached_daylist])
+
+        self.assertEqual(1, len(rendered))
+        self.assertEqual("synthpop saturday morning", rendered[0][1].label)
+        self.assertEqual("daylist", rendered[0][1].label2)
+
+    def test_add_playlists_refreshes_bucketed_canonical_daylist_before_rendering(self):
+        events = RecordingPlayer.events
+        spotify = DynamicDaylistSpotify(events, total=1)
+        content = self.build_content(spotify)
+        rendered = []
+        self.plugin_content.xbmcplugin.addDirectoryItem = (
+            lambda handle, url, listitem, isFolder: rendered.append((url, listitem, isFolder))
+        )
+        cached_daylist = spotify_daylist()
+        cached_daylist["description"] = "Your day in a playlist."
+        cached_daylist["url"] = "plugin://plugin.audio.spotifykodiconnect/?action=browse_playlist"
+        cached_daylist[self.plugin_content.DAYLIST_TITLE_BUCKET_KEY] = (
+            self.plugin_content._daylist_title_bucket()
+        )
+
+        content._PluginContent__add_playlist_listitems([cached_daylist], group_label="Made For You")
+
+        self.assertEqual(1, len(rendered))
+        self.assertEqual("synthpop saturday morning", rendered[0][1].label)
+        self.assertEqual("Made For You", rendered[0][1].label2)
+        self.assertEqual(
+            [
+                (
+                    "37i9dQZF1EP6YuccBxUcC1",
+                    "tracks(total),name,description,images,owner(id),id,snapshot_id",
+                    "US",
+                )
+            ],
+            spotify.playlist_detail_requests,
+        )
+
+    def test_artist_fanart_fetch_warns_once_without_traceback(self):
+        events = RecordingPlayer.events
+        spotify = FailingFanartSpotify(events, total=1)
+        content = self.build_content(spotify)
+        logged = []
+        tracebacks = []
+        self.plugin_content.log_msg = lambda message, level: logged.append((message, level))
+        self.plugin_content.log_exception = lambda *args: tracebacks.append(args)
+
+        result = content._PluginContent__get_artist_fanart_map(["artist-1"])
+        content._PluginContent__get_artist_fanart_map(["artist-2"])
+
+        self.assertEqual({}, result)
+        self.assertEqual([], tracebacks)
+        self.assertEqual(1, len(logged))
+        self.assertIn("artist fanart", logged[0][0])
+        self.assertIn("RuntimeError", logged[0][0])
+        self.assertEqual(self.plugin_content.xbmc.LOGWARNING, logged[0][1])
+
+    def test_artist_fanart_cache_hit_avoids_duplicate_artist_lookup(self):
+        events = RecordingPlayer.events
+        spotify = FanartSpotify(events, total=1)
+        content = self.build_content(spotify)
+        track = spotify_track(1)
+
+        first = content._PluginContent__prepare_track_listitems(
+            tracks=[track],
+            include_context_items=False,
+        )
+        second = content._PluginContent__prepare_track_listitems(
+            tracks=[spotify_track(1)],
+            include_context_items=False,
+        )
+
+        self.assertEqual("https://images.example/artist-1.jpg", first[0]["artist_fanart"])
+        self.assertEqual("https://images.example/artist-1.jpg", second[0]["artist_fanart"])
+        self.assertEqual(1, spotify.artist_calls)
+
+    def test_artist_fanart_cache_evicts_least_recently_used_entries(self):
+        events = RecordingPlayer.events
+        spotify = FanartSpotify(events, total=1)
+        content = self.build_content(spotify)
+        content._artist_fanart_cache = {
+            f"artist-{i}": f"https://images.example/artist-{i}.jpg" for i in range(500)
+        }
+
+        content._PluginContent__prepare_track_listitems(
+            tracks=[spotify_track(0)],
+            include_context_items=False,
+        )
+        content._PluginContent__prepare_track_listitems(
+            tracks=[spotify_track(500)],
+            include_context_items=False,
+        )
+
+        self.assertLessEqual(len(content._artist_fanart_cache), 500)
+        self.assertIn("artist-0", content._artist_fanart_cache)
+        self.assertIn("artist-500", content._artist_fanart_cache)
+        self.assertNotIn("artist-1", content._artist_fanart_cache)
+
+    def test_cache_checksum_uses_lightweight_total_requests(self):
+        events = RecordingPlayer.events
+        spotify = ChecksumSpotify(events)
+        content = self.build_content(spotify)
+
+        checksum = content._PluginContent__cache_checksum()
+
+        self.assertEqual(f"v{self.plugin_content.CACHE_SCHEMA_VERSION}-3-5-7-", checksum)
+        self.assertEqual([(1, 0, "US")], spotify.saved_track_requests)
+        self.assertEqual([(1, 0)], spotify.saved_album_requests)
+        self.assertEqual([(1, None)], spotify.followed_artist_requests)
+
+    def test_cache_checksum_reuses_base_for_optional_values(self):
+        events = RecordingPlayer.events
+        spotify = ChecksumSpotify(events)
+        content = self.build_content(spotify)
+
+        first = content._PluginContent__cache_checksum("playlist-snapshot")
+        second = content._PluginContent__cache_checksum("artist-albums")
+
+        self.assertEqual(
+            f"v{self.plugin_content.CACHE_SCHEMA_VERSION}-3-5-7--playlist-snapshot", first
+        )
+        self.assertEqual(
+            f"v{self.plugin_content.CACHE_SCHEMA_VERSION}-3-5-7--artist-albums", second
+        )
+        self.assertEqual(1, spotify.saved_track_calls)
+        self.assertEqual(1, spotify.saved_album_calls)
+        self.assertEqual(1, spotify.followed_artist_calls)
+
+
+class LibrarySavedTracksSpotify(SavedTracksSpotify):
+    """Saved tracks backed by a mutable newest-first list of track indexes."""
+
+    def __init__(self, events, indexes):
+        super().__init__(events, saved_track_total=len(indexes))
+        self.indexes = list(indexes)
+
+    def current_user_saved_tracks(self, limit=50, offset=0, market=None):
+        self.saved_track_calls += 1
+        self.saved_track_requests.append((limit, offset, market))
+        return {
+            "total": len(self.indexes),
+            "items": [
+                {"added_at": f"t{index}", "track": spotify_track(index)}
+                for index in self.indexes[offset : offset + limit]
+            ],
+        }
+
+
+class SavedTracksPagingTests(unittest.TestCase):
+    KEY = "spotify.savedtracks.user"
+
+    def setUp(self):
+        self.plugin_content = import_plugin_content()
+        RecordingPlayer.events.clear()
+        DeferredThread.started_targets.clear()
+        FakeWindow.windows.clear()
+        self.commands = []
+        self.plugin_content.xbmc.executebuiltin = self.commands.append
+
+    build_content = PlaylistFastPathTests.build_content
+
+    def open_liked_songs(self, spotify, cache=None, active=True):
+        content = self.build_content(spotify)
+        if cache is not None:
+            content.cache = cache
+        content._PluginContent__params = {"action": ["browse_saved_tracks"]}
+        content._PluginContent__action = "browse_saved_tracks"
+        target_url = content._PluginContent__current_request_url()
+        folder = target_url if active else "addons://sources/audio/"
+        self.plugin_content.xbmc.getInfoLabel = lambda label: folder
+        DeferredThread.started_targets.clear()
+        tracks = content._PluginContent__get_saved_tracks()
+        return content, tracks
+
+    def run_continuations(self):
+        while DeferredThread.started_targets:
+            DeferredThread.started_targets.pop(0)()
+
+    def ids(self, tracks):
+        return [track["id"] for track in tracks]
+
+    def full_library(self, indexes):
+        spotify = LibrarySavedTracksSpotify(RecordingPlayer.events, indexes)
+        content, _tracks = self.open_liked_songs(spotify)
+        self.run_continuations()
+        self.commands.clear()
+        return spotify, content.cache
+
+    def test_large_library_loads_every_page(self):
+        spotify = LibrarySavedTracksSpotify(RecordingPlayer.events, range(2000))
+
+        content, tracks = self.open_liked_songs(spotify)
+        self.assertEqual(50, len(tracks))
+        self.run_continuations()
+
+        head, items = read_chunked(content.cache, self.KEY)
+        self.assertEqual([f"track-{i}" for i in range(2000)], self.ids(items))
+        self.assertTrue(head["_dynamic_paging_complete"])
+        self.assertEqual(2000, head["_exact_items"])
+        self.assertEqual(["Container.Refresh"], self.commands)
+        _content, reopened = self.open_liked_songs(spotify, content.cache)
+        self.assertEqual(2000, len(reopened))
+        self.assertEqual([], DeferredThread.started_targets)
+
+    def test_library_completes_while_listing_is_not_on_screen(self):
+        spotify = LibrarySavedTracksSpotify(RecordingPlayer.events, range(300))
+
+        content, _tracks = self.open_liked_songs(spotify, active=False)
+        self.run_continuations()
+
+        head, items = read_chunked(content.cache, self.KEY)
+        self.assertEqual(300, len(items))
+        self.assertTrue(head["_dynamic_paging_complete"])
+        self.assertEqual([], self.commands, "no refresh for a listing that is not shown")
+
+    def test_new_like_reuses_the_cached_library(self):
+        spotify, cache = self.full_library(range(1000))
+        spotify.indexes.insert(0, 5000)
+        spotify.saved_track_requests.clear()
+
+        _content, tracks = self.open_liked_songs(spotify, cache)
+
+        self.assertEqual(1001, len(tracks))
+        self.assertEqual(["track-5000", "track-0", "track-1"], self.ids(tracks)[:3])
+        self.assertEqual([(50, 0, "US")], spotify.saved_track_requests)
+        self.assertEqual([], DeferredThread.started_targets)
+        head, items = read_chunked(cache, self.KEY)
+        self.assertTrue(head["_dynamic_paging_complete"])
+        self.assertEqual(1001, len(items))
+
+    def test_reliked_song_moves_to_the_top_without_repaging(self):
+        spotify, cache = self.full_library(range(400))
+        spotify.indexes.remove(300)
+        spotify.indexes.insert(0, 300)
+
+        _content, tracks = self.open_liked_songs(spotify, cache)
+
+        self.assertEqual(400, len(tracks))
+        self.assertEqual("track-300", tracks[0]["id"])
+        self.assertEqual(1, self.ids(tracks).count("track-300"))
+        self.assertEqual([], DeferredThread.started_targets)
+
+    def test_unlike_keeps_the_old_list_until_repaged(self):
+        spotify, cache = self.full_library(range(400))
+        spotify.indexes.remove(250)
+
+        _content, tracks = self.open_liked_songs(spotify, cache)
+        self.assertEqual(400, len(tracks), "previous listing shown while repaging")
+        self.run_continuations()
+
+        head, items = read_chunked(cache, self.KEY)
+        self.assertEqual(399, len(items))
+        self.assertNotIn("track-250", self.ids(items))
+        self.assertTrue(head["_dynamic_paging_complete"])
+        self.assertEqual(["Container.Refresh"], self.commands)
+
+    def test_manual_refresh_does_not_reuse_the_cached_library(self):
+        spotify, cache = self.full_library(range(200))
+        spotify.indexes.insert(0, 900)
+
+        class RefreshedAddon(FakeAddon):
+            def getSetting(self, key):
+                return "manual-refresh" if key == "cache_checksum" else ""
+
+        content = self.build_content(spotify)
+        content.cache = cache
+        content._PluginContent__addon = RefreshedAddon()
+        content._PluginContent__params = {"action": ["browse_saved_tracks"]}
+        content._PluginContent__action = "browse_saved_tracks"
+        DeferredThread.started_targets.clear()
+        tracks = content._PluginContent__get_saved_tracks()
+
+        self.assertEqual(50, len(tracks))
+        self.assertEqual(1, len(DeferredThread.started_targets))
+
+    def test_precache_loads_liked_songs_of_any_size(self):
+        spotify = LibrarySavedTracksSpotify(RecordingPlayer.events, range(1200))
+        content = self.build_content(spotify)
+        content._PluginContent__action = ""
+        content._PluginContent__navigation_token = "token"
+        content._PluginContent__win.setProperty(
+            self.plugin_content.PRECACHE_NAVIGATION_TOKEN_PROP, "token"
+        )
+        content._PluginContent__get_user_playlists = lambda userid: []
+        content._PluginContent__get_saved_album_total = lambda: 10 ** 6
+        content._PluginContent__get_followed_artist_total = lambda: 10 ** 6
+        self.plugin_content.xbmc.getInfoLabel = lambda label: ""
+
+        content._PluginContent__precache_library()
+        self.run_continuations()
+
+        head, items = read_chunked(content.cache, self.KEY)
+        self.assertEqual(1200, len(items))
+        self.assertTrue(head["_dynamic_paging_complete"])
+
+    def test_pages_are_fetched_concurrently_and_consumed_in_order(self):
+        import threading
+        import time
+
+        real_thread = DeferredThread.real_thread
+        self.addCleanup(setattr, threading, "Thread", threading.Thread)
+        threading.Thread = real_thread
+        self.addCleanup(setattr, self.plugin_content, "_PAGE_FETCH_EXECUTOR",
+                        self.plugin_content._PAGE_FETCH_EXECUTOR)
+        from concurrent.futures import ThreadPoolExecutor
+
+        self.plugin_content._PAGE_FETCH_EXECUTOR = ThreadPoolExecutor
+        lock = threading.Lock()
+        state = {"running": 0, "peak": 0}
+
+        def fetch(offset):
+            with lock:
+                state["running"] += 1
+                state["peak"] = max(state["peak"], state["running"])
+            # Later pages finish first.
+            time.sleep(0.05 if offset % 100 == 0 else 0.01)
+            with lock:
+                state["running"] -= 1
+            return offset
+
+        pages = self.plugin_content.PluginContent._PluginContent__iter_pages_in_order(
+            50, 600, fetch, FakeMonitor()
+        )
+        results = [offset for offset, _result in pages]
+
+        self.assertEqual(list(range(50, 600, 50)), results)
+        self.assertGreater(state["peak"], 1)
+        self.assertLessEqual(state["peak"], self.plugin_content.PAGED_FETCH_WORKERS)
+
+
+if __name__ == "__main__":
+    unittest.main()

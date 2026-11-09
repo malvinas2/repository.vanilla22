@@ -57,7 +57,7 @@
 			<control type="panel" id="6">
 				<left>40</left>
 				<top>150</top>
-				<width>880</width>
+				<width>860</width>
 				<bottom>130</bottom>
 				<onup>6</onup>
 				<ondown>6</ondown>
@@ -66,41 +66,43 @@
 				<orientation>vertical</orientation>
 				<pagecontrol>61</pagecontrol>
 				<viewtype label="100">icon</viewtype>
-				<itemlayout height="80" width="146">
+				<itemlayout height="86" width="86">
 					<control type="group">
 						<control type="image">
 							<top>3</top>
 							<left>8</left>
-							<width>138</width>
-							<height>74</height>
-							<texture>diffuse/background.png</texture>
+							<width>76</width>
+							<height>76</height>
+							<!-- <texture>diffuse/background.png</texture> -->
+							<texture>common/color-back-square.png</texture>
 						</control>
 						<control type="image">
 							<top>3</top>
 							<left>8</left>
-							<width>138</width>
-							<height>74</height>
+							<width>76</width>
+							<height>76</height>
 							<texture border="0">colors/white.png</texture>
 							<colordiffuse>$INFO[ListItem.Label2]</colordiffuse>
 							<aspectratio>stretch</aspectratio>
 						</control>
 					</control>
 				</itemlayout>
-				<focusedlayout height="80" width="146">
+				<focusedlayout height="86" width="86">
 					<control type="group">
 						<animation effect="zoom" time="200" tween="sine" easing="inout" start="100" end="124" center="auto">Focus</animation>
 						<control type="image">
 							<top>3</top>
 							<left>8</left>
-							<width>138</width>
-							<height>74</height>
-							<texture>diffuse/background.png</texture>
+							<width>76</width>
+							<height>76</height>
+							<!-- <texture>diffuse/background.png</texture> -->
+							<texture>common/white.png</texture>
 						</control>
 						<control type="image">
 							<top>3</top>
 							<left>8</left>
-							<width>138</width>
-							<height>74</height>
+							<width>76</width>
+							<height>76</height>
 							<texture border="0">colors/white.png</texture>
 							<colordiffuse>$INFO[ListItem.Label2]</colordiffuse>
 							<aspectratio>stretch</aspectratio>
@@ -127,7 +129,7 @@
 				<height>35</height>
 				<align>left</align>
 				<include>DialogLabel</include>
-				<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$LOCALIZE[91831]: [/COLOR]$INFO[Container(6).ListItem.Label,, - ]$INFO[Container(6).ListItem.Label2,#,]</label>
+				<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$LOCALIZE[31955]: [/COLOR]$INFO[Container(6).ListItem.Label,, - ]$INFO[Container(6).ListItem.Label2,#,]</label>
 			</control>
 			<!-- Anzahl der Eintrage, rechts unten -->
 			<control type="label">
@@ -138,7 +140,7 @@
 				<height>35</height>
 				<align>right</align>
 				<include>DialogLabel</include>
-				<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(6).NumItems][/COLOR] $LOCALIZE[91830] - [COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(6).CurrentPage]/$INFO[Container(6).NumPages][/COLOR]</label>
+				<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(6).NumItems][/COLOR] $LOCALIZE[31954] - [COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(6).CurrentPage]/$INFO[Container(6).NumPages][/COLOR]</label>
 			</control>
 			<!-- Abbrechen-Button, links unten -->
 			<control type="grouplist" id="9001">
@@ -159,7 +161,6 @@
 					<width>270</width>
 					<include>DialogButtonOther</include>
 					<label>$LOCALIZE[31152]</label>
-					<scroll>true</scroll>
 					<textwidth>240</textwidth>
 					<onclick>Skin.Reset($INFO[Window(10035).Property(Reset.Color)])</onclick>
 					<!-- <onclick>Skin.Reset(ButtonFocusColor)</onclick> -->

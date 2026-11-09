@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="skin.titan.vanilla" version="22.26.01.21" name="Titan Vanilla" provider-name="malvinas2, marcelveldt, AchillesPunks, cartman.dos, fuchs2468, mardukL, mgonzales">
+<addon id="skin.titan.vanilla" version="22.26.10.31_BETA" name="Titan Vanilla" provider-name="malvinas2, marcelveldt, AchillesPunks, cartman.dos, fuchs2468, mardukL, mgonzales">
 	<requires>
 		<import version="5.18.0" addon="xbmc.gui"/>	
-		<import addon="script.skinshortcuts" version="2.0.3"/>
+		<import addon="script.skinshortcutsV2" version="2.0.3"/>
 		<import addon="script.skin.helper.service" version="1.20.1"/>
         <import addon="script.skin.helper.widgets" version="1.20.1"/>
         <import addon="script.skin.helper.backgrounds" version="1.0.36"/>

@@ -3,7 +3,9 @@
 	<!-- <include file="Custom_1198_GlobalSearch.xml" /> -->
 	<include file="IncludesCustom_1108_Favourites.xml" />
 	<include file="Defaults.xml" />
+	<include file="Custom_1127_DialogCast.xml" />
 	<!-- <include file="Custom_1120_MenuRight.xml" /> -->
+	<include file="Custom_1126_DialogTextViewer.xml" />
 	<include file="Includes_Games.xml" />
 	<include file="IncludesVariables.xml" />
 	<include file="IncludesHomeTitanTiles.xml" />
@@ -68,11 +70,14 @@
 	<include file="IncludesHeader.xml" />
 	<include file="IncludesFooter.xml" />
 	<include file="IncludesOSDDialogs.xml" />
-	<include file="script-skinshortcuts-includes.xml"/>
+	<include file="script-skinshortcutsV2-includes.xml"/>
 	<include file="script-skin_helper_service-includes.xml"/>
 	<include file="IncludesDebugInfo.xml" condition="Skin.HasSetting(DebugGrid) | Skin.HasSetting(DebugInfo)" />
 	<include file="Includes_DialogSelect.xml" />
+	<include file="Includes_MusicInfo.xml" />
+	<include file="Includes_VideoInfo.xml" />
 	<include file="IncludesDialogPVRGuideControls.xml" />
+	<include file="Includes_Maps.xml" />
 	
 	<!--Titan Version-->
 	<include name="TitanVersion">
@@ -151,7 +156,7 @@
 	<include name="DialogListNF">
 		<!--Dialog List NF-->
 		<font>Reg28</font>
-		<textcolor fallback="white">$INFO[Skin.String(GeneralTextColor)]</textcolor>
+		<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 		<focusedcolor>$INFO[Skin.String(ButtonFocusTextColor)]</focusedcolor>
 		<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
 	</include>
@@ -191,7 +196,7 @@
 	</include>
 	<include name="KeyBoardKey">
 		<height>70</height>
-		<width>130</width>
+		<width>107</width>
 		<align>center</align>
 		<font>Reg30</font>
 		<textoffsetx>0</textoffsetx>
@@ -207,11 +212,13 @@
 		<align>left</align>
 		<textoffsetx>20</textoffsetx>
 		<radioposx></radioposx>
-		<radioposy>15</radioposy>
-		<radiowidth>40</radiowidth>
-		<radioheight>40</radioheight>
-		<textureradiofocus>dialogs/keyboard/radio-on.png</textureradiofocus>
-		<textureradionofocus>dialogs/keyboard/radio-off.png</textureradionofocus>
+		<radioposy></radioposy>
+		<radiowidth>60</radiowidth>
+		<radioheight>60</radioheight>
+		<textureradioonfocus>dialogs/keyboard/radio-on.png</textureradioonfocus>
+		<textureradioonnofocus>dialogs/keyboard/radio-on.png</textureradioonnofocus>
+		<textureradioofffocus>dialogs/keyboard/radio-off.png</textureradioofffocus>
+		<textureradiooffnofocus>dialogs/keyboard/radio-off.png</textureradiooffnofocus>
 		<font>Reg26</font>
 		<include>KeyBoardKey</include>
 	</include>
@@ -255,8 +262,10 @@
 		<include>Key</include>
 	</include>
 	<include name="DialogButtonBrowseAdd">
-		<textureradiofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/plus.png</textureradiofocus>
-		<textureradionofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/keyboard/plus.png</textureradionofocus>
+		<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/plus.png</textureradioonfocus>
+		<textureradioonnofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/keyboard/plus.png</textureradioonnofocus>
+		<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/plus.png</textureradioofffocus>
+		<textureradiooffnofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/keyboard/plus.png</textureradiooffnofocus>
 		<radiowidth>30</radiowidth>
 		<radioheight>30</radioheight>
 		<radioposx>10</radioposx>
@@ -266,8 +275,10 @@
 		<include>DialogButton</include>
 	</include>
 	<include name="DialogButtonBrowseRemove">
-		<textureradiofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/remove.png</textureradiofocus>
-		<textureradionofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/keyboard/remove.png</textureradionofocus>
+		<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/remove.png</textureradioonfocus>
+		<textureradioonnofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/keyboard/remove.png</textureradioonnofocus>
+		<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/remove.png</textureradioofffocus>
+		<textureradiooffnofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/keyboard/remove.png</textureradiooffnofocus>
 		<radiowidth>30</radiowidth>
 		<radioheight>30</radioheight>
 		<radioposx>10</radioposx>
@@ -277,8 +288,10 @@
 		<include>DialogButton</include>
 	</include>
 	<include name="DialogButtonBrowseEdit">
-		<textureradiofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/edit.png</textureradiofocus>
-		<textureradionofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/keyboard/edit.png</textureradionofocus>
+		<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/edit.png</textureradioonfocus>
+		<textureradioonnofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/keyboard/edit.png</textureradioonnofocus>
+		<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/edit.png</textureradioofffocus>
+		<textureradiooffnofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/keyboard/edit.png</textureradiooffnofocus>
 		<radiowidth>30</radiowidth>
 		<radioheight>30</radioheight>
 		<radioposx>10</radioposx>
@@ -288,8 +301,12 @@
 		<include>DialogButton</include>
 	</include>
 	<include name="DialogButtonBrowse">
-		<textureradiofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/mediasource/browse-nf.png</textureradiofocus>
-		<textureradionofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/mediasource/browse-nf.png</textureradionofocus>
+		<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/mediasource/browse-nf.png</textureradioonfocus>
+		<textureradioonnofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/mediasource/browse-nf.png</textureradioonnofocus>
+		<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/mediasource/browse-nf.png</textureradioofffocus>
+		<textureradiooffnofocus colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/mediasource/browse-nf.png</textureradiooffnofocus>
+		<textureradioondisabled colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/mediasource/browse-nf.png</textureradioondisabled>
+		<textureradiooffdisabled colordiffuse="$INFO[Skin.String(GeneralTextColor)]">dialogs/mediasource/browse-nf.png</textureradiooffdisabled>
 		<radiowidth>230</radiowidth>
 		<radioheight>230</radioheight>
 		<radioposx>-5</radioposx>
@@ -301,8 +318,10 @@
 	<include name="KeyLeft">
 		<width>130</width>
 		<include>Key</include>
-		<textureradiofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/left.png</textureradiofocus>
-		<textureradionofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/left.png</textureradionofocus>
+		<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/left.png</textureradioonfocus>
+		<textureradioonnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/left.png</textureradioonnofocus>
+		<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/left.png</textureradioofffocus>
+		<textureradiooffnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/left.png</textureradiooffnofocus>
 		<radiowidth>70</radiowidth>
 		<radioheight>70</radioheight>
 		<radioposx>30</radioposx>
@@ -310,8 +329,10 @@
 	<include name="KeyRight">
 		<width>130</width>
 		<include>Key</include>
-		<textureradiofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/right.png</textureradiofocus>
-		<textureradionofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/right.png</textureradionofocus>
+		<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/right.png</textureradioonfocus>
+		<textureradioonnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/right.png</textureradioonnofocus>
+		<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/right.png</textureradioofffocus>
+		<textureradiooffnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/right.png</textureradiooffnofocus>
 		<radiowidth>70</radiowidth>
 		<radioheight>70</radioheight>
 		<radioposx>30</radioposx>
@@ -319,8 +340,10 @@
 	<include name="KeyBack">
 		<width>130</width>
 		<include>Key</include>
-		<textureradiofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/back.png</textureradiofocus>
-		<textureradionofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/back.png</textureradionofocus>
+		<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/back.png</textureradioonfocus>
+		<textureradioonnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/back.png</textureradioonnofocus>
+		<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/back.png</textureradioofffocus>
+		<textureradiooffnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/back.png</textureradiooffnofocus>
 		<radiowidth>70</radiowidth>
 		<radioheight>70</radioheight>
 		<radioposx>30</radioposx>
@@ -328,8 +351,10 @@
 	<include name="KeyDone">
 		<width>130</width>
 		<include>Key</include>
-		<textureradiofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/done.png</textureradiofocus>
-		<textureradionofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/done.png</textureradionofocus>
+		<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/done.png</textureradioonfocus>
+		<textureradioonnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/done.png</textureradioonnofocus>
+		<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/done.png</textureradioofffocus>
+		<textureradiooffnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/done.png</textureradiooffnofocus>
 		<radiowidth>70</radiowidth>
 		<radioheight>70</radioheight>
 		<radioposx>30</radioposx>
@@ -348,7 +373,7 @@
 		<width>580</width>
 		<height>40</height>
 		<align>left</align>
-		<disabledcolor fallback="white">$INFO[Skin.String(ViewDetailsTextColor)]</disabledcolor>
+		<disabledcolor>$INFO[Skin.String(ViewDetailsTextColor)]</disabledcolor>
 		<texturefocus></texturefocus>
 		<texturenofocus>dialogs/default/separator.png</texturenofocus>
 		<textoffsetx>0</textoffsetx>
@@ -408,7 +433,7 @@
 			<onclick>SendClick(312)</onclick>
 			<textoffsetx>10</textoffsetx>
 			<font>Reg22</font>
-			<label>$ADDON[script.skinshortcuts 32044] >></label>
+			<label>$ADDON[script.skinshortcutsV2 32044] >></label>
 		</control>
 		<control type="button" id="900$PARAM[widgetpos]2">
 			<description>widget style</description>
@@ -429,10 +454,10 @@
 			<height>45</height>
 			<align>left</align>
 			<font>Reg22</font>
-			<label>$ADDON[script.skinshortcuts 32025]:</label>
+			<label>$ADDON[script.skinshortcutsV2 32025]:</label>
 			<label2>$INFO[Container(211).ListItem.Property(widgetName$PARAM[widgetprop])]</label2>
 			<textoffsetx>10</textoffsetx>
-			<onclick>RunScript(script.skin.helper.service,action=setskinshortcutsproperty,header=$ADDON[script.skinshortcuts 32025],property=widgetName$PARAM[widgetprop])</onclick>
+			<onclick>RunScript(script.skin.helper.service,action=setskinshortcutsproperty,header=$ADDON[script.skinshortcutsV2 32025],property=widgetName$PARAM[widgetprop])</onclick>
 			<visible>!String.IsEmpty(Container(211).ListItem.Property(widget$PARAM[widgetprop]))</visible>
 		</control>
 		<control type="button" id="900$PARAM[widgetpos]4">
@@ -537,15 +562,16 @@
 	
 	<include name="RDSInfoLine">
 		<control type="grouplist">
-			<visible>!String.IsEmpty($PARAM[value])</visible>
-		<!-- <visible>true</visible>	 -->
+			<visible>$PARAM[visible]</visible>
 			<height>35</height>
 			<orientation>horizontal</orientation>
 			<itemgap>5</itemgap>
+			<!-- <align>center</align> -->
 			<control type="label">
 				<width>auto</width>
 				<height>30</height>
 				<aligny>center</aligny>
+				<font>Light26</font>
 				<label>[B]$PARAM[label]:[/B]</label>
 				<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 			</control>
@@ -554,7 +580,8 @@
 				<height>30</height>
 				<align>right</align>
 				<aligny>center</aligny>
-				<label>$INFO[$PARAM[value]]</label>
+				<font>Light26</font>
+				<label>$PARAM[value]</label>
 				<scroll>true</scroll>
 				<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 			</control>
@@ -598,71 +625,6 @@
 		</definition>
 	</include>
 	
-	<include name="height20_posy160">
-		<height>20</height>
-		<top>160</top>
-	</include>
-
-	<include name="height10_posy160">
-		<height>10</height>
-		<top>160</top>
-	</include>
-
-	<include name="height10_posy170">
-		<height>10</height>
-		<top>170</top>
-	</include>
-
-	<include name="height33_posy150">
-		<height>33</height>
-		<top>150</top>
-	</include>
-
-	<include name="height16_posy150">
-		<height>16</height>
-		<top>150</top>
-	</include>
-
-	<include name="height17_posy160">
-		<height>17</height>
-		<top>160</top>
-	</include>
-
-	<include name="height0_posy0">
-		<height>0</height>
-		<top>0</top>
-	</include>
-
-	<include name="music_info_label">
-		<control type="grouplist">
-			<width>$PARAM[width]</width>
-			<left>$PARAM[left]</left>
-			<top>-20</top>
-			<orientation>horizontal</orientation>
-			<align>left</align>
-			<control type="label">
-				<width>auto</width>
-				<font>Reg26</font>
-				<align>left</align>
-				<label>$PARAM[label1]</label>
-				<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
-				<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
-				<scroll>false</scroll>
-				<visible>!String.IsEmpty(Control.GetLabel(300$PARAM[id]))</visible>
-			</control>
-			<control type="label" id="300$PARAM[id]">
-				<width>auto</width>
-				<font>Reg26</font>
-				<align>left</align>
-				<label>$PARAM[label2]</label>
-				<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
-				<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
-				<scroll>true</scroll>
-				<scrollsuffix> / </scrollsuffix>
-			</control>
-		</control>
-	</include>
-
 	<expression name="IsMovieDBTypeNoFallback">String.IsEqual(ListItem.DBTYPE,movie) | String.IsEqual(ListItem.Property(DBTYPE),movie)</expression>
 	<expression name="IsTvShowDBType">String.IsEqual(ListItem.DBTYPE,tvshow) | String.IsEqual(ListItem.Property(DBTYPE),tvshow) | String.IsEqual(Window(Home).Property(ListItem.DBTYPE,tvshow)) | String.IsEqual(Window(Home).Property(ListItem.Property(DBTYPE)),tvshow)</expression>
 	<expression name="IsTvShowDBTypeNoFallback">String.IsEqual(ListItem.DBTYPE,tvshow) | String.IsEqual(ListItem.Property(DBTYPE),tvshow)</expression>

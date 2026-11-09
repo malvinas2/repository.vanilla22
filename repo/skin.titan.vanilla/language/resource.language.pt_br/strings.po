@@ -320,14 +320,6 @@ msgctxt "#31088"
 msgid "Live-TV"
 msgstr "TV ao Vivo"
 
-msgctxt "#31089"
-msgid "XBMB3C add-on"
-msgstr "Add-on XBMB3C"
-
-msgctxt "#31090"
-msgid "XBMB3C settings"
-msgstr "Ajustes XBMB3C"
-
 msgctxt "#31091"
 msgid "Mediabrowser"
 msgstr "Mediabrowser"
@@ -1620,14 +1612,14 @@ msgctxt "#31784"
 msgid "Decoder"
 msgstr "Decodificador"
 
-msgctxt "#30035"
+msgctxt "#31956"
 msgid "Continue watching in $INFO[Window.Property(remaining)] seconds"
 msgstr "Continue assistindo em $INFO[Window.Property(remaining)] segundos"
 
-msgctxt "#30036"
+msgctxt "#31957"
 msgid "Up next in $INFO[Window.Property(remaining)] seconds"
 msgstr "Up next em $INFO[Window.Property(remaining)] segundos"
 
-msgctxt "#30037"
+msgctxt "#31958"
 msgid "Next episode in $INFO[Window.Property(remaining)] seconds"
 msgstr "Próximo episódio em $INFO[Window.Property(remaining)] segundos"

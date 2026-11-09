@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
 	<!-- malvinas2 -->
-	<visible>[[Window.IsActive(videoosd) | [Player.Paused + !Player.Caching] | Player.ShowInfo | Player.Seeking | Player.HasPerformedSeek(3) | Player.Paused | Player.Forwarding | Player.Rewinding | Window.IsActive(fullscreeninfo) | Window.IsActive(playerprocessinfo)] + Window.IsActive(fullscreenvideo)] | Window.IsActive(visualisation) | !String.IsEmpty(Player.SeekNumeric) | [[Window.IsActive(fullscreenvideo) | Window.IsActive(visualisation)] + !Window.IsActive(pvrosdchannels) + !String.IsEmpty(PVR.ChannelNumberInput)]</visible>
+	<!-- original Estuary Kodi 22 Alpha ANFANG -->
+	<visible>Window.IsActive(fullscreenvideo) | Window.IsActive(visualisation)</visible>
+	<visible>![Window.IsActive(sliderdialog) | Window.IsActive(pvrosdchannels) | Window.IsActive(pvrchannelguide) | Window.IsActive(pvrguideinfo) | Window.IsActive(1110)]</visible>
+	<visible>Player.Seeking | Player.HasPerformedSeek(3) | [Player.Paused + !Player.Caching] | Player.Forwarding | Player.Rewinding | Player.ShowInfo | Window.IsActive(fullscreeninfo) | Player.ShowTime | Window.IsActive(videoosd) | Window.IsActive(musicosd) | Window.IsActive(playerprocessinfo) | !String.IsEmpty(Player.SeekNumeric) | !String.IsEmpty(PVR.ChannelNumberInput)</visible>
+	<!-- original Estuary Kodi 22 Alpha ENDE -->
+	
+	<!-- bis einschließlich Titan fur Kodi 21 ANFANG -->
+	<!-- <visible>[[Window.IsActive(videoosd) | [Player.Paused + !Player.Caching] | Player.ShowInfo | Player.Seeking | Player.HasPerformedSeek(3) | Player.Paused | Player.Forwarding | Player.Rewinding | Window.IsActive(fullscreeninfo) | Window.IsActive(playerprocessinfo)] + Window.IsActive(fullscreenvideo)] | Window.IsActive(visualisation) | !String.IsEmpty(Player.SeekNumeric) | [[Window.IsActive(fullscreenvideo) | Window.IsActive(visualisation)] + !Window.IsActive(pvrosdchannels) + !String.IsEmpty(PVR.ChannelNumberInput)]</visible> -->
+	<!-- bis einschließlich Titan fur Kodi 21 ENDE -->
 	
 	<!-- | Window.IsActive(visualisation)   fuhrt zu Problemen bei Musik-OSD, wird doppelt dargestellt -->
-	
-	
 	
 	<!-- original Titan v17 -->
 	<!-- <visible>[Window.IsActive(videoosd) | Player.ShowInfo | Player.Seeking | Player.HasPerformedSeek(3) | Player.Paused | Player.Forwarding | Player.Rewinding] + Window.IsActive(fullscreenvideo)</visible> -->

@@ -37,7 +37,6 @@
 				<top>20</top>
 				<width>450</width>
 				<height>700</height>
-				<itemgap>5</itemgap>
 				<onleft>1500</onleft>
 				<onright condition="String.IsEqual(Container(1000).ListItem.Property(listTyp), 1100)">1100</onright>
 				<onright condition="String.IsEqual(Container(1000).ListItem.Property(listTyp), 1900)">1900</onright>
@@ -103,8 +102,6 @@
 					<left>0</left>
 					<width>100%</width>
 					<height>96%</height>
-					<itemgap>15</itemgap>
-					<orientation>vertical</orientation>
 					<visible>String.IsEqual(Container(1000).ListItem.Property(listTyp), 1900)</visible>  
 					<control type="label">
 						<left>20</left>
@@ -206,7 +203,6 @@
 					<left>0</left>
 					<width>100%</width>
 					<height>96%</height>
-					<itemgap>20</itemgap>
 					<!-- <orientation>vertical</orientation> -->
 					
 					<!-- <left>605</left> -->
@@ -426,7 +422,6 @@
 					<left>0</left>
 					<width>100%</width>
 					<height>96%</height>
-					<itemgap>20</itemgap>
 					<orientation>vertical</orientation>
 					
 					<!-- <left>605</left> -->
@@ -439,8 +434,6 @@
 					<scrolltime>300</scrolltime>
 					<visible>String.IsEqual(Container(1000).ListItem.Property(listTyp), 1200)</visible>    
 					<itemlayout height="100">
-						<left>0</left>
-						<top>2</top>
 						<control type="image">
 							<left>0</left>
 							<top>2</top>
@@ -554,8 +547,6 @@
 						</control>
 					</itemlayout>
 					<focusedlayout height="100">
-						<left>0</left>
-						<top>2</top>
 						<control type="group">
 							<visible>Control.HasFocus(1200)</visible>
 							<control type="image">
@@ -808,13 +799,10 @@
 					<onleft>1000</onleft>
 					<onright>60</onright>
 					<pagecontrol>60</pagecontrol>
-					<itemgap>20</itemgap>
 					<orientation>vertical</orientation>
 					<scrolltime>300</scrolltime>
 					<visible>String.IsEqual(Container(1000).ListItem.Property(listTyp), 1300)</visible>    
 					<itemlayout height="100">
-						<left>0</left>
-						<top>2</top>
 						<control type="image">
 							<left>0</left>
 							<top>2</top>
@@ -995,8 +983,6 @@
 						</control>
 					</itemlayout>
 					<focusedlayout height="100">
-						<left>0</left>
-						<top>2</top>
 						<control type="group">
 							<visible>Control.HasFocus(1300)</visible>
 							<control type="image">
@@ -1368,7 +1354,7 @@
 				<left>600</left>
 				<top></top>
 				<bottom>15</bottom>
-				<scroll>true</scroll>
+				<autoscroll time="3000" delay="5000" repeat="5000">true</autoscroll>
 				<height>140</height>
 				<width>1200</width>
 				<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>

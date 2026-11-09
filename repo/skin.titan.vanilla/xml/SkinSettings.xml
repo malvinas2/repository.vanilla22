@@ -42,7 +42,7 @@
 				<top>20</top>
 				<width>440</width>
 				<height>96%</height>
-				<onleft></onleft>
+				<onleft>noop</onleft>
 				<onright>1000</onright>
 				<scrolltime>0</scrolltime>
 				<orientation>vertical</orientation>

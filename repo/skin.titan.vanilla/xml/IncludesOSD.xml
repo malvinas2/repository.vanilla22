@@ -303,7 +303,7 @@
 					<control type="image">
 						<fadetime>200</fadetime>
 						<bordersize>0</bordersize> 
-						<texture background="true" border="5" fallback="defaultmusicsongs.png" diffuse="diffuse/music_cover_cd.png">$VAR[AudioPlayerCoverImage]</texture>
+						<texture background="true" border="5" fallback="DefaultMusicSongs.png" diffuse="diffuse/music_cover_cd.png">$VAR[AudioPlayerCoverImage]</texture>
 						<aspectratio align="center" aligny="center" scalediffuse="false">keep</aspectratio>
 					</control>
 				</control>
@@ -326,7 +326,7 @@
 					<control type="image">
 						<fadetime>200</fadetime>
 						<bordersize>5</bordersize>
-						<texture background="true" border="5" fallback="defaultmusicsongs.png" diffuse="diffuse/panel.png">$VAR[AudioPlayerCoverImage]</texture>
+						<texture background="true" border="5" fallback="DefaultMusicSongs.png" diffuse="diffuse/panel.png">$VAR[AudioPlayerCoverImage]</texture>
 						<aspectratio align="left" aligny="center" scalediffuse="false">keep</aspectratio>
 					</control>
 				</control>
@@ -492,7 +492,9 @@
 					<textureslidernibfocus colordiffuse="$INFO[Skin.String(OSDProgressBarColor)]">colors/color_white.png</textureslidernibfocus>
 
 					<!--   -->
-					<info condition="!String.IsEmpty(MusicPlayer.Content(LiveTV)) | !String.IsEmpty(MusicPlayer.Content(files))">Player.SeekBar</info>
+					<info>Player.SeekBar</info>
+					<!-- NO CONDITION POSSIBLE WITHIN INFO -->
+					<!-- <info condition="!String.IsEmpty(MusicPlayer.Content(LiveTV)) | !String.IsEmpty(MusicPlayer.Content(files))">Player.SeekBar</info> -->
 					<!-- <info condition="!String.IsEmpty(Player.SeekTime)">Player.SeekTime</info> -->
 					<!-- <info condition="!String.IsEmpty(PVR.EpgEventProgress)">PVR.EpgEventProgress</info> -->
 					<!-- <info>$VAR[seeksliderposition]</info> -->
@@ -547,7 +549,17 @@
 				<righttexture colordiffuse="$INFO[Skin.String(ChapterMarkerColor)]">colors/white.png</righttexture>
 				<visible>Skin.HasSetting(ShowChapterMarker)</visible>
 				<info>Player.Chapters</info>
-			</control>	
+			</control>
+			<control type="ranges">
+				<left>540</left>
+				<top>172</top>
+				<width>700</width>
+				<height>6</height>
+				<texturebg border="3" colordiffuse="00FFFFFF">colors/white50.png</texturebg>
+				<righttexture colordiffuse="$INFO[Skin.String(BookmarkMarkerColor)]">colors/white.png</righttexture>
+				<visible>Skin.HasSetting(ShowBookmarkMarker)</visible>
+				<info>Player.Bookmarks</info>
+			</control>
 		
 			<control type="image">
 				<description>Progress Bar Border</description>	
@@ -961,6 +973,16 @@
 				<visible>Skin.HasSetting(ShowChapterMarker)</visible>
 				<info>Player.Chapters</info>
 			</control>
+			<control type="ranges">
+				<left>250</left>
+				<top>169</top>
+				<width>1630</width>
+				<height>14</height>
+				<texturebg border="3" colordiffuse="00FFFFFF">colors/white50.png</texturebg>
+				<righttexture colordiffuse="$INFO[Skin.String(BookmarkMarkerColor)]">colors/white.png</righttexture>
+				<visible>Skin.HasSetting(ShowBookmarkMarker)</visible>
+				<info>Player.Bookmarks</info>
+			</control>
 
 			<!--Process/Seekbar-->
 			<control type="label">
@@ -1072,7 +1094,7 @@
 					<control type="image">
 						<fadetime>200</fadetime>
 						<bordersize>0</bordersize>
-						<texture background="true" border="5" fallback="defaultmusicsongs.png" diffuse="diffuse/music_cover_cd.png">$VAR[AudioPlayerCoverImage]</texture>
+						<texture background="true" border="5" fallback="DefaultMusicSongs.png" diffuse="diffuse/music_cover_cd.png">$VAR[AudioPlayerCoverImage]</texture>
 						<aspectratio align="center" aligny="center" scalediffuse="false">scale</aspectratio>
 						<!-- <aspectratio align="center" aligny="center" scalediffuse="false">stretch</aspectratio> -->
 					</control>
@@ -1096,7 +1118,7 @@
 					<control type="image">
 						<fadetime>200</fadetime>
 						<bordersize>0</bordersize>
-						<texture background="true" border="5" fallback="defaultmusicsongs.png" diffuse="diffuse/panel.png">$VAR[AudioPlayerCoverImage]</texture>
+						<texture background="true" border="5" fallback="DefaultMusicSongs.png" diffuse="diffuse/panel.png">$VAR[AudioPlayerCoverImage]</texture>
 						<!-- <aspectratio align="left" aligny="center" scalediffuse="false">keep</aspectratio> -->
 						<aspectratio align="center" aligny="center" scalediffuse="false">scale</aspectratio>
 					</control>
@@ -1265,7 +1287,7 @@
 					<align>center</align>
 					<aligny>center</aligny>
 					<font>font13</font>
-					<label>[B]$LOCALIZE[71026][/B] $INFO[PVR.TimeshiftCur] (-$INFO[PVR.TimeshiftOffset])</label>
+					<label>[B]$LOCALIZE[31953][/B] $INFO[PVR.TimeshiftCur] (-$INFO[PVR.TimeshiftOffset])</label>
 					<visible>PVR.IsTimeShift</visible>
 				</control>
 			</control>
@@ -1335,7 +1357,7 @@
 					<align>center</align>
 					<aligny>center</aligny>
 					<font>font13</font>
-					<label>[B]$LOCALIZE[71026][/B] $INFO[PVR.TimeshiftCur] (-$INFO[PVR.TimeshiftOffset])</label>
+					<label>[B]$LOCALIZE[31953][/B] $INFO[PVR.TimeshiftCur] (-$INFO[PVR.TimeshiftOffset])</label>
 					<visible>PVR.IsTimeShift</visible>
 				</control>
 			</control>
@@ -1798,7 +1820,7 @@
 			<height>$PARAM[size]</height>
 			<itemgap>$PARAM[gap]</itemgap>
 			<onup>87</onup>
-			<ondown></ondown>
+			<ondown>noop</ondown>
 			<onleft>200</onleft>
 			<onright>200</onright>
 			<orientation>horizontal</orientation>
@@ -2170,7 +2192,7 @@
 				<description> playlist </description>
 				<width>$PARAM[size]</width>
 				<height>$PARAM[size]</height>
-				<label>$LOCALIZE[70022]</label>
+				<label>$LOCALIZE[31908]</label>
 				<font/>
 				<texturefocus colordiffuse="$INFO[Skin.String(OSDButtonsFocusColor)]">$PARAM[iconspath]teletext.png</texturefocus>
 				<texturenofocus colordiffuse="$INFO[Skin.String(OSDButtonsColor)]">$PARAM[iconspath]teletext.png</texturenofocus>
@@ -2193,7 +2215,7 @@
 				<visible>Player.HasAudio | Player.HasVideo | MusicPlayer.Content(LiveTV)</visible>
 				<onclick>Skin.ToggleSetting(EnableOSDInfo)</onclick>
 			</control>
-			<control type="button" id="70044">
+			<control type="togglebutton" id="31930">
 				<description>detailed infopanel</description>
 				<width>$PARAM[size]</width>
 				<height>$PARAM[size]</height>
@@ -2210,7 +2232,7 @@
 				<onclick>Action(close)</onclick>
 				<onclick>ActivateWindow(1122)</onclick>
 			</control>			
-			<control type="button" id="70045">
+			<control type="togglebutton" id="31931">
 				<description>extended infopanel</description>
 				<width>$PARAM[size]</width>
 				<height>$PARAM[size]</height>
@@ -2229,13 +2251,13 @@
 				<visible>[VideoPlayer.Content(movies) | VideoPlayer.Content(episodes)] + System.AddonIsEnabled(script.extendedinfo)</visible>
 				<visible>Skin.HasSetting(DetailedPlotOrExtendedInfo)</visible>
 			</control>			
-			<control type="button" id="70043">
+			<control type="button" id="31929">
 				<description>settings</description>
 				<width>$PARAM[size]</width>
 				<height>$PARAM[size]</height>
 				<!-- <width>60</width> -->
 				<!-- <height>60</height> -->
-				<label>$LOCALIZE[70009]</label>
+				<label>$LOCALIZE[31895]</label>
 				<font/>
 				<texturefocus colordiffuse="$INFO[Skin.String(OSDButtonsFocusColor)]">$PARAM[iconspath]settings.png</texturefocus>
 				<texturenofocus colordiffuse="$INFO[Skin.String(OSDButtonsColor)]">$PARAM[iconspath]settings.png</texturenofocus>
@@ -2250,7 +2272,7 @@
 				<height>$PARAM[size]</height>
 				<!-- <width>60</width> -->
 				<!-- <height>60</height> -->
-				<label>$LOCALIZE[70009]</label>
+				<label>$LOCALIZE[31895]</label>
 				<font/>
 				<texturefocus colordiffuse="$INFO[Skin.String(OSDButtonsFocusColor)]">$PARAM[iconspath]settings.png</texturefocus>
 				<texturenofocus colordiffuse="$INFO[Skin.String(OSDButtonsColor)]">$PARAM[iconspath]settings.png</texturenofocus>

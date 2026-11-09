@@ -26,7 +26,6 @@
 			<orientation>horizontal</orientation>
 			<onleft>4444</onleft>
 			<onright>4444</onright>
-			<itemgap>0</itemgap>
 			<onback>SetFocus(300)</onback>
 			<onup>SetFocus(300)</onup>
 			<onfocus>SetProperty(submenu,show,home)</onfocus>
@@ -395,7 +394,6 @@
 			<orientation>horizontal</orientation>
 			<onleft>4444</onleft>
 			<onright>4444</onright>
-			<itemgap>0</itemgap>
 			<onback>SetFocus(300)</onback>
 			<onup>SetFocus(300)</onup>
 			<onfocus>SetProperty(submenu,show,home)</onfocus>

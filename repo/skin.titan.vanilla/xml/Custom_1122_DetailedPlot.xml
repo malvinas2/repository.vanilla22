@@ -22,7 +22,7 @@
         <control type="group">
 			<animation effect="fade" end="0" time="0" reversible="false" condition="Window.IsVisible(yesnodialog) | Window.IsVisible(addonsettings)">Conditional</animation>
             <visible>!Window.IsActive(sliderdialog) + !Window.IsActive(subtitlesearch) + !Window.IsActive(script.pseudotv.TVOverlay.xml)</visible>
-			<visible>!Window.IsActive(DialogSettings.xml) + !Window.IsActive(DialogSlider.xml) + !Window.IsActive(PlayerProcessInfo) + !Window.IsActive(GameVideoFilter) + !Window.IsActive(GameStretchMode) + !Window.IsActive(GameControllers) + !Window.IsActive(GamePorts) + !Window.IsActive(GameVideoRotation)</visible>
+			<visible>!Window.IsActive(DialogSettings.xml) + !Window.IsActive(DialogSlider.xml) + !Window.IsActive(PlayerProcessInfo) + !Window.IsActive(GameVideoFilter) + !Window.IsActive(GameStretchMode) + !Window.IsActive(GameControllers) + !Window.IsActive(GamePorts) + !Window.IsActive(GameVideoRotation) + !Window.IsActive(GameDiscManager)</visible>
 			<animation type="WindowOpen">
 				<effect type="slide" start="0,-1000" end="0,0" time="600" tween="cubic" easing="inout" />
 			</animation>

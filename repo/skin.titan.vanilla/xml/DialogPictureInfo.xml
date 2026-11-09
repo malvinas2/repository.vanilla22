@@ -50,7 +50,7 @@
 					<width>1100</width>
 					<height>480</height>
 					<onleft>8000</onleft>
-					<onright>8000</onright>
+					<onright>60</onright>
 					<onup>5</onup>
 					<ondown>5</ondown>
 					<pagecontrol>60</pagecontrol>
@@ -164,6 +164,7 @@
 					<onup>60</onup>
 					<ondown>60</ondown>
 					<onleft>3</onleft>
+					<onright>8000</onright>
 					<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
 					<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
 				</control>
@@ -178,6 +179,10 @@
 					<ondown condition="Control.IsVisible(6)">6</ondown>
 					<onup condition="!Control.IsVisible(6)">3</onup>
 					<ondown condition="!Control.IsVisible(6)">3</ondown>
+					<onleft condition="Control.IsVisible(6)">6</onleft>
+					<onright condition="Control.IsVisible(6)">6</onright>
+					<onleft condition="!Control.IsVisible(6)">3</onleft>
+					<onright condition="!Control.IsVisible(6)">3</onright>
 					<control type="button" id="7">
 						<left></left>
 						<right>0</right>

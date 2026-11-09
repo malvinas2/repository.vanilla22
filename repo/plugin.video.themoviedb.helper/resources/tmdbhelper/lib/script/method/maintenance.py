@@ -3,59 +3,153 @@
 # License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
 
 
-def clean_old_databases():
-    """ Once-off routine to delete old unused database versions to avoid wasting disk space """
-    from tmdbhelper.lib.files.futils import delete_folder
-    from tmdbhelper.lib.addon.plugin import get_setting
-    for f in ['database', 'database_v2', 'database_v3', 'database_v4', 'database_v5']:
-        delete_folder(f, force=True, check_exists=True)
-    save_path = get_setting('image_location', 'str')
-    for f in ['blur', 'crop', 'desaturate', 'colors']:
-        delete_folder(f, force=True, check_exists=True)
-        if not save_path:
-            continue
-        delete_folder(f'{save_path}{f}/', force=True, check_exists=True, join_addon_data=False)
+class DatabaseMaintenance:
 
+    next_vacuum = 0
+    next_delete = 0
+    next_image_cleanup = 0
 
-def recache_kodidb(notification=True):
-    from tmdbhelper.lib.addon.plugin import ADDONPATH
-    from tmdbhelper.lib.api.kodi.rpc import KodiLibrary
-    from tmdbhelper.lib.addon.logger import TimerFunc
-    from xbmcgui import Dialog
-    with TimerFunc('KodiLibrary sync took', inline=True):
-        KodiLibrary('movie', cache_refresh=True)
-        KodiLibrary('tvshow', cache_refresh=True)
-    if not notification:
-        return
-    Dialog().notification('TMDbHelper', 'Kodi Library cached to memory', icon=f'{ADDONPATH}/icon.png')
+    vacuum_interval = 60 * 60 * 6
+    delete_interval = 60 * 60 * 24
+    image_cleanup_interval = 60 * 60 * 2
 
+    allow_during_video_playback = False
 
-def delete_cache(delete_cache, **kwargs):
-    from xbmcgui import Dialog
-    from tmdbhelper.lib.items.builder import ItemBuilder
-    from tmdbhelper.lib.api.fanarttv.api import FanartTV
-    from tmdbhelper.lib.api.trakt.api import TraktAPI
-    from tmdbhelper.lib.api.tmdb.api import TMDb
-    from tmdbhelper.lib.api.omdb.api import OMDb
-    from tmdbhelper.lib.addon.plugin import get_localized
-    from tmdbhelper.lib.addon.dialog import BusyDialog
-    d = {
-        'TMDb': lambda: TMDb(),
-        'Trakt': lambda: TraktAPI(),
-        'FanartTV': lambda: FanartTV(),
-        'OMDb': lambda: OMDb(),
-        'Item Details': lambda: ItemBuilder()}
-    if delete_cache == 'select':
-        m = [i for i in d]
-        x = Dialog().contextmenu([get_localized(32387).format(i) for i in m])
-        if x == -1:
+    legacy_databases_folders = (
+        'database',
+        'database_v2',
+        'database_v3',
+        'database_v4',
+        'database_v5',
+        'database_v6',
+        'database_v7'
+    )
+
+    legacy_img_cache_folders = (
+        'blur', 'blur_v2',
+        'crop',
+        'desaturate',
+        'colors'
+    )
+
+    def set_next_vacuum(self):
+        from tmdbhelper.lib.addon.tmdate import set_timestamp
+        self.next_vacuum = set_timestamp(self.vacuum_interval)
+
+    def set_next_delete(self):
+        from tmdbhelper.lib.addon.tmdate import set_timestamp
+        self.next_delete = set_timestamp(self.delete_interval)
+
+    def set_next_image_cleanup(self):
+        from tmdbhelper.lib.addon.tmdate import set_timestamp
+        self.next_image_cleanup = set_timestamp(self.image_cleanup_interval)
+
+    @property
+    def is_next_vacuum(self):
+        from tmdbhelper.lib.addon.tmdate import get_timestamp
+        return bool(not get_timestamp(self.next_vacuum))
+
+    @property
+    def is_next_delete(self):
+        from tmdbhelper.lib.addon.tmdate import get_timestamp
+        return bool(not get_timestamp(self.next_delete))
+
+    @property
+    def is_next_image_cleanup(self):
+        from tmdbhelper.lib.addon.tmdate import get_timestamp
+        return bool(not get_timestamp(self.next_image_cleanup))
+
+    @property
+    def is_blocked_by_playback(self):
+        if self.allow_during_video_playback:
+            return False
+        import xbmc
+        return xbmc.Player().isPlayingVideo()
+
+    @property
+    def is_vacuum_allowed(self):
+        if self.is_blocked_by_playback:
+            return False
+        return self.is_next_vacuum
+
+    @property
+    def is_delete_allowed(self):
+        if self.is_blocked_by_playback:
+            return False
+        return self.is_next_delete
+
+    @property
+    def is_image_cleanup_allowed(self):
+        if self.is_blocked_by_playback:
+            return False
+        return self.is_next_image_cleanup
+
+    @property
+    def legacy_usr_cache_folders(self):
+        from tmdbhelper.lib.addon.plugin import get_setting
+        image_location = get_setting('image_location', 'str')
+        return tuple((
+            f'{image_location}{f}'
+            for f in self.legacy_img_cache_folders
+        )) if image_location else tuple()
+
+    @property
+    def todays_date(self):
+        from tmdbhelper.lib.addon.tmdate import get_todays_date
+        return get_todays_date()
+
+    def vacuum(self, force=False):
+        if not force and not self.is_vacuum_allowed:
             return
-        delete_cache = m[x]
-    z = d.get(delete_cache)
-    if not z:
-        return
-    if not Dialog().yesno(get_localized(32387).format(delete_cache), get_localized(32388).format(delete_cache)):
-        return
-    with BusyDialog():
-        z()._cache.ret_cache()._do_delete()
-    Dialog().ok(get_localized(32387).format(delete_cache), get_localized(32389))
+        self.set_next_vacuum()
+        from tmdbhelper.lib.addon.logger import TimerFunc
+        from tmdbhelper.lib.items.database.database import ItemDetailsDatabase
+        from tmdbhelper.lib.query.database.database import FindQueriesDatabase
+        with TimerFunc('Vacuuming databases:', inline=True):
+            ItemDetailsDatabase().execute_sql("VACUUM")
+            FindQueriesDatabase().execute_sql("VACUUM")
+
+    def delete_legacy_folders(self, force=False):
+        """ Once-off routine to delete old unused database versions to avoid wasting disk space """
+        if not force and not self.is_delete_allowed:
+            return
+        self.set_next_delete()
+        from tmdbhelper.lib.files.futils import delete_folder
+        for f in self.legacy_databases_folders:
+            delete_folder(f, force=True, check_exists=True, join_addon_data=True)
+        for f in self.legacy_img_cache_folders:
+            delete_folder(f, force=True, check_exists=True, join_addon_data=True)
+        for f in self.legacy_usr_cache_folders:
+            delete_folder(f, force=True, check_exists=True, join_addon_data=False)
+
+    def prune_image_cache(self):
+        if not self.is_image_cleanup_allowed:
+            return
+        self.set_next_image_cleanup()
+        from tmdbhelper.lib.files.imagecache import ImageCacheMaintenance
+        ImageCacheMaintenance().prune()
+
+    @staticmethod
+    def recache_kodidb(notification=True, confirmation=False):
+        from tmdbhelper.lib.addon.plugin import ADDONPATH
+        from tmdbhelper.lib.api.kodi.rpc import KodiLibrary
+        from tmdbhelper.lib.addon.logger import TimerFunc
+        from xbmcgui import Dialog
+
+        with TimerFunc('KodiLibrary sync took', inline=True):
+            KodiLibrary('movie', cache_refresh=True)
+            KodiLibrary('tvshow', cache_refresh=True)
+
+        if notification:
+            head = 'TMDbHelper'
+            data = 'Kodi Library cached to memory'
+            icon = f'{ADDONPATH}/icon.png'
+            Dialog().notification(head, data, icon=icon)
+
+        if confirmation:
+            head = 'TMDbHelper'
+            data = 'Kodi Library cached to memory'
+            Dialog().ok(head, data)
+
+
+recache_kodidb = DatabaseMaintenance.recache_kodidb

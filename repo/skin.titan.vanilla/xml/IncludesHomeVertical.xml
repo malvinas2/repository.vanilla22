@@ -188,7 +188,6 @@
 				<onright condition="!Control.IsVisible(4446) + Integer.IsGreater(Container(4445).NumItems,0) + !Skin.HasSetting(OpenSubMenuOnClick)">Control.SetFocus(4444,0)</onright>
 				<onright condition="!Control.IsVisible(4446) + [Skin.HasSetting(OpenSubMenuOnClick) | !Integer.IsGreater(Container(4445).NumItems,0)]">$VAR[focusWidget]</onright>
 				<scrolltime tween="quadratic">200</scrolltime>
-				<movement>0</movement>
 				<preloaditems>4</preloaditems>
 				<itemlayout height="80" width="370" condition="!Skin.String(HomeLayout, simplever_tiles)">
 					<control type="label">
@@ -448,7 +447,6 @@
 				<visible>!Skin.HasSetting(DisableAllSubmenus)</visible>
 				<width>310</width>
 				<height>390</height>
-				<itemgap>3</itemgap>
 				<onleft>300</onleft>
 				<onleft>ClearProperty(submenu,home)</onleft>
 				<onright condition="!Skin.HasSetting(AutoShowSubmenu)">ClearProperty(submenu,home)</onright>
@@ -457,8 +455,6 @@
 				<ondown>4444</ondown>
 				<onback>300</onback>
 				<onback>ClearProperty(submenu,home)</onback>
-				<focusposition>0</focusposition>
-				<movement>3</movement>
 				<itemlayout width="320" height="65">
 					<control type="label">
 						<left>10</left>
@@ -547,7 +543,6 @@
 				<left>0</left>
 				<top>0</top>
 				<height>440</height>
-				<itemgap>3</itemgap>
 				<onleft>300</onleft>
 				<onleft condition="!Skin.HasSetting(AutoShowSubmenu)">ClearProperty(submenu,home)</onleft>
 				<onright>77777</onright>
@@ -559,8 +554,6 @@
 				<ondown>300</ondown>
 				<onback>300</onback>
 				<onback condition="!Skin.HasSetting(AutoShowSubmenu)">ClearProperty(submenu,home)</onback>
-				<focusposition>0</focusposition>
-				<movement>3</movement>
 				<itemlayout width="400" height="65">
 					<control type="label">
 						<left>0</left>
@@ -729,8 +722,6 @@
 				<onback>300</onback>
 				<pagecontrol></pagecontrol>
 				<scrolltime tween="quadratic" easing="out">300</scrolltime>
-				<focusposition>1</focusposition>
-				<movement>2</movement>
 				<orientation>vertical</orientation>
 				<itemlayout height="72" width="384">
 					<control type="image">

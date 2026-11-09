@@ -21,27 +21,28 @@
 				<!-- Background Panel-->
 				<control type="image">
 					<left>50</left>
-					<top>210</top>
+					<top>40</top>
 					<width>1820</width>
-					<height>67%</height>
+					<height>890</height>
 					<texture border="15">diffuse/bgpanel.png</texture>
 					<visible>!Skin.HasSetting(DialogVideoInfoHidePanel)</visible>
 					<colordiffuse>$VAR[ViewDetailsPanelColor]</colordiffuse>
 				</control>
 				<!-- clearlogo at top left-->
 				<control type="image" id="887766">
-					<left>60</left>
-					<top>10</top>
+					<left></left>
+					<right>50</right>
+					<top>40</top>
 					<width>450</width>
 					<height>180</height>
 					<fadetime>600</fadetime>
 					<aspectratio align="left" aligny="center">keep</aspectratio>
 					<texture background="true">$VAR[ListItemClearLogo]</texture>
-					<visible>Container.Content(Artists)</visible>
+					<visible>String.IsEqual(ListItem.DBType,artist)</visible>
 				</control>
 				<!-- Header (if no logo)-->
 				<control type="group">
-					<visible>String.IsEmpty(Control.GetLabel(887766)) | !Container.Content(Artists)</visible>
+					<visible>true</visible>
 					<control type="label">
 						<left>80</left>
 						<top>40</top>
@@ -56,14 +57,15 @@
 				</control>
 				<control type="group">
 					<control type="group">
-						<visible>String.IsEmpty(Window.Property(AdditionalMusicInfo))</visible>
+						<!-- <visible>String.IsEmpty(Window.Property(AdditionalMusicInfo))</visible> -->
 						<include>animation_window_open_close</include>
 						<!--Info-->
 						<control type="group">
 							<control type="image">
 								<!--cdart image-->
-								<left>1300</left>
-								<top>335</top>
+								<left></left>
+								<right>80</right>
+								<top>250</top>
 								<width>480</width>
 								<height>480</height>
 								<texture background="true" diffuse="diffuse/cdmask_new.png" fallback="defaultcovers/cd_big.png">$VAR[DiscArtImage]</texture>
@@ -73,12 +75,13 @@
 								<animation effect="fade" start="100" end="0" delay="0" time="150" pulse="false" condition="!Skin.HasSetting(MusicInfo_ShowCDart)">Conditional</animation>
 								<animation effect="rotate" end="-90" center="auto" time="600" loop="false" reversible="false" condition="!Skin.HasSetting(AnimateDiscArt)">Conditional</animation>
 								<animation effect="rotate" end="-360" center="auto" time="20000" delay="0" loop="true" reversible="false" condition="Skin.HasSetting(AnimateDiscArt)">Conditional</animation>
-								<visible>!Container.Content(Artists)</visible>
+								<visible>!String.IsEqual(ListItem.DBTYPE,artist)</visible>
 							</control>
 							<control type="image">
 								<!--poster-->
-								<left>1275</left>
-								<top>335</top>
+								<left></left>
+								<right>80</right>
+								<top>230</top>
 								<width>500</width>
 								<height>500</height>
 								<aspectratio align="right" aligny="top" scalediffuse="true">keep</aspectratio>
@@ -86,8 +89,9 @@
 							</control>
 							<control type="grouplist">
 								<!-- Rating -->
-								<left>1300</left>
-								<top>845</top>
+								<left></left>
+								<right>80</right>
+								<top>725</top>
 								<width>500</width>
 								<align>center</align>
 								<orientation>horizontal</orientation>
@@ -111,23 +115,22 @@
 									<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
 									<texture fallback="leftrating/rating0.png">$VAR[musicrating_stars]</texture>
 								</control>
-								<visible>!Container.Content(Artists)</visible>
+								<visible>!String.IsEqual(ListItem.DBTYPE,artist)</visible>
 							</control>
 						</control>
-						<control type="grouplist">
-							<left>70</left>
-							<top>235</top>
+					
+					</control>
+					<control type="group">
+						<visible>String.IsEmpty(Window.Property(AdditionalMusicInfo))</visible>
+						<include>animation_window_open_close</include>
+						<control type="group">
+							<left>80</left>
+							<top>130</top>
 							<width>1800</width>
 							<height>820</height>
-							<onup>9000</onup>
-							<ondown>9000</ondown>
-							<onleft>50</onleft>
-							<onright>50</onright>
-							<orientation>vertical</orientation>
-							<itemgap>20</itemgap>
 							<!-- Artist Information-->
 							<control type="textbox">
-								<width>1150</width>
+								<width>1200</width>
 								<height>215</height>
 								<label fallback="19055">$VAR[Plots]</label>
 								<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
@@ -136,75 +139,55 @@
 								<font>Reg26</font>
 							</control>
 							<control type="image">
-								<width>1150</width>
+								<top>225</top>
+								<width>1200</width>
 								<height>1</height>
 								<texture>colors/color_white.png</texture>
 								<colordiffuse>$INFO[Skin.String(ViewDetailsTextColor)]</colordiffuse>
 							</control>
-							<control type="group">
-								<!--Born or Year, died -->
-								<height>30</height>
-								<visible>!String.IsEmpty(Control.GetLabel(3001)) | !String.IsEmpty(Control.GetLabel(3002)) | !String.IsEmpty(Control.GetLabel(3003))</visible>
-								<include content="music_info_label">
-									<param name="width" value="480" />
-									<param name="left" value="0" />
-									<param name="label1" value="$VAR[music_born_prefix_label]" />
-									<param name="label2" value="$VAR[music_born_label]" />
-									<param name="id" value="1" />
-								</include>
-								<include content="music_info_label">
-									<param name="width" value="350" />
-									<param name="left" value="485" />
-									<param name="label1" value="$VAR[music_died_prefix_label]" />
-									<param name="label2" value="$VAR[music_died_label]" />
-									<param name="id" value="2" />
-								</include>
-								<include content="music_info_label">
-									<param name="width" value="315" />
-									<param name="left" value="840" />
-									<param name="label1" value="$LOCALIZE[21898]: " />
-									<param name="label2" value="$INFO[ListItem.Property(Artist_YearsActive)]" />
-									<param name="id" value="3" />
-								</include>
-							</control>
-							<control type="group">
-								<!--genre style mood -->
-								<height>30</height>
-								<visible>!String.IsEmpty(Control.GetLabel(3004)) | !String.IsEmpty(Control.GetLabel(3005)) | !String.IsEmpty(Control.GetLabel(3006))</visible>
-								<include content="music_info_label">
-									<param name="width" value="480" />
-									<param name="left" value="0" />
-									<param name="label1" value="$LOCALIZE[135]: " />
-									<param name="label2" value="$VAR[music_genre_label]" />
-									<param name="id" value="4" />
-								</include>
-								<include content="music_info_label">
-									<param name="width" value="350" />
-									<param name="left" value="485" />
-									<param name="label1" value="$LOCALIZE[176]: " />
-									<param name="label2" value="$VAR[music_style_label]" />
-									<param name="id" value="5" />
-								</include>
-								<include content="music_info_label">
-									<param name="width" value="315" />
-									<param name="left" value="840" />
-									<param name="label1" value="$LOCALIZE[175]: " />
-									<param name="label2" value="$VAR[music_mood_label]" />
-									<param name="id" value="6" />
-								</include>
+							<control type="panel">
+								<enable>false</enable>
+								<left>0</left>
+								<top>235</top>
+								<width>1200</width>
+								<height>400</height>
+								<itemlayout height="35" width="400">
+									<control type="label">
+										<label>[B]$INFO[ListItem.Label][/B] $INFO[ListItem.Label2]</label>
+										<width>380</width>
+										<font>Reg24</font>
+										<align>left</align>
+										<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+										<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
+										<scroll>true</scroll>
+									</control>
+								</itemlayout>
+								<focusedlayout height="35" width="400">
+								</focusedlayout>
+								<content>
+									<include condition="String.IsEqual(ListItem.DBTYPE,artist)">MusicInfoArtistInfo</include>
+									<include condition="String.IsEqual(ListItem.DBTYPE,album)">MusicInfoAlbumInfo</include>
+									<include condition="String.IsEqual(ListItem.DBTYPE,song)">MusicInfoSongInfo</include>
+								</content>
 							</control>
 							<control type="image">
-								<visible>!String.IsEmpty(Control.GetLabel(3001)) | !String.IsEmpty(Control.GetLabel(3002)) | !String.IsEmpty(Control.GetLabel(3003)) | !String.IsEmpty(Control.GetLabel(3004)) | !String.IsEmpty(Control.GetLabel(3005)) | !String.IsEmpty(Control.GetLabel(3006))</visible>
-								<width>1150</width>
+								<top>465</top>
+								<width>1200</width>
 								<height>1</height>
 								<texture>colors/color_white.png</texture>
 								<colordiffuse>$INFO[Skin.String(ViewDetailsTextColor)]</colordiffuse>
+								<visible>!Window.Is(songinformation)</visible>
 							</control>
 							<!--Album, Song and Additional Members-->
 							<control type="panel" id="50">
+								<left>30</left>
+								<top>475</top>
 								<width>1150</width>
-								<height>360</height>
-								<orientation>horizontal</orientation>
+								<height>290</height>
+								<onleft>64</onleft>
+								<ondown>9000</ondown>
+								<orientation>vertical</orientation>
+								<pagecontrol>64</pagecontrol>
 								<itemlayout height="230" width="230" condition="Container.Content(artists)">
 									<control type="group">
 										<width>230</width>
@@ -240,21 +223,44 @@
 									</include>
 								</focusedlayout>
 							</control>
+							<control type="scrollbar" id="64">
+								<left>0</left>
+								<top>485</top>
+								<width>20</width>
+								<height>275</height>
+								<onright>50</onright>
+								<orientation>vertical</orientation>
+								<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(64) | Skin.HasSetting(EnableTouchSupport) | Container(50).Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
+								<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(64) | Skin.HasSetting(EnableTouchSupport) | Container(50).Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
+							</control>
 						</control>
 					</control>
 
-					<!-- Large InfoText -->
+
 					<control type="textbox" id="203040">
-						<left>65</left>
-						<top>230</top>
-						<width>1790</width>
-						<height>60%</height>
+						<left>-5000</left>
+						<bottom>-5000</bottom>
+						<width>1</width>
+						<height>1</height>
 						<label>$VAR[Plots]</label>
-						<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
-						<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
-						<align>justify</align>
-						<font>Reg42</font>
-						<visible>String.IsEqual(Window.Property(AdditionalMusicInfo),plot)</visible>
+					</control>
+
+					<control type="group">
+						<visible>!String.IsEmpty(Window.Property(AdditionalMusicInfo))</visible>
+						<!-- Large InfoText -->
+						<control type="textbox" id="203041">
+							<left>80</left>
+							<top>130</top>
+							<width>1200</width>
+							<height>770</height>
+							<label>$VAR[Plots]</label>
+							<!-- <label fallback="19055">$VAR[Plots]</label> -->
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
+							<align>justify</align>
+							<font>Reg30</font>
+							<!-- <visible>String.IsEqual(Window.Property(AdditionalMusicInfo),plot)</visible> -->
+						</control>
 					</control>
 
 					<!--Info Stuff-->
@@ -276,15 +282,14 @@
 						<height>60</height>
 						<itemgap>15</itemgap>
 						<onup>50</onup>
-						<ondown>50</ondown>
+						<ondown condition="!String.IsEmpty(Window.Property(AdditionalMusicInfo))">ClearProperty(AdditionalMusicInfo)</ondown>
+						<ondown condition="String.IsEmpty(Window.Property(AdditionalMusicInfo)) + !String.IsEmpty(Control.GetLabel(203040))">SetProperty(AdditionalMusicInfo, plot)</ondown>
 						<onleft>9000</onleft>
 						<onright>9000</onright>
-						<pagecontrol>60</pagecontrol>
 						<orientation>horizontal</orientation>
 						<include condition="Skin.HasSetting(EnableTouchSupport)">back_button</include>
 						<include condition="Skin.HasSetting(EnableTouchSupport)">home_button</include>
 						<include condition="Skin.HasSetting(EnableTouchSupport)">close_button</include>
-
 						<!--Play-->
 						<control type="button" id="8">
 							<label>$LOCALIZE[208]</label>
@@ -298,7 +303,28 @@
 							<onclick>Queue</onclick>
 							<visible>Skin.HasSetting(musicinfo_button_play)</visible>
 						</control>
-
+						<control type="togglebutton" id="207208">
+							<!--Plot and Info Button-->
+							<label>$VAR[music_plot_label]</label>
+							<altlabel>$LOCALIZE[19033]</altlabel>
+							<width>285</width>
+							<height>60</height>
+							<align>center</align>
+							<textoffsetx>0</textoffsetx>
+							<onclick condition="!String.IsEmpty(Window.Property(AdditionalMusicInfo))">ClearProperty(AdditionalMusicInfo)</onclick>
+							<onclick condition="String.IsEmpty(Window.Property(AdditionalMusicInfo))">SetProperty(AdditionalMusicInfo, plot)</onclick>
+							<visible>!String.IsEmpty(Control.GetLabel(203040))</visible>
+							<visible>Skin.HasSetting(musicinfo_button_information)</visible>						
+						</control>
+						<control type="button" id="12">
+							<!--Artist Info button-->
+							<width>285</width>
+							<height>60</height>
+							<align>center</align>
+							<textoffsetx>0</textoffsetx>
+							<label>$LOCALIZE[10523]</label>
+							<visible>Skin.HasSetting(musicinfo_button_information)</visible>
+						</control>						
 						<!--Youtube-->
 						<control type="button" id="100">
 							<width>285</width>
@@ -311,41 +337,6 @@
 							<visible>Skin.HasSetting(musicinfo_button_youtubevideos)</visible>
 							<visible>String.IsEqual(Window(Home).Property(contenttype),albums) | String.IsEqual(Window(Home).Property(contenttype),songs) | String.IsEqual(Window(Home).Property(contenttype),artists)</visible>
 						</control>
-
-						<control type="button" id="12">
-							<!--Album Info button-->
-							<width>285</width>
-							<height>60</height>
-							<align>center</align>
-							<textoffsetx>0</textoffsetx>
-							<label>$LOCALIZE[10523]</label>
-							<visible>Skin.HasSetting(musicinfo_button_information)</visible>
-						</control>
-
-						<control type="button" id="207207">
-							<!--Plot Button-->
-							<label>$VAR[music_plot_label]</label>
-							<width>285</width>
-							<height>60</height>
-							<align>center</align>
-							<textoffsetx>0</textoffsetx>
-							<onclick>SetProperty(AdditionalMusicInfo, plot)</onclick>
-							<visible>!String.IsEmpty(Control.GetLabel(203040))</visible>
-							<visible>!String.IsEqual(Window.Property(AdditionalMusicInfo),plot)</visible>
-							<visible>Skin.HasSetting(musicinfo_button_information)</visible>
-						</control>
-
-						<control type="button" id="116">
-							<!--Info Button-->
-							<label>$LOCALIZE[19033]</label>
-							<width>285</width>
-							<height>60</height>
-							<align>center</align>
-							<textoffsetx>0</textoffsetx>
-							<onclick>ClearProperty(AdditionalMusicInfo)</onclick>
-							<visible>!String.IsEmpty(Window.Property(AdditionalMusicInfo))</visible>
-						</control>
-
 						<control type="button" id="119">
 							<!--Wikipedia Button-->
 							<label>Wikipedia</label>
@@ -357,10 +348,9 @@
 							<onclick>RunScript(script.wikipedia,wikipedia=$VAR[value_header],language=$VAR[language_iso639-1])</onclick>
 							<visible>System.AddonIsEnabled(script.wikipedia)</visible>
 						</control>			
-
 						<!-- Artwork -->
 						<control type="button" id="101">
-							<!--If AB is installed open Custom_MediaDialog, otherwise use build in Dialog-->
+							<!--If AB is installed open Custom_MediaDialog, otherwise use build in Dialog id="10" -->
 							<label>$LOCALIZE[13511]</label>
 							<width>285</width>
 							<height>60</height>
@@ -372,7 +362,6 @@
 							<visible>!Skin.HasSetting(KioskMode.Enabled)</visible>
 							<visible>Skin.HasSetting(musicinfo_button_artwork)</visible>
 						</control>
-
 						<control type="button" id="7">
 							<!--set personal rating-->
 							<width>285</width>
@@ -393,7 +382,6 @@
 							<enable>!Skin.HasSetting(KioskMode.Enabled)</enable>
 							<visible>Skin.HasSetting(musicinfo_button_refresh)</visible>
 						</control>
-
 						<control type="radiobutton" id="9300">
 							<!--discart-->
 							<width>340</width>
@@ -424,7 +412,6 @@
 						<left>1880</left>
 						<top></top>
 						<bottom>15</bottom>
-						<!-- <top>50</top> -->
 						<width>20</width>
 						<height>60</height>
 						<aspectratio>keep</aspectratio>
@@ -439,7 +426,6 @@
 						<left>35</left>
 						<top></top>
 						<bottom>15</bottom>
-						<!-- <top>50</top> -->
 						<width>20</width>
 						<height>60</height>
 						<aspectratio>keep</aspectratio>

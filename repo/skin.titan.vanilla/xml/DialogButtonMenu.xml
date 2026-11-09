@@ -70,13 +70,14 @@
 			</control>
 			<!--Menu-Label-->
 			<control type="label">
-				<left>130</left>
+				<left>70</left>
 				<label>$INFO[Container(3110).ListItem.Label]</label>
-				<width>560</width>
+				<width>620</width>
 				<height>110</height>
 				<align>left</align>
 				<aligny>center</aligny>
 				<font>Reg42</font>
+				<scroll>true</scroll>
 				<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 				<animation effect="fade" time="250" delay="250">Visible</animation>
 			</control>
@@ -86,16 +87,14 @@
 				<top>25</top>
 				<width>1130</width>
 				<height>75</height>
-				<align>center</align>
 				<onup>Dialog.Close(shutdownmenu)</onup>
 				<ondown>Dialog.Close(shutdownmenu)</ondown>
 				<onup>300</onup>
 				<ondown>300</ondown>
 				<onback>300</onback>
 				<orientation>horizontal</orientation>
-				<focusposition></focusposition>
 				<scrolltime tween="cubic" easing="inout">500</scrolltime>
-				<itemlayout width="170" height="64">
+				<itemlayout width="130" height="64">
 					<control type="image">
 						<width>64</width>
 						<height>64</height>
@@ -104,7 +103,7 @@
 						<animation end="50" effect="fade" time="0" delay="0" condition="true">Conditional</animation>
 					</control>
 				</itemlayout>
-				<focusedlayout width="170" height="64">
+				<focusedlayout width="130" height="64">
 					<control type="image">
 						<width>64</width>
 						<height>64</height>
@@ -128,7 +127,7 @@
 						<icon>common/shutdown1.png</icon>
 						<visible>System.CanPowerDown + Window.IsActive(loginscreen)</visible>
 						<onclick condition="Window.IsActive(shutdownmenu)">Dialog.Close(shutdownmenu)</onclick>
-						<onclick>PowerDown</onclick>
+						<onclick>PowerDown()</onclick>
 					</item>
 					<item id="999">
 						<label>$LOCALIZE[13013]</label>
@@ -137,6 +136,35 @@
 						<onclick condition="Window.IsActive(shutdownmenu)">Dialog.Close(shutdownmenu)</onclick>
 						<onclick>Reboot</onclick>
 					</item>
+					<item id="1000">
+						<label>$LOCALIZE[20150]</label>
+						<onclick>AlarmClock(shutdowntimer,Shutdown())</onclick>
+						<visible>!System.HasAlarm(shutdowntimer)</visible>
+						<visible>System.CanPowerDown | System.CanSuspend | System.CanHibernate</visible>
+						<icon>common/shutdown-timer.png</icon>
+						<onclick condition="Window.IsActive(shutdownmenu)">Dialog.Close(shutdownmenu)</onclick>
+					</item>
+					<item id="1001">
+						<label>$LOCALIZE[20151] $INFO[System.AlarmPos,(,)]</label>
+						<onclick>CancelAlarm(shutdowntimer)</onclick>
+						<visible>System.HasAlarm(shutdowntimer)</visible>
+						<icon>common/cancel-timer.png</icon>
+						<onclick condition="Window.IsActive(shutdownmenu)">Dialog.Close(shutdownmenu)</onclick>
+					</item>	
+					<item id="1002">
+						<label>$LOCALIZE[13017]</label>
+						<onclick>InhibitIdleShutdown(true)</onclick>
+						<visible>System.HasShutdown +!System.IdleShutdownInhibited</visible>
+						<icon>common/inhibit.png</icon>
+						<onclick condition="Window.IsActive(shutdownmenu)">Dialog.Close(shutdownmenu)</onclick>
+					</item>	
+					<item id="1003">
+						<label>$LOCALIZE[13018]</label>
+						<onclick>InhibitIdleShutdown(false)</onclick>
+						<visible>System.HasShutdown + System.IdleShutdownInhibited</visible>
+						<icon>common/inhibit.png</icon>
+						<onclick condition="Window.IsActive(shutdownmenu)">Dialog.Close(shutdownmenu)</onclick>
+					</item>	
 				</content>
 			</control>
 		</control>

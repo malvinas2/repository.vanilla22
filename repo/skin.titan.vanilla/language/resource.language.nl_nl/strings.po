@@ -344,14 +344,6 @@ msgctxt "#31088"
 msgid "Live-TV"
 msgstr "Live-TV"
 
-msgctxt "#31089"
-msgid "XBMB3C add-on"
-msgstr "Emby for Kodi add-on"
-
-msgctxt "#31090"
-msgid "XBMB3C settings"
-msgstr "Emby for Kodi Instellingen"
-
 msgctxt "#31091"
 msgid "Mediabrowser"
 msgstr "Emby"
@@ -2782,14 +2774,14 @@ msgctxt "#31823"
 msgid "Use fixed focus"
 msgstr "Gebruik gefixeerde focus"
 
-msgctxt "#30035"
+msgctxt "#31956"
 msgid "Continue watching in $INFO[Window.Property(remaining)] seconds"
 msgstr "Verder kijken in $INFO[Window.Property(remaining)] seconden"
 
-msgctxt "#30036"
+msgctxt "#31957"
 msgid "Up next in $INFO[Window.Property(remaining)] seconds"
 msgstr "Volgende aflevering in $INFO[Window.Property(remaining)] seconden"
 
-msgctxt "#30037"
+msgctxt "#31958"
 msgid "Next episode in $INFO[Window.Property(remaining)] seconds"
 msgstr "Volgende aflevering in $INFO[Window.Property(remaining)] seconden"

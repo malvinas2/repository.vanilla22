@@ -16,32 +16,32 @@
 			<visible>!Window.IsActive(virtualkeyboard) + !Window.IsActive(locksettings)</visible>
 			<control type="image">
 				<!--Panel-->
-				<left>445</left>
+				<left>395</left>
 				<top>180</top>
-				<width>1030</width>
-				<height>730</height>
+				<width>1130</width>
+				<height>770</height>
 				<texture border="15">diffuse/bgpanel.png</texture>
 				<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
 			</control>
 			<control type="image">
 				<!--Panel-->
-				<left>445</left>
+				<left>395</left>
 				<top>180</top>
-				<width>1030</width>
-				<height>730</height>
+				<width>1130</width>
+				<height>770</height>
 				<texture border="15">diffuse/bgpanel.png</texture>
 				<bordersize>10</bordersize>
 				<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
 			</control>
 			<control type="image">
-				<left>479</left>
+				<left>429</left>
 				<top>300</top>
-				<width>590</width>
+				<width>690</width>
 				<height>481</height>
 				<texture border="5">dialogs/default/inner.png</texture>
 			</control>
 			<control type="image">
-				<left>1122</left>
+				<left>1172</left>
 				<top>300</top>
 				<width>319</width>
 				<height>481</height>
@@ -50,9 +50,9 @@
 			<!--Header-->
 			<control type="label" id="411">
 				<description>Heading</description>
-				<left>473</left>
+				<left>423</left>
 				<top>200</top>
-				<width>974</width>
+				<width>1074</width>
 				<label></label>
 				<include>DialogHeader</include>
 				<align>center</align>
@@ -68,7 +68,7 @@
 				<visible>String.IsEmpty(Container(450).ListItem.Icon)</visible>
 			</control>-->
 			<control type="image">
-				<left>1123</left>
+				<left>1173</left>
 				<top>301</top>
 				<width>317</width>
 				<height>478</height>
@@ -78,9 +78,9 @@
 			<!--List-->
 			<control type="list" id="450">
 				<!--Container 450-->
-				<left>479</left>
+				<left>429</left>
 				<top>300</top>
-				<width>580</width>
+				<width>680</width>
 				<height>480</height>
 				<onleft>8000</onleft>
 				<onright>60</onright>
@@ -92,7 +92,7 @@
 					<control type="image">
 						<left>0</left>
 						<top>1</top>
-						<width>644</width>
+						<width>744</width>
 						<height>60</height>
 						<texture>dialogs/default/separator.png</texture>
 					</control>
@@ -117,7 +117,7 @@
 					<control type="label">
 						<left>70</left>
 						<top>0</top>
-						<width>574</width>
+						<width>674</width>
 						<height>60</height>
 						<info>ListItem.Label</info>
 						<align>left</align>
@@ -134,7 +134,7 @@
 						<control type="image">
 							<left>0</left>
 							<top>1</top>
-							<width>644</width>
+							<width>744</width>
 							<height>60</height>
 							<texture>dialogs/default/separator.png</texture>
 						</control>
@@ -159,7 +159,7 @@
 						<control type="label">
 							<left>70</left>
 							<top>0</top>
-							<width>574</width>
+							<width>674</width>
 							<height>60</height>
 							<info>ListItem.Label</info>
 							<align>left</align>
@@ -173,7 +173,7 @@
 						<animation effect="fade" start="0" end="100" time="300" tween="sine" easing="inout" condition="![Container(450).Scrolling | Container(450).OnScrollNext | Container(450).OnScrollPrevious]">Visible</animation>
 						<animation effect="fade" start="100" end="0" time="300" tween="sine" easing="inout" condition="![Container(450).Scrolling | Container(450).OnScrollNext | Container(450).OnScrollPrevious]">Hidden</animation>
 						<control type="image">
-							<width>644</width>
+							<width>744</width>
 							<height>60</height>
 							<texture border="5">diffuse/panel.png</texture>
 							<colordiffuse>$INFO[Skin.String(ButtonFocusColor)]</colordiffuse>
@@ -199,7 +199,7 @@
 						<control type="label">
 							<left>70</left>
 							<top>0</top>
-							<width>574</width>
+							<width>674</width>
 							<height>60</height>
 							<info>ListItem.Label</info>
 							<include>DialogListFO</include>
@@ -212,9 +212,9 @@
 			</control>
 			<control type="list" id="451">
 				<!--Container 451-->
-				<left>479</left>
+				<left>429</left>
 				<top>300</top>
-				<width>580</width>
+				<width>680</width>
 				<height>480</height>
 				<onleft>8000</onleft>
 				<onright>60</onright>
@@ -226,7 +226,7 @@
 					<control type="image">
 						<left>0</left>
 						<top>1</top>
-						<width>644</width>
+						<width>744</width>
 						<height>60</height>
 						<texture>dialogs/default/separator.png</texture>
 					</control>
@@ -251,7 +251,7 @@
 					<control type="label">
 						<left>70</left>
 						<top>0</top>
-						<width>574</width>
+						<width>674</width>
 						<height>60</height>
 						<info>ListItem.Label</info>
 						<align>left</align>
@@ -268,7 +268,7 @@
 						<control type="image">
 							<left>0</left>
 							<top>1</top>
-							<width>644</width>
+							<width>744</width>
 							<height>60</height>
 							<texture>dialogs/default/separator.png</texture>
 						</control>
@@ -293,7 +293,7 @@
 						<control type="label">
 							<left>70</left>
 							<top>0</top>
-							<width>574</width>
+							<width>674</width>
 							<height>60</height>
 							<info>ListItem.Label</info>
 							<align>left</align>
@@ -308,7 +308,7 @@
 						<animation effect="fade" start="0" end="100" time="300" tween="sine" easing="inout" condition="![Container(451).Scrolling | Container(451).OnScrollNext | Container(451).OnScrollPrevious]">Visible</animation>
 						<animation effect="fade" start="100" end="0" time="300" tween="sine" easing="inout" condition="![Container(451).Scrolling | Container(451).OnScrollNext | Container(451).OnScrollPrevious]">Hidden</animation>
 						<control type="image">
-							<width>644</width>
+							<width>744</width>
 							<height>60</height>
 							<texture border="5">diffuse/panel.png</texture>
 							<colordiffuse>$INFO[Skin.String(ButtonFocusColor)]</colordiffuse>
@@ -334,7 +334,7 @@
 						<control type="label">
 							<left>70</left>
 							<top>0</top>
-							<width>574</width>
+							<width>674</width>
 							<height>60</height>
 							<info>ListItem.Label</info>
 							<include>DialogListFO</include>
@@ -348,49 +348,88 @@
 			</control>
 				<!--scrollbar-->
 			<control type="scrollbar" id="60"> 
-				<left>1065</left>
+				<left>1125</left>
 				<top>300</top>
 				<height>480</height>
 				<onleft>450</onleft>
 				<onleft>451</onleft>
-				<onright></onright>
+				<onright>noop</onright>
 				<showonepage>false</showonepage>
 				<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
 				<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
 			</control>	
 			<!--Buttons-->
 			<control type="grouplist" id="8000">
-				<left>472</left>
+				<left>422</left>
 				<top>810</top>
-				<width>1200</width>
+				<width>1300</width>
 				<orientation>horizontal</orientation>
-				<height>100</height>
+				<height>80</height>
 				<onup>450</onup>
-				<itemgap>15</itemgap>
+				<itemgap>5</itemgap>
 				<control type="button" id="413">
 					<description>OK</description>
 					<label>$LOCALIZE[186]</label>
-					<width>316</width>
+					<width>265</width>
 					<include>DialogButtonOther</include>
 					<pulseonselect>false</pulseonselect>
-					<animation effect="fade" start="100" end="75" time="0" condition="!Control.IsEnabled(413)">Conditional</animation>
+					<visible>Control.IsEnabled(413)</visible>
+					<!-- <animation effect="fade" start="100" end="0" time="0" condition="!Control.IsEnabled(413)">Conditional</animation> -->
 				</control>
 				<control type="button" id="414">
-					<left>200</left>
 					<description>Cancel</description>
 					<label>$LOCALIZE[222]</label>
-					<width>316</width>
+					<width>265</width>
 					<include>DialogButtonOther</include>
-					<animation effect="fade" start="100" end="75" time="0" condition="!Control.IsEnabled(414)">Conditional</animation>
+					<visible>Control.IsEnabled(414)</visible>
+					<!-- <animation effect="fade" start="100" end="0" time="0" condition="!Control.IsEnabled(414)">Conditional</animation> -->
 				</control>
 				<control type="button" id="415">
-					<left>650</left>
 					<description>Create Folder</description>
 					<label>$LOCALIZE[119]</label>
-					<width>316</width>
+					<width>265</width>
 					<include>DialogButtonOther</include>
-					<animation effect="fade" start="100" end="0" time="0" condition="!Control.IsEnabled(415)">Conditional</animation>
+					<visible>Control.IsEnabled(415)</visible>
+					<!-- <animation effect="fade" start="100" end="0" time="0" condition="!Control.IsEnabled(415)">Conditional</animation> -->
 				</control>
+				<control type="radiobutton" id="416">
+					<description>Flip Image horizontally</description>
+					<label>$LOCALIZE[749]</label>
+					<width>265</width>
+					<font>Reg28</font>
+					<radioposx>160</radioposx>
+					<textoffsetx>20</textoffsetx>
+					<align>left</align>
+					<radioheight>65</radioheight>
+					<disabledcolor>aaffffff</disabledcolor>
+					<include>DialogButtonOther</include>
+					<visible>Control.IsEnabled(416)</visible>
+					<!-- <animation effect="fade" start="100" end="0" time="0" condition="!Control.IsEnabled(416)">Conditional</animation> -->
+				</control>
+			</control>
+
+			<control type="label" id="412">
+				<description>Path label</description>
+				<left>429</left>
+				<top>890</top>
+				<width>595</width>
+				<height>35</height>
+				<align>left</align>
+				<haspath>true</haspath>
+				<include>DialogLabel</include>
+			</control>
+			
+			<!-- Anzahl der Eintrage, rechts unten -->
+			<control type="label">
+				<left>1210</left>
+				<!-- <right>400</right> -->
+				<top>890</top>
+				<width>280</width>
+				<height>35</height>
+				<align>right</align>
+				<include>DialogLabel</include>
+				<visible>Control.IsVisible(450)</visible>
+				<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(450).NumItems][/COLOR] $LOCALIZE[31954] - [COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(450).CurrentPage]/$INFO[Container(450).NumPages][/COLOR]</label>
 			</control>
 		</control>
 	</controls>

@@ -172,14 +172,6 @@ msgctxt "#31088"
 msgid "Live-TV"
 msgstr "Live-TV"
 
-msgctxt "#31089"
-msgid "XBMB3C add-on"
-msgstr "Πρόσθετο XBMB3C"
-
-msgctxt "#31090"
-msgid "XBMB3C settings"
-msgstr "Ρυθμίσεις XBMB3C"
-
 msgctxt "#31092"
 msgid "Unwatched Episodes"
 msgstr "Μη Προβληθέντα Επεισόδια"
@@ -484,14 +476,14 @@ msgctxt "#31749"
 msgid "Show info"
 msgstr "Προβολή πληροφοριών"
 
-msgctxt "#30035"
+msgctxt "#31956"
 msgid "Continue watching in $INFO[Window.Property(remaining)] seconds"
 msgstr "Συνέχιση παρακολούθησης σε $INFO[Window.Property(remaining)] δευτερόλεπτα"
 
-msgctxt "#30036"
+msgctxt "#31957"
 msgid "Up next in $INFO[Window.Property(remaining)] seconds"
 msgstr "Επόμενο σε $INFO[Window.Property(remaining)] δευτερόλεπτα"
 
-msgctxt "#30037"
+msgctxt "#31958"
 msgid "Next episode in $INFO[Window.Property(remaining)] seconds"
 msgstr "Επόμενο επεισόδιο σε $INFO[Window.Property(remaining)] δευτερόλεπτα"

@@ -754,7 +754,6 @@
 							<ondown condition="!Skin.HasSetting(EnableTouchSupport)">350</ondown>
 							<pagecontrol>60</pagecontrol>
 							<scrolltime>300</scrolltime>
-							<focusposition>0</focusposition>
 							<orientation>horizontal</orientation>
 							<preloaditems>2</preloaditems>
 							<itemlayout width="360" height="200">
@@ -809,7 +808,6 @@
 							<ondown condition="!Skin.HasSetting(EnableTouchSupport)">550</ondown>
 							<pagecontrol>60</pagecontrol>
 							<scrolltime>300</scrolltime>
-							<focusposition>0</focusposition>
 							<orientation>horizontal</orientation>
 							<preloaditems>2</preloaditems>
 							<itemlayout width="360" height="200">
@@ -863,7 +861,6 @@
 							<ondown condition="!Skin.HasSetting(EnableTouchSupport)">1450</ondown>
 							<pagecontrol>60</pagecontrol>
 							<scrolltime>300</scrolltime>
-							<focusposition>0</focusposition>
 							<orientation>horizontal</orientation>
 							<preloaditems>2</preloaditems>
 							<itemlayout height="200" width="360">
@@ -887,7 +884,7 @@
 										<left>0</left>
 										<width>352</width>
 										<height>100</height>
-										<texture fallback="special://skin/extras/flags/studios/default-studio.png">$INFO[ListItem.Label,special://skin/extras/flags/studios/,.png]</texture>
+										<texture fallback="flags/flags_large/studios/default-studio.png">$INFO[ListItem.Label,special://skin/extras/flags/studios/,.png]</texture>
 										<aspectratio aligny="center" align="center">keep</aspectratio>
 									</control>
 								   <control type="textbox">
@@ -923,7 +920,7 @@
 										<left>0</left>
 										<width>352</width>
 										<height>100</height>
-										<texture fallback="special://skin/extras/flags/studios/default-studio.png">$INFO[ListItem.Label,special://skin/extras/flags/studios/,.png]</texture>
+										<texture fallback="flags/flags_large/studios/default-studio.png">$INFO[ListItem.Label,special://skin/extras/flags/studios/,.png]</texture>
 										<aspectratio aligny="center" align="center">keep</aspectratio>
 									</control>
 								   <control type="textbox">
@@ -975,7 +972,6 @@
 							<ondown condition="!Skin.HasSetting(EnableTouchSupport)">650</ondown>
 							<pagecontrol>60</pagecontrol>
 							<scrolltime>300</scrolltime>
-							<focusposition>0</focusposition>
 							<orientation>horizontal</orientation>
 							<preloaditems>2</preloaditems>
 							 <itemlayout height="200" width="360">
@@ -999,7 +995,7 @@
 										<left>0</left>
 										<width>352</width>
 										<height>100</height>
-										<texture fallback="special://skin/extras/flags/studios/default-studio.png">$INFO[ListItem.Label,special://skin/extras/flags/studios/,.png]</texture>
+										<texture fallback="flags/flags_large/studios/default-studio.png">$INFO[ListItem.Label,special://skin/extras/flags/studios/,.png]</texture>
 										<aspectratio aligny="center" align="center">keep</aspectratio>
 									</control>
 								   <control type="textbox">
@@ -1035,7 +1031,7 @@
 										<left>0</left>
 										<width>352</width>
 										<height>100</height>
-										<texture fallback="special://skin/extras/flags/studios/default-studio.png">$INFO[ListItem.Label,special://skin/extras/flags/studios/,.png]</texture>
+										<texture fallback="flags/flags_large/studios/default-studio.png">$INFO[ListItem.Label,special://skin/extras/flags/studios/,.png]</texture>
 										<aspectratio aligny="center" align="center">keep</aspectratio>
 									</control>
 								   <control type="textbox">
@@ -1096,7 +1092,6 @@
 							<ondown condition="!Skin.HasSetting(EnableTouchSupport)">850</ondown>
 							<pagecontrol>60</pagecontrol>
 							<scrolltime>300</scrolltime>
-							<focusposition>0</focusposition>
 							<orientation>horizontal</orientation>
 							<preloaditems>2</preloaditems>
 							<itemlayout height="200" width="360">
@@ -1201,7 +1196,6 @@
 							<ondown condition="!Skin.HasSetting(EnableTouchSupport)">1050</ondown>
 							<pagecontrol>60</pagecontrol>
 							<scrolltime>300</scrolltime>
-							<focusposition>0</focusposition>
 							<orientation>horizontal</orientation>
 							<itemlayout height="100" width="360">
 								<control type="group">
@@ -1294,10 +1288,8 @@
 							<ondown condition="!Skin.HasSetting(EnableTouchSupport)">950</ondown>
 							<pagecontrol>60</pagecontrol>
 							<scrolltime>300</scrolltime>
-							<focusposition>0</focusposition>
 							<orientation>horizontal</orientation>
 							<preloaditems>2</preloaditems>
-							<itemgap>50</itemgap>
 							
 							<itemlayout height="300" width="900">
 								<control type="group">
@@ -1380,7 +1372,6 @@
 							<ondown condition="!Skin.HasSetting(EnableTouchSupport)">1250</ondown>
 							<pagecontrol>60</pagecontrol>
 							<scrolltime>300</scrolltime>
-							<focusposition>0</focusposition>
 							<orientation>horizontal</orientation>
 							<preloaditems>2</preloaditems>
 							<itemlayout height="110" width="360">
@@ -1489,7 +1480,7 @@
 									<control type="image">
 										<width>176</width>
 										<height>252</height>
-										<texture border="0" background="true" diffuse="diffuse/poster.png" fallback="defaultactorposter.png">$INFO[ListItem.Art(thumb)]</texture>
+										<texture border="0" background="true" diffuse="diffuse/poster.png" fallback="DfaultActorPoster.png">$INFO[ListItem.Art(thumb)]</texture>
 										<aspectratio scalediffuse="false" aligny="center" align="center">stretch</aspectratio><bordersize>8</bordersize>
 									</control>
 								</control>
@@ -1508,7 +1499,7 @@
 									<control type="image">
 										<width>176</width>
 										<height>252</height>
-										<texture border="0" background="true" diffuse="diffuse/poster.png" fallback="defaultactorposter.png">$INFO[ListItem.Art(thumb)]</texture>
+										<texture border="0" background="true" diffuse="diffuse/poster.png" fallback="DfaultActorPoster.png">$INFO[ListItem.Art(thumb)]</texture>
 										<aspectratio scalediffuse="false" aligny="center" align="center">stretch</aspectratio><bordersize>8</bordersize>
 									</control>
 								</control>
@@ -1634,7 +1625,7 @@
 									<control type="image">
 										<width>176</width>
 										<height>252</height>
-										<texture border="0" background="true" diffuse="diffuse/poster.png" fallback="defaultactorposter.png">$INFO[ListItem.Art(thumb)]</texture>
+										<texture border="0" background="true" diffuse="diffuse/poster.png" fallback="DfaultActorPoster.png">$INFO[ListItem.Art(thumb)]</texture>
 										<aspectratio scalediffuse="false" aligny="center" align="center">stretch</aspectratio><bordersize>8</bordersize>
 									</control>
 									<control type="image">
@@ -1671,7 +1662,7 @@
 									<control type="image">
 										<width>176</width>
 										<height>252</height>
-										<texture border="0" background="true" diffuse="diffuse/poster.png" fallback="defaultactorposter.png">$INFO[ListItem.Art(thumb)]</texture>
+										<texture border="0" background="true" diffuse="diffuse/poster.png" fallback="DfaultActorPoster.png">$INFO[ListItem.Art(thumb)]</texture>
 										<aspectratio scalediffuse="false" aligny="center" align="center">stretch</aspectratio><bordersize>8</bordersize>
 									</control>
 									<control type="image">
@@ -1732,8 +1723,6 @@
 							<ondown condition="!Skin.HasSetting(EnableTouchSupport)">9000</ondown>
 							<pagecontrol>60</pagecontrol>
 							<scrolltime>300</scrolltime>
-							<focusposition>0</focusposition>
-							<orientation>horizontal</orientation>
 							<preloaditems>2</preloaditems>
 							<itemlayout width="362" height="200">
 								<control type="group">
@@ -1849,11 +1838,11 @@
 					<right>5</right>
 					<top>175</top>
 					<height>770</height>
-					<onup condition="!Skin.HasSetting(EnableTouchSupport)">60</onup>
-					<ondown condition="!Skin.HasSetting(EnableTouchSupport)">60</ondown>
+					<onup condition="!Skin.HasSetting(EnableTouchSupport)">4000</onup>
+					<ondown condition="!Skin.HasSetting(EnableTouchSupport)">4000</ondown>
 					<onleft>4000</onleft>
-					<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
-					<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
+					<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(4000) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
+					<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(4000) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
 				</control>
 				
 				<!--Movie info-->

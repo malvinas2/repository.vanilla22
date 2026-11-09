@@ -72,7 +72,6 @@
 				<width>100%</width>
 				<height>100%</height>
 				<label>$INFO[Player.SeekNumeric(hh:mm:ss)]</label>
-				<label2>$LOCALIZE[31806]</label2>
 				<textcolor>$INFO[Skin.String(OSDPrimaryTextColor)]</textcolor>
 				<shadowcolor>black</shadowcolor>
 				<align>center</align>

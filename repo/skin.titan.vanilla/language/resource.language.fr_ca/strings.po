@@ -328,14 +328,6 @@ msgctxt "#31088"
 msgid "Live-TV"
 msgstr "Télé en direct"
 
-msgctxt "#31089"
-msgid "XBMB3C add-on"
-msgstr "Addiciel XBMB3C"
-
-msgctxt "#31090"
-msgid "XBMB3C settings"
-msgstr "Paramètres XBMB3C"
-
 msgctxt "#31091"
 msgid "Mediabrowser"
 msgstr "Emby"

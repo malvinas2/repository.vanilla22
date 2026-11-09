@@ -21,7 +21,7 @@
 					<eventconfig type="down" />
 					<eventconfig type="left" />
 					<eventconfig type="right" />
-			</movingspeed>
+				</movingspeed>
 			</control>
 			<control type="mover" id="9">
 				<description>right bottom mover</description>
@@ -36,7 +36,7 @@
 					<eventconfig type="down" />
 					<eventconfig type="left" />
 					<eventconfig type="right" />
-			</movingspeed>
+				</movingspeed>
 			</control>
 			<control type="mover" id="10">
 				<description>subtitle position mover</description>

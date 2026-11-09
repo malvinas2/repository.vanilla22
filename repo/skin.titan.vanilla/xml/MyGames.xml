@@ -84,17 +84,29 @@
 					<onclick>right</onclick>
 					<onclick>Filter</onclick>
 				</control>
-				
-				
 <!--
 				<control type="label" id="203">
 					<description>Actions</description>
-					<include>MediaMenuLabelCommon</include>
-					<label>mb_mygames109</label>                          -->
-					<!-- <label>$LOCALIZE[31020]</label> -->
-					<!-- <visible>Control.IsVisible(621) | Control.IsVisible(624)</visible> -->
-<!--				</control>
--->				
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[31352]</label>
+					<visible>Control.IsVisible(621) | Control.IsVisible(624)</visible>
+				</control>
+-->
+				<control type="image" id="6201">
+					<!--Seperator-->
+					<width>458</width>
+					<height>10</height>
+					<align>left</align>
+					<texture>common/menu-separator.png</texture>
+				</control>
+
+				<control type="button" id="621">
+					<description>Get more</description>
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[21452]</label>
+					<onclick>ActivateWindow(addonbrowser,addons://more/game/,return)</onclick>
+					<visible>Container.Content(addons)</visible>
+				</control>				
 				<control type="button" id="624">
 					<description></description>
 					<include>SideBladeMenuButton</include>
@@ -102,14 +114,7 @@
 					<onclick>Addon.OpenSettings($INFO[Container.PluginName])</onclick>
 					<visible>!String.IsEmpty(Container.PluginName)</visible>
 				</control>
-				<control type="button" id="621">
-					<description></description>
-					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[21452]</label>
-					<onclick>ActivateWindow(addonbrowser,addons://more/game/,return)</onclick>
-					<visible>Container.Content(addons)</visible>
-				</control>
-				
+
 				<include>SideBladeViewCommands</include>
 				
 				<control type="radiobutton" id="4406">

@@ -1,0 +1,1203 @@
+"""
+plugin.audio.spotifykodiconnect
+SpotifyKodiConnect - service: spotty + HTTP audio streaming to Kodi.
+"""
+
+import json
+import math
+import os
+import threading
+import time
+import urllib.parse
+
+import bottle_manager
+import spotipy
+import spotty
+import utils
+import xbmc
+import xbmcaddon
+import xbmcgui
+from http_spotty_audio_streamer import HTTPSpottyAudioStreamer
+from like_actions import LIKED_STATE_LOCK, notify_not_connected, set_current_track_liked
+from play_queue import clear as play_queue_clear
+from play_queue import ITEM_OWNER_PROPERTY
+from play_queue import bind_stream_item as play_queue_bind_stream_item
+from play_queue import build_stream_url
+from play_queue import should_fire_autoplay as play_queue_should_fire_autoplay
+from playlist_next import (
+    get_current_playback_time_seconds,
+    get_next_playlist_item,
+    get_playlist_track_ids,
+    parse_track_url,
+)
+from prebuffer import PrebufferManager
+from spotty_auth import SpottyAuth
+from spotty_helper import SpottyHelper
+from string_ids import WELCOME_AUTHENTICATED_STR_ID
+from utils import (
+    ADDON_ID,
+    ADDON_WINDOW_ID,
+    PROXY_PORT,
+    get_cached_auth_token,
+    get_valid_cached_auth_token,
+    log_exception,
+    log_msg,
+)
+from xbmc import LOGDEBUG, LOGINFO, LOGWARNING
+
+SPOTIFY_ADDON = xbmcaddon.Addon(id=ADDON_ID)
+utils.install_spotipy_rate_limit_hook(spotipy)
+SPOTIFY_TRACK_HOOK_KEYS = (
+    "Id",
+    "Title",
+    "Artist",
+    "Album",
+    "Thumb",
+    "Fanart",
+    "Duration",
+    "File",
+    "Available",
+)
+SPOTIFY_PLAYER_METADATA_POLL_MS = 100
+SPOTIFY_PLAYER_METADATA_ATTEMPTS = 30
+SPOTIFY_TRACK_PROPERTY_LABELS = (
+    "MusicPlayer.Property(spotifytrackid)",
+    "MusicPlayer.(1).Property(spotifytrackid)",
+)
+PLAYER_FILE_LABELS = (
+    "Player.FileNameAndPath",
+    "MusicPlayer.FileNameAndPath",
+)
+PREBUFFER_RELEASE_DELAY_PROP = "Spotify.PrebufferReleaseDelay"
+PREBUFFER_RELEASE_DELAY_DEFAULT = 5.0
+PREBUFFER_RELEASE_DELAY_MIN = 2.0
+PREBUFFER_RELEASE_DELAY_MAX = 15.0
+PREBUFFER_RELEASE_DELAY_STEP_UP = 2.0
+PREBUFFER_RELEASE_DELAY_STEP_DOWN = 0.5
+PREBUFFER_START_REMAINING_SECONDS = 45.0
+PREBUFFER_REMAINING_POLL_SECONDS = 1.0
+TOKEN_RENEW_BACKOFF_INITIAL_SECS = 5.0
+TOKEN_RENEW_BACKOFF_MAX_SECS = 300.0
+# The plugin cache is compacted (VACUUM) only from the service: checked about
+# once an hour, run at most weekly (see SimpleCache.vacuum_if_due) and never
+# while Kodi is playing.
+CACHE_VACUUM_CHECK_EVERY_LOOPS = 600
+CACHE_KEEPALIVE_CHECK_EVERY_LOOPS = 10
+
+# Artist fanart for Music OSD (single largest image URL; no rotation – Spotify only provides same image in multiple sizes)
+_artist_fanart_urls = []  # type: list
+_artist_fanart_index = 0
+# Track ID for which the liked state was last fetched. Prevents __on_track_started
+# from resetting Spotify.CurrentTrackLiked on every Kodi buffering re-request.
+_liked_state_track_id: str = ""
+
+
+def _start_daemon_thread(target, args=(), task_name: str = "background task") -> bool:
+    try:
+        threading.Thread(target=target, args=args, daemon=True).start()
+        return True
+    except RuntimeError as exc:
+        log_msg(f"Could not start {task_name}: {exc}", LOGWARNING)
+        return False
+
+
+def _prebuffer_start_ready(remaining_seconds, source_released: bool) -> bool:
+    return source_released and (
+        remaining_seconds is None
+        or remaining_seconds <= PREBUFFER_START_REMAINING_SECONDS
+    )
+
+
+class _SpotifyOSDServiceMonitor(xbmc.Monitor):
+    """Receives inter-addon notifications so the service can act on skin-triggered events.
+
+    Currently handles:
+      Other.ToggleLike – sent by the Music OSD Like button via NotifyAll.
+                         Performs the Spotify liked-state toggle entirely inside
+                         the service process, avoiding RunPlugin reentry problems
+                         with the audio plugin while a track is streaming.
+      Other.SetLiked   – sent by the plugin's toggle_liked with the new liked
+                         state, so only the service writes the heart icon.
+    """
+
+    def onNotification(self, sender: str, method: str, data: str) -> None:
+        if sender == "plugin.audio.spotifykodiconnect" and method == "Other.ToggleLike":
+            log_msg("ToggleLike notification received, spawning handler.", LOGDEBUG)
+            _start_daemon_thread(self._handle_toggle_like, task_name="toggle-like handler")
+        elif sender == "plugin.audio.spotifykodiconnect" and method == "Other.SetLiked":
+            try:
+                payload = json.loads(data)
+                set_current_track_liked(str(payload["track_id"]), bool(payload["liked"]))
+            except (ValueError, KeyError, TypeError) as exc:
+                log_exception(exc, "SetLiked notification")
+
+    @staticmethod
+    def _handle_toggle_like() -> None:
+        global _liked_state_track_id
+        log_msg("ToggleLike: handler running.", LOGDEBUG)
+        try:
+            win = xbmcgui.Window(ADDON_WINDOW_ID)
+            track_id = win.getProperty("Spotify.CurrentTrackId")
+            if not track_id:
+                log_msg("ToggleLike: no current track id.", LOGWARNING)
+                return
+            token = get_valid_cached_auth_token()
+            if not token:
+                notify_not_connected()
+                return
+            # Use cached property for toggle direction — avoids an extra API round-trip.
+            currently_liked = bool(win.getProperty("Spotify.CurrentTrackLiked"))
+
+            # Optimistic update: flip the icon immediately so the UI feels instant.
+            # The API call below confirms the change; reverted on failure.
+            set_current_track_liked(track_id, not currently_liked)
+
+            sp = spotipy.Spotify(auth=token)
+            try:
+                if currently_liked:
+                    sp.current_user_saved_tracks_delete([track_id])
+                    log_msg(f"ToggleLike: unliked {track_id}.", LOGDEBUG)
+                else:
+                    sp.current_user_saved_tracks_add([track_id])
+                    log_msg(f"ToggleLike: liked {track_id}.", LOGDEBUG)
+            except Exception as api_exc:
+                # Revert the optimistic update so the icon matches actual Spotify state
+                # (skipped if playback moved on to another track).
+                set_current_track_liked(track_id, currently_liked)
+                log_exception(api_exc, "ToggleLike API call failed, reverted icon")
+                return
+
+            # Keep _liked_state_track_id in sync so the next buffering
+            # re-request for the same track doesn't overwrite the new state.
+            _liked_state_track_id = track_id
+        except Exception as exc:
+            log_exception(exc, "ToggleLike notification handler failed")
+
+
+_monitor = _SpotifyOSDServiceMonitor()
+
+
+def _clear_artist_fanart_rotation() -> None:
+    global _artist_fanart_urls, _artist_fanart_index
+    _artist_fanart_urls = []
+    _artist_fanart_index = 0
+    win = xbmcgui.Window(ADDON_WINDOW_ID)
+    win.clearProperty("Spotify.ArtistFanartCurrent")
+
+
+def _set_or_clear(win, key: str, value) -> None:
+    if value:
+        win.setProperty(key, str(value))
+    else:
+        win.clearProperty(key)
+
+
+def _join_artist(value) -> str:
+    if isinstance(value, list):
+        return ", ".join([str(item) for item in value if item])
+    return str(value or "")
+
+
+def _item_art(item, *keys) -> str:
+    art = (item or {}).get("art") or {}
+    if not isinstance(art, dict):
+        return ""
+    for key in keys:
+        value = art.get(key)
+        if value:
+            return value
+    return ""
+
+
+def _publish_track_hook(win, prefix: str, item, track_id: str = "", duration=None) -> None:
+    item = item or {}
+    title = item.get("title") or item.get("label") or ""
+    artist = _join_artist(item.get("artist"))
+    album = item.get("album") or ""
+    file_url = item.get("file") or ""
+    thumb = _item_art(item, "thumb", "poster", "icon", "fanart", "landscape")
+    fanart = _item_art(item, "artist.fanart", "fanart", "landscape", "thumb", "poster")
+    duration_value = round(duration) if duration else item.get("duration") or item.get("runtime") or ""
+
+    _set_or_clear(win, f"Spotify.{prefix}Id", track_id)
+    _set_or_clear(win, f"Spotify.{prefix}Title", title)
+    _set_or_clear(win, f"Spotify.{prefix}Artist", artist)
+    _set_or_clear(win, f"Spotify.{prefix}Album", album)
+    _set_or_clear(win, f"Spotify.{prefix}Thumb", thumb)
+    _set_or_clear(win, f"Spotify.{prefix}Fanart", fanart)
+    _set_or_clear(win, f"Spotify.{prefix}Duration", duration_value)
+    _set_or_clear(win, f"Spotify.{prefix}File", file_url)
+    _set_or_clear(win, f"Spotify.{prefix}Available", track_id or title or file_url)
+
+
+def _clear_track_hook(win, prefix: str) -> None:
+    for key in SPOTIFY_TRACK_HOOK_KEYS:
+        win.clearProperty(f"Spotify.{prefix}{key}")
+
+
+def _clear_playback_hooks() -> None:
+    win = xbmcgui.Window(ADDON_WINDOW_ID)
+    _clear_track_hook(win, "CurrentTrack")
+    _clear_track_hook(win, "NextTrack")
+
+
+def _read_active_spotify_player_state(win) -> tuple[bool, str, bool]:
+    for label in SPOTIFY_TRACK_PROPERTY_LABELS:
+        track_id = (xbmc.getInfoLabel(label) or "").strip()
+        if track_id:
+            return True, track_id, True
+
+    has_player_file = False
+    for label in PLAYER_FILE_LABELS:
+        file_path = (xbmc.getInfoLabel(label) or "").strip()
+        if not file_path:
+            continue
+        has_player_file = True
+        track_id, _duration = parse_track_url(file_path)
+        if track_id:
+            return True, track_id, True
+        if ADDON_ID in file_path:
+            return True, win.getProperty("Spotify.CurrentTrackId"), True
+
+    return False, "", has_player_file
+
+
+def _read_player_queue_owner(track_id: str) -> str:
+    """Accept the item marker only while the player identifies the same track."""
+    label = f"MusicPlayer.Property({ITEM_OWNER_PROPERTY})"
+    binding = xbmc.getInfoLabel(label) or ""
+    owner, separator, bound_track_id = binding.partition(":")
+    if not owner or not separator or bound_track_id != track_id:
+        return ""
+    for file_label in PLAYER_FILE_LABELS:
+        file_path = (xbmc.getInfoLabel(file_label) or "").strip()
+        if file_path and parse_track_url(file_path)[0] != track_id:
+            return ""
+    if (xbmc.getInfoLabel(SPOTIFY_TRACK_PROPERTY_LABELS[0]) or "").strip() != track_id:
+        return ""
+    if (xbmc.getInfoLabel(label) or "") != binding:
+        return ""
+    return owner
+
+
+def _read_confirmed_spotify_track_duration(track_id: str) -> float:
+    try:
+        current_item, _next_item = get_next_playlist_item()
+        current_id, current_duration = parse_track_url((current_item or {}).get("file") or "")
+        if current_id == track_id and current_duration is not None:
+            return current_duration
+    except Exception:
+        pass
+
+    for label in PLAYER_FILE_LABELS:
+        file_path = (xbmc.getInfoLabel(label) or "").strip()
+        current_id, current_duration = parse_track_url(file_path)
+        if current_id == track_id and current_duration is not None:
+            return current_duration
+
+    return 0
+
+
+def _refresh_playback_hooks(current_track_id: str, delay_ms: int = 0) -> None:
+    def _run():
+        if delay_ms:
+            xbmc.sleep(delay_ms)
+        if _liked_state_track_id != current_track_id:
+            return  # a newer track started or playback stopped during the delay
+        win = xbmcgui.Window(ADDON_WINDOW_ID)
+        try:
+            current_item, next_item = get_next_playlist_item()
+            current_id, current_duration = parse_track_url((current_item or {}).get("file") or "")
+            if current_id == current_track_id:
+                _publish_track_hook(win, "CurrentTrack", current_item, current_id, current_duration)
+            else:
+                _clear_track_hook(win, "CurrentTrack")
+                with LIKED_STATE_LOCK:
+                    if _liked_state_track_id == current_track_id:
+                        _set_or_clear(win, "Spotify.CurrentTrackId", current_track_id)
+
+            next_id, next_duration = parse_track_url((next_item or {}).get("file") or "")
+            if next_id and next_id != current_track_id:
+                _publish_track_hook(win, "NextTrack", next_item, next_id, next_duration)
+            else:
+                _clear_track_hook(win, "NextTrack")
+        except Exception as exc:
+            log_exception(exc, "refreshing Spotify skin playback hooks failed")
+
+    _start_daemon_thread(_run, task_name="playback hook refresh")
+
+
+def _decode_kodi_image_url(url: str) -> str:
+    """image://<url-encoded>/ (JSON-RPC art) -> plain URL; other values unchanged."""
+    url = (url or "").strip()
+    if url.startswith("image://"):
+        url = urllib.parse.unquote(url[len("image://") :])
+        if url.endswith("/"):
+            url = url[:-1]
+    return url
+
+
+def _now_playing_is_bare(track_id: str) -> bool:
+    """True when Kodi plays this track's stream URL without the plugin's ListItem.
+
+    A skin's PlayMedia(<path>) (e.g. from a search widget) passes only the URL,
+    so the player has no tag and shows the URL's file name, the duration.
+    """
+    try:
+        if xbmc.getInfoLabel("MusicPlayer.Property(spotifytrackid)"):
+            return False
+        playing_id, _duration = parse_track_url(xbmc.getInfoLabel("Player.FilenameAndPath"))
+        return bool(track_id) and playing_id == track_id
+    except Exception as exc:
+        log_exception(exc, "checking the now-playing tag")
+        return False
+
+
+def _restore_now_playing_tag(track_id: str, track: dict) -> bool:
+    """Give a bare Spotify stream the title, artist, album and art the plugin's
+    ListItem would have carried."""
+    file_url = xbmc.getInfoLabel("Player.FilenameAndPath")
+    if parse_track_url(file_url)[0] != track_id:
+        return False  # the track changed while Spotify answered
+    album = track.get("album") or {}
+    artists = [a.get("name") for a in track.get("artists") or [] if a.get("name")]
+    title = track.get("name") or ""
+    li = xbmcgui.ListItem(title, path=file_url, offscreen=True)
+    tag = li.getMusicInfoTag()
+    tag.setTitle(title)
+    tag.setArtist(", ".join(artists))
+    tag.setAlbum(album.get("name") or "")
+    tag.setDuration(max(1, math.ceil((track.get("duration_ms") or 0) / 1000)))
+    tag.setTrack(int(track.get("track_number") or 0))
+    tag.setDisc(int(track.get("disc_number") or 1))
+    tag.setMediaType("song")
+    release_date = album.get("release_date") or ""
+    if release_date:
+        tag.setReleaseDate(release_date)
+        if release_date[:4].isdigit():
+            tag.setYear(int(release_date[:4]))
+    images = album.get("images") or []
+    if images and images[0].get("url"):
+        image = images[0]["url"]
+        li.setArt({"thumb": image, "poster": image, "fanart": image, "icon": image})
+    play_queue_bind_stream_item(li, track_id)
+    xbmc.Player().updateInfoTag(li)
+    log_msg(f"Restored the now-playing tag for {track_id} (played without its ListItem).", LOGDEBUG)
+    return True
+
+
+def _queued_artist_fanart(track_id: str) -> str:
+    """artist.fanart the plugin set on the playing ListItem, if any."""
+    try:
+        if (xbmc.getInfoLabel("MusicPlayer.Property(spotifytrackid)") or "") in ("", track_id):
+            url = _decode_kodi_image_url(xbmc.getInfoLabel("Player.Art(artist.fanart)"))
+            if url:
+                return url
+        current_item, _next_item = get_next_playlist_item()
+        current_id, _duration = parse_track_url((current_item or {}).get("file") or "")
+        if current_id == track_id:
+            art = (current_item or {}).get("art") or {}
+            if isinstance(art, dict):
+                return _decode_kodi_image_url(art.get("artist.fanart") or "")
+    except Exception as exc:
+        log_exception(exc, "reading queued artist fanart")
+    return ""
+
+
+def _is_kodi_playing() -> bool:
+    try:
+        is_playing = getattr(xbmc.Player(), "isPlaying", None)
+        return bool(callable(is_playing) and is_playing())
+    except Exception:
+        return True
+
+
+def _vacuum_plugin_cache_if_due() -> bool:
+    """Compact the plugin's simplecache database when due and Kodi is idle."""
+    if _is_kodi_playing():
+        return False
+    cache = None
+    try:
+        import simplecache  # lazy: the service only needs it here
+
+        cache = simplecache.SimpleCache(ADDON_ID)
+        if _is_kodi_playing():
+            return False
+        return bool(cache.vacuum_if_due())
+    except Exception as exc:
+        log_exception(exc, "plugin cache vacuum")
+        return False
+    finally:
+        if cache is not None:
+            try:
+                cache.close()
+            except Exception:
+                pass
+
+
+def _refresh_cache_keepalive(keepalive):
+    """Hold one idle connection to the plugin cache (see simplecache.WalKeepAlive)."""
+    try:
+        if keepalive is None:
+            import simplecache  # lazy: the service only needs it here
+
+            keepalive = simplecache.WalKeepAlive(ADDON_ID)
+        keepalive.refresh()
+    except Exception as exc:
+        log_exception(exc, "plugin cache keepalive")
+    return keepalive
+
+
+def abort_app(timeout_in_secs: int) -> bool:
+    return _monitor.waitForAbort(timeout_in_secs)
+
+
+class _SpotifyOSDPlayerMonitor(xbmc.Player):
+    """Clears Spotify OSD window properties when Kodi playback actually stops.
+
+    We deliberately do NOT clear them from the HTTP stream callbacks because those
+    fire whenever Kodi's internal buffer fills (mid-song), not only at true end-of-track.
+    """
+
+    def __init__(self, on_spotify_started=None, on_external_playback=None, on_stopped=None):
+        xbmc.Player.__init__(self)
+        self._on_spotify_started = on_spotify_started or (lambda _track_id: None)
+        self._on_external_playback = on_external_playback or (lambda: None)
+        self._on_stopped = on_stopped or (lambda: None)
+        self._metadata_check = None
+
+    def _clear(self, owner=None, check=None) -> None:
+        global _liked_state_track_id
+        if check is not None and self._metadata_check is not check:
+            return
+        if owner is None:
+            owner = self._metadata_check["owner"] if self._metadata_check is not None else ""
+        if check is None:
+            self._metadata_check = None
+        # A replacement session can precede the old player's stop callback.
+        cleared = play_queue_clear(owner)
+        if self._metadata_check is not check or (check is not None and not cleared):
+            return
+        self._metadata_check = None
+        _liked_state_track_id = ""
+        _clear_artist_fanart_rotation()
+        win = xbmcgui.Window(ADDON_WINDOW_ID)
+        with LIKED_STATE_LOCK:
+            win.clearProperty("Spotify.CurrentTrackId")
+            win.clearProperty("Spotify.CurrentTrackLiked")
+        _clear_playback_hooks()
+
+    def onPlayBackStopped(self) -> None:
+        self._clear()
+        self._on_stopped()
+
+    def onPlayBackEnded(self) -> None:
+        self._clear()
+
+    def onPlayBackError(self) -> None:
+        self._clear()
+
+    def onPlayBackStarted(self) -> None:
+        win = xbmcgui.Window(ADDON_WINDOW_ID)
+        _is_spotify, origin_track_id, _has_player_file = _read_active_spotify_player_state(win)
+        owner = _read_player_queue_owner(origin_track_id)
+        check = {"owner": owner}
+        self._metadata_check = check
+        # If a non-Spotify item starts playing, clear the Spotify OSD state.
+        # PAPlayer can fire before MusicPlayer properties settle, so wait until
+        # Kodi exposes either a Spotify marker or a concrete non-Spotify file.
+        def _check():
+            win = xbmcgui.Window(ADDON_WINDOW_ID)
+            for _attempt in range(SPOTIFY_PLAYER_METADATA_ATTEMPTS):
+                if self._metadata_check is not check:
+                    return
+                is_spotify, track_id, has_player_file = _read_active_spotify_player_state(win)
+                current_owner = _read_player_queue_owner(track_id)
+                if self._metadata_check is not check:
+                    return
+                if (owner or origin_track_id) and (
+                    current_owner != owner or track_id != origin_track_id
+                ):
+                    check["owner"] = ""
+                    return
+                if is_spotify:
+                    if track_id:
+                        with LIKED_STATE_LOCK:
+                            win.setProperty("Spotify.CurrentTrackId", track_id)
+                        try:
+                            self._on_spotify_started(track_id)
+                        except Exception as exc:
+                            log_exception(exc, "Spotify playback-start callback failed")
+                    return
+                if has_player_file:
+                    # A non-Spotify player (e.g. PlexKodiConnect movie) is starting.
+                    # Tear down ALL Spotify audio resources immediately to prevent
+                    # Amlogic audio driver deadlocks when the AML SPDIF/HDMI codec
+                    # reconfigures from stereo PCM (Spotify) to multi-channel AC3
+                    # pass-through (movie) while spotty/HTTP streams are still active.
+                    try:
+                        self._on_external_playback()
+                    except Exception as exc:
+                        log_exception(exc, "External playback teardown callback failed")
+                    self._clear(owner, check)
+                    return
+                xbmc.sleep(SPOTIFY_PLAYER_METADATA_POLL_MS)
+
+            if win.getProperty("Spotify.CurrentTrackId"):
+                log_msg(
+                    "Keeping Spotify OSD state; player metadata did not settle.",
+                    LOGDEBUG,
+                )
+            else:
+                self._clear(owner, check)
+
+        _start_daemon_thread(_check, task_name="Spotify playback metadata check")
+
+
+class MainService:
+    def __init__(self):
+        log_msg(f"Spotify plugin version: {xbmcaddon.Addon(id=ADDON_ID).getAddonInfo('version')}.")
+
+        self.__spotty_helper: SpottyHelper = SpottyHelper()
+        self.__spotty = spotty.get_spotty(self.__spotty_helper)
+
+        self.__spotty_auth: SpottyAuth = SpottyAuth(self.__spotty)
+        # Recover from an interrupted credential rotation (e.g. power loss
+        # during zeroconf re-auth): if credentials.json is missing but the
+        # .bak exists, restore it before any token fetch is attempted.
+        self.__spotty_auth.restore_credentials_from_backup_if_needed()
+        self.__auth_token_expires_at = ""
+        self.__welcome_msg = True
+        # Exponential back-off across service loop iterations for failed
+        # token renewals (5s doubling to 300s, reset on success).
+        self.__renew_failures = 0
+        self.__next_renew_attempt_at = 0.0
+        self.__proxy_failure_notified = False
+
+        normalization_setting = (
+            (SPOTIFY_ADDON.getSetting("spotify_normalization") or "auto").strip().lower()
+        )
+        if normalization_setting not in ("off", "auto", "track", "album"):
+            normalization_setting = "auto"
+        use_autoplay = SPOTIFY_ADDON.getSetting("spotify_autoplay").lower() == "true"
+        bitrate = self._get_bitrate_setting()
+        self.__prebuffer_enabled = SPOTIFY_ADDON.getSetting("prebuffer_enabled").lower() == "true"
+        self.__prebuffer_manager: PrebufferManager = PrebufferManager(
+            self.__spotty,
+            normalization_gain_type=normalization_setting,
+            bitrate=bitrate,
+        )
+        self.__http_spotty_streamer: HTTPSpottyAudioStreamer = HTTPSpottyAudioStreamer(
+            self.__spotty,
+            normalization_gain_type=normalization_setting,
+            prebuffer_manager=self.__prebuffer_manager,
+            on_track_started_callback=self.__on_track_started,
+            use_autoplay=use_autoplay,
+            bitrate=bitrate,
+        )
+        self.__http_spotty_streamer.set_notify_track_finished(self.__on_track_finished)
+
+        # Keep a strong reference so Kodi doesn't GC the player monitor.
+        self.__osd_player_monitor = _SpotifyOSDPlayerMonitor(
+            on_spotify_started=self.__on_spotify_playback_started,
+            on_external_playback=self._teardown_for_external_playback,
+            on_stopped=self._release_after_stop,
+        )
+
+        # Cancellation token for _deferred_prebuffer threads.  Incremented after
+        # Kodi confirms playback so only the latest thread proceeds to call
+        # get_or_start.  Prevents cascade-mode threads from all firing at once and
+        # evicting each other's buffers.
+        self._prebuffer_token = 0
+        self._prebuffer_token_lock = threading.Lock()
+
+        bottle_manager.route_all(self.__http_spotty_streamer)
+
+    @staticmethod
+    def _get_prebuffer_release_delay() -> float:
+        win = xbmcgui.Window(ADDON_WINDOW_ID)
+        try:
+            value = float(win.getProperty(PREBUFFER_RELEASE_DELAY_PROP) or "")
+        except (TypeError, ValueError):
+            value = PREBUFFER_RELEASE_DELAY_DEFAULT
+        return max(PREBUFFER_RELEASE_DELAY_MIN, min(PREBUFFER_RELEASE_DELAY_MAX, value))
+
+    @staticmethod
+    def _set_prebuffer_release_delay(value: float) -> None:
+        delay = max(PREBUFFER_RELEASE_DELAY_MIN, min(PREBUFFER_RELEASE_DELAY_MAX, value))
+        xbmcgui.Window(ADDON_WINDOW_ID).setProperty(PREBUFFER_RELEASE_DELAY_PROP, f"{delay:.1f}")
+        log_msg(f"Prebuffer release delay now {delay:.1f}s.", LOGDEBUG)
+
+    def __ensure_proxy(self) -> bool:
+        if bottle_manager.is_healthy():
+            self.__proxy_failure_notified = False
+            return True
+
+        if bottle_manager.start_thread(PROXY_PORT):
+            self.__proxy_failure_notified = False
+            log_msg(f"Started bottle with port {PROXY_PORT}.")
+            return True
+
+        error = bottle_manager.get_startup_error()
+        detail = str(error) if error else "startup timed out"
+        log_msg(f"Spotify audio proxy failed to bind on port {PROXY_PORT}: {detail}", LOGWARNING)
+        if not getattr(self, "_MainService__proxy_failure_notified", False):
+            try:
+                xbmcgui.Dialog().notification(
+                    SPOTIFY_ADDON.getAddonInfo("name"),
+                    f"Spotify audio proxy could not bind on port {PROXY_PORT}; retrying.",
+                    time=8000,
+                    sound=False,
+                )
+            except Exception as exc:
+                log_exception(exc, "Spotify audio proxy notification failed")
+            self.__proxy_failure_notified = True
+        return False
+
+    def _watch_prebuffer_result(self, downloader, track_id: str, delay_used: float) -> None:
+        if downloader is None:
+            return
+        try:
+            with downloader.cond:
+                while (
+                    not downloader.is_finished and not downloader.error and not downloader.aborted
+                ):
+                    downloader.cond.wait(timeout=30.0)
+                error = downloader.error
+                aborted = downloader.aborted
+            if aborted:
+                return
+            if error:
+                self._set_prebuffer_release_delay(delay_used + PREBUFFER_RELEASE_DELAY_STEP_UP)
+                log_msg(
+                    f"Prebuffer for {track_id} errored after {delay_used:.1f}s delay.",
+                    LOGDEBUG,
+                )
+            else:
+                self._set_prebuffer_release_delay(delay_used - PREBUFFER_RELEASE_DELAY_STEP_DOWN)
+                log_msg(
+                    f"Prebuffer for {track_id} succeeded after {delay_used:.1f}s delay.",
+                    LOGDEBUG,
+                )
+        except Exception as exc:
+            log_exception(exc, "watching prebuffer result failed")
+
+    def __wait_for_prebuffer_window(
+        self,
+        track_id: str,
+        duration_sec: float,
+        token: int,
+        downloader,
+    ) -> bool:
+        monitor = xbmc.Monitor()
+        while True:
+            with self._prebuffer_token_lock:
+                if self._prebuffer_token != token:
+                    return False
+
+            playback_time = get_current_playback_time_seconds()
+            if playback_time is None or duration_sec <= 0:
+                remaining = None
+            else:
+                remaining = max(0.0, duration_sec - playback_time)
+
+            source_released = downloader is None
+            if downloader is not None:
+                with downloader.cond:
+                    source_released = bool(
+                        downloader.is_finished or downloader.error or downloader.aborted
+                    )
+
+            if _prebuffer_start_ready(remaining, source_released):
+                log_msg(
+                    f"Prebuffer window opened for {track_id} with "
+                    f"{remaining if remaining is not None else 'unknown'}s remaining.",
+                    LOGDEBUG,
+                )
+                return True
+
+            if monitor.waitForAbort(PREBUFFER_REMAINING_POLL_SECONDS):
+                return False
+
+    def __release_audio(self, retain_after_stop=False) -> bool:
+        """Retire playback under the HTTP reservation and release unneeded PCM."""
+        from spotty_cache import SpottyCacheManager
+
+        def release_resources(released_spec):
+            # Cancel any deferred prebuffer threads and the prebuffer state.
+            with self._prebuffer_token_lock:
+                self._prebuffer_token += 1
+            self.__prebuffer_manager.cancel_prebuffer()
+            if retain_after_stop:
+                return SpottyCacheManager.retain_after_stop(released_spec)
+            return SpottyCacheManager.cleanup_all()
+
+        return self.__http_spotty_streamer.release_stream(release_resources)
+
+    def _release_after_stop(self) -> None:
+        """Retire a stopped generation and retain one eligible PCM producer.
+
+        A late Stop callback preserves replacement playback or startup.
+        """
+        if _is_kodi_playing():
+            return
+        if self.__release_audio(retain_after_stop=True):
+            log_msg("Playback stopped: retired Spotify playback and retained eligible audio.", LOGINFO)
+
+    def _teardown_for_external_playback(self) -> None:
+        """Tear down all Spotify audio resources when a non-Spotify player starts.
+
+        Called from _SpotifyOSDPlayerMonitor.onPlayBackStarted the instant a
+        non-Spotify file is detected (e.g. a PlexKodiConnect movie).  Prevents
+        Amlogic audio driver deadlocks by killing spotty subprocesses, aborting
+        cache downloads, cancelling prebuffer, and terminating the active HTTP
+        stream — before VideoPlayer reconfigures the AML audio codec.
+        """
+        # The Stop callback of the closed Spotify player can clear the OSD
+        # properties first, so the stream state decides whether Spotify held audio.
+        if not self.__release_audio():
+            return
+
+        log_msg("External playback detected — tearing down Spotify audio resources.")
+
+        # Kill any remaining spotty processes not tracked by the cache manager.
+        self.__spotty_helper.kill_all_spotties()
+
+        log_msg("Spotify audio resources torn down for external playback.")
+
+    def __on_track_started(self, track_id: str, _duration_sec: float) -> None:
+        """Set OSD properties for Kodi-confirmed Spotify playback."""
+        global _artist_fanart_urls, _artist_fanart_index, _liked_state_track_id
+        win = xbmcgui.Window(ADDON_WINDOW_ID)
+        with LIKED_STATE_LOCK:
+            win.setProperty("Spotify.CurrentTrackId", track_id or "")
+            # Only reset and re-query the liked state when the track actually changes.
+            # Kodi issues fresh Range: bytes=0- requests for the same track during buffering,
+            # which would otherwise wipe a user-toggled liked state mid-play.
+            track_changed = track_id != _liked_state_track_id
+            if track_changed:
+                _liked_state_track_id = track_id
+                win.clearProperty("Spotify.CurrentTrackLiked")
+
+        _refresh_playback_hooks(track_id, delay_ms=1000)
+
+        def _fetch_artist_fanart_urls():
+            global _artist_fanart_urls, _artist_fanart_index
+            try:
+                # The plugin already put artist.fanart on the queued ListItem;
+                # only ask Spotify (track + artist calls) when it is missing, or
+                # for the track's tag when it was played without its ListItem.
+                bare = _now_playing_is_bare(track_id)
+                largest_url = _queued_artist_fanart(track_id)
+                if not largest_url or bare:
+                    if utils.is_rate_limited():
+                        return
+                    token = get_cached_auth_token()
+                    if not token:
+                        return
+                    sp = spotipy.Spotify(auth=token)
+                    track = sp.track(track_id)
+                    if bare and track:
+                        try:
+                            _restore_now_playing_tag(track_id, track)
+                        except Exception as exc:
+                            log_exception(exc, "restoring the now-playing tag")
+                if not largest_url:
+                    artists = (track or {}).get("artists") or []
+                    if not artists:
+                        return
+                    artist_id = artists[0].get("id")
+                    if not artist_id:
+                        return
+                    artist = sp.artist(artist_id)
+                    images = (artist or {}).get("images") or []
+                    # Spotify returns same image in multiple sizes (640, 300, 64); use only largest
+                    if not images:
+                        return
+                    largest_url = images[0].get("url") or ""
+                if not largest_url:
+                    return
+                _artist_fanart_urls.clear()
+                _artist_fanart_urls.append(largest_url)
+                _artist_fanart_index = 0
+                w = xbmcgui.Window(ADDON_WINDOW_ID)
+                w.setProperty("Spotify.ArtistFanartCurrent", largest_url)
+            except Exception:
+                _artist_fanart_urls.clear()
+                _artist_fanart_index = 0
+
+        _start_daemon_thread(_fetch_artist_fanart_urls, task_name="artist fanart refresh")
+
+        def _set_liked_state():
+            try:
+                if utils.is_rate_limited():
+                    log_msg(f"Spotify rate limited; skipping liked state for {track_id}.")
+                    return
+                token = get_cached_auth_token()
+                if not token:
+                    log_msg(
+                        f"No auth token when checking liked state for {track_id}.",
+                        LOGWARNING,
+                    )
+                    return
+                sp = spotipy.Spotify(auth=token)
+                result = sp.current_user_saved_tracks_contains([track_id])
+                liked = "true" if (result and result[0]) else ""
+                # Skipped when playback moved on while the lookup was in flight.
+                set_current_track_liked(track_id, bool(liked))
+                log_msg(f"Spotify.CurrentTrackLiked = {liked!r} for {track_id}.", LOGDEBUG)
+            except Exception as e:
+                log_msg(f"Error setting liked state for {track_id}: {e}", LOGWARNING)
+                pass
+
+        # Only run the liked state check when the track actually changes.
+        if track_changed:
+            _start_daemon_thread(_set_liked_state, task_name="liked-state refresh")
+
+    def __on_spotify_playback_started(self, track_id: str) -> None:
+        try:
+            track_duration = _read_confirmed_spotify_track_duration(track_id)
+            self.__on_track_started(track_id, track_duration)
+
+            _current_item, next_item = get_next_playlist_item()
+            if not next_item:
+                if SPOTIFY_ADDON.getSetting("spotify_autoplay").lower() == "true":
+                    # Consult the play-queue session before firing. The plugin
+                    # opens a session at the start of play_playlist and marks
+                    # original_complete when its paging thread finishes; until
+                    # then a "no next item" signal is a paging gap, not true
+                    # exhaustion, and firing autoplay here would destroy the
+                    # in-flight queue (the daylist bug).
+                    if play_queue_should_fire_autoplay():
+                        _start_daemon_thread(
+                            self.__queue_autoplay_tracks,
+                            args=(track_id,),
+                            task_name="autoplay queue fill",
+                        )
+                return
+
+            next_track_id, next_duration = parse_track_url(next_item.get("file") or "")
+            if not next_track_id or next_duration is None:
+                return
+
+            prebuffer_enabled = SPOTIFY_ADDON.getSetting("prebuffer_enabled").lower() == "true"
+            if not prebuffer_enabled:
+                return
+
+            with self._prebuffer_token_lock:
+                self._prebuffer_token += 1
+                my_token = self._prebuffer_token
+
+            def _deferred_prebuffer():
+                from spotty_cache import SpottyCacheManager
+
+                time.sleep(2.0)
+
+                with self._prebuffer_token_lock:
+                    if self._prebuffer_token != my_token:
+                        log_msg(
+                            f"_deferred_prebuffer: cancelled (stale, track={track_id})",
+                            LOGDEBUG,
+                        )
+                        return
+
+                # find_active_downloader also finds a post-seek playing
+                # downloader (start_byte > 0) and one whose head was trimmed.
+                dl = SpottyCacheManager.find_active_downloader(track_id)
+                if not self.__wait_for_prebuffer_window(
+                    track_id,
+                    track_duration,
+                    my_token,
+                    dl,
+                ):
+                    return
+
+                log_msg(
+                    f"Main track {track_id} released the Spotty session. Safe to start next-track prebuffer.",
+                    LOGDEBUG,
+                )
+
+                release_delay = self._get_prebuffer_release_delay()
+                log_msg(
+                    f"_deferred_prebuffer: waiting {release_delay:.1f}s for session release.",
+                    LOGDEBUG,
+                )
+                time.sleep(release_delay)
+
+                with self._prebuffer_token_lock:
+                    if self._prebuffer_token != my_token:
+                        log_msg(
+                            f"_deferred_prebuffer: cancelled after sleep (track={track_id})",
+                            LOGDEBUG,
+                        )
+                        return
+
+                try:
+                    _, next_item_now = get_next_playlist_item()
+                except Exception:
+                    return
+                if not next_item_now:
+                    return
+                next_id_now, next_dur_now = parse_track_url(next_item_now.get("file") or "")
+                if not next_id_now or next_dur_now is None:
+                    return
+                if next_id_now == track_id:
+                    log_msg(
+                        f"_deferred_prebuffer: next track same as triggering track"
+                        f" ({track_id}), skipping.",
+                        LOGDEBUG,
+                    )
+                    return
+
+                bitrate = self._get_bitrate_setting()
+                norm = (SPOTIFY_ADDON.getSetting("spotify_normalization") or "auto").strip().lower()
+                if norm not in ("off", "auto", "track", "album"):
+                    norm = "auto"
+                downloader = self.__prebuffer_manager.start_prebuffer(
+                    next_id_now,
+                    next_dur_now,
+                    bitrate=bitrate,
+                    normalization_gain_type=norm,
+                    cancelled=lambda: self._prebuffer_token != my_token,
+                )
+                _start_daemon_thread(
+                    self._watch_prebuffer_result,
+                    args=(downloader, next_id_now, release_delay),
+                    task_name="prebuffer result watcher",
+                )
+
+            _start_daemon_thread(_deferred_prebuffer, task_name="deferred prebuffer")
+
+        except Exception:
+            pass
+
+    def __queue_autoplay_tracks(self, seed_track_id: str) -> None:
+        """Fetch recommended tracks and APPEND them to Kodi's music playlist.
+
+        Does NOT clear the existing playlist — the seed track is already
+        there and currently playing. Recommendations are deduped against
+        both the seed and any track already in the playlist so we don't
+        replay something the user just heard.
+        """
+        try:
+            token = get_cached_auth_token()
+            if not token:
+                log_msg("Autoplay: no auth token available.", LOGWARNING)
+                return
+
+            sp = spotipy.Spotify(auth=token)
+
+            RECOMMEND_LIMIT = 49
+            result = sp.recommendations(seed_tracks=[seed_track_id], limit=RECOMMEND_LIMIT)
+            rec_tracks = (result or {}).get("tracks") or []
+            if not rec_tracks:
+                log_msg("Autoplay: no recommendations returned.", LOGDEBUG)
+                return
+
+            playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
+
+            # Dedup against the seed AND the existing playlist contents.
+            # Before the play-queue migration this used playlist.clear()
+            # which made dedup moot; now that we append, we need it.
+            seen_ids = get_playlist_track_ids()
+            seen_ids.add(seed_track_id)
+
+            # /recommendations returns full track objects (name, duration_ms,
+            # artists, album with images), so no /tracks refetch is needed.
+            added = 0
+            for full in rec_tracks:
+                if added >= RECOMMEND_LIMIT:
+                    break
+                if not isinstance(full, dict):
+                    continue
+                try:
+                    tid = full.get("id") or ""
+                    if not tid or tid in seen_ids:
+                        continue
+                    name = full.get("name") or ""
+                    duration_ms = full.get("duration_ms") or 0
+                    artists = full.get("artists") or []
+                    artist_name = artists[0].get("name") or "" if artists else ""
+                    album = full.get("album") or {}
+                    album_name = album.get("name") or ""
+                    images = album.get("images") or []
+                    art_url = images[0].get("url") if images else ""
+                    duration_sec = math.ceil(duration_ms / 1000) if duration_ms else 1
+                    url = build_stream_url(tid, duration_ms)
+                    li = xbmcgui.ListItem(label=name)
+                    li.setProperty("IsPlayable", "true")
+                    play_queue_bind_stream_item(li, tid)
+                    li.setInfo(
+                        "music",
+                        {
+                            "title": name,
+                            "artist": artist_name,
+                            "album": album_name,
+                            "duration": duration_sec,
+                        },
+                    )
+                    if art_url:
+                        try:
+                            li.setArt(
+                                {
+                                    "thumb": art_url,
+                                    "icon": art_url,
+                                    "fanart": art_url,
+                                }
+                            )
+                        except Exception:
+                            pass
+                    playlist.add(url, li)
+                    seen_ids.add(tid)
+                    added += 1
+                except Exception:
+                    pass
+
+            log_msg(
+                f"Autoplay: appended {added} recommendations (seed={seed_track_id}).",
+                LOGDEBUG,
+            )
+
+        except Exception as exc:
+            log_msg(f"Autoplay: failed to append autoplay tracks: {exc}", LOGWARNING)
+
+    def __on_track_finished(self, track_id: str) -> None:
+        """Mark HTTP streamer as ended so the next request is treated as a new track.
+
+        Only called when the streamer has sent the final byte of the track (not on
+        every range chunk). OSD properties are cleared by _SpotifyOSDPlayerMonitor
+        on real playback stop/end events.
+        """
+        self.__http_spotty_streamer.set_stream_ended(track_id)
+
+    def run(self) -> None:
+        log_msg("Starting main service loop.")
+
+        self.__ensure_proxy()
+
+        self.__renew_token()
+        # Keeps plugin processes' small cache writes from checkpointing the WAL.
+        self.__cache_keepalive = _refresh_cache_keepalive(None)
+
+        loop_counter = 0
+        loop_wait_in_secs = 6
+        while True:
+            loop_counter += 1
+            if not bottle_manager.is_healthy():
+                self.__ensure_proxy()
+            if (loop_counter % 10) == 0:
+                log_msg(f"Main loop continuing. Loop counter: {loop_counter}.")
+
+            prebuffer_enabled_now = SPOTIFY_ADDON.getSetting("prebuffer_enabled").lower() == "true"
+            if self.__prebuffer_enabled and not prebuffer_enabled_now:
+                self.__prebuffer_manager.cancel_prebuffer()
+            self.__prebuffer_enabled = prebuffer_enabled_now
+
+            self.__drop_expired_token()
+            if self.__auth_token_expires_at == "" and utils.cached_auth_token_is_unexpired():
+                # A token appeared from elsewhere (e.g. the plugin finished a
+                # zeroconf pairing) or survived a failed renewal: adopt it.
+                # Back-off state is left alone: only a successful renewal resets it.
+                self.__auth_token_expires_at = utils.peek_cached_auth_token_expires_at()
+            if time.time() < self.__next_renew_attempt_at:
+                pass  # Backing off after a failed renewal.
+            elif self.__auth_token_expires_at == "":
+                log_msg("Spotify not yet authorized. Refreshing auth token now.")
+                self.__renew_token()
+            elif (int(self.__auth_token_expires_at) - 60) <= int(time.time()):
+                expire_time = int(self.__auth_token_expires_at)
+                time_now = int(time.time())
+                log_msg(
+                    f"Spotify token expired."
+                    f" Expire time: {utils.get_time_str(expire_time)} ({expire_time});"
+                    f" time now: {utils.get_time_str(time_now)} ({time_now})."
+                    f" Refreshing auth token now."
+                )
+                self.__renew_token()
+
+            if (loop_counter % CACHE_KEEPALIVE_CHECK_EVERY_LOOPS) == 0:
+                # reopen after "Clear cache" deleted the database file
+                self.__cache_keepalive = _refresh_cache_keepalive(self.__cache_keepalive)
+            if (loop_counter % CACHE_VACUUM_CHECK_EVERY_LOOPS) == 0:
+                _start_daemon_thread(_vacuum_plugin_cache_if_due, task_name="cache vacuum")
+
+            if abort_app(loop_wait_in_secs):
+                log_msg("Aborting the main service.")
+                break
+
+        self.__close()
+
+    def __close(self) -> None:
+        log_msg("Shutdown requested.")
+        from spotty_cache import SpottyCacheManager
+
+        with self._prebuffer_token_lock:
+            self._prebuffer_token += 1
+        self.__prebuffer_manager.cancel_prebuffer()
+        self.__http_spotty_streamer.stop()
+        SpottyCacheManager.cleanup_all(shutdown=True)
+        keepalive = getattr(self, "_MainService__cache_keepalive", None)
+        if keepalive is not None:
+            keepalive.close()
+        self.__spotty_helper.kill_all_spotties()
+        bottle_manager.stop_thread()
+        log_msg("Main service stopped.")
+
+    @staticmethod
+    def _get_bitrate_setting() -> str:
+        """Return the bitrate setting string, validated to one of '96', '160', '320'."""
+        v = (SPOTIFY_ADDON.getSetting("spotify_bitrate") or "320").strip()
+        return v if v in ("96", "160", "320") else "320"
+
+    def __drop_expired_token(self) -> None:
+        """Clear a cached token once it is past expiry (e.g. while backing off
+        after failed renewals) so consumers see "connecting" instead of 401s.
+        Renewal scheduling is untouched: an expired expiry still triggers it."""
+        try:
+            if utils.clear_expired_cached_auth_token():
+                log_msg("Cached Spotify token expired; cleared it until renewal succeeds.")
+        except Exception as exc:
+            log_exception(exc, "Could not clear expired Spotify auth token")
+
+    def __renew_token(self) -> None:
+        try:
+            self.__spotty_auth.renew_token()
+            self.__auth_token_expires_at = utils.get_cached_auth_token_expires_at()
+            self.__renew_failures = 0
+            self.__next_renew_attempt_at = 0.0
+            self.__publish_renew_failures()
+            if self.__welcome_msg:
+                self.__welcome_msg = False
+                self.__show_welcome_notification()
+        except Exception as exc:
+            log_exception(exc, "Could not renew Spotify auth token")
+            self.__auth_token_expires_at = ""
+            delay = self.compute_renew_backoff(self.__renew_failures)
+            self.__renew_failures += 1
+            self.__next_renew_attempt_at = time.time() + delay
+            self.__publish_renew_failures()
+            log_msg(f"Next Spotify token renewal attempt in {delay:.0f}s.", LOGWARNING)
+
+    def __publish_renew_failures(self) -> None:
+        try:
+            utils.set_auth_renew_failing(self.__renew_failures)
+        except Exception as exc:
+            log_exception(exc, "Could not publish token renewal state")
+
+    @staticmethod
+    def compute_renew_backoff(previous_failures: int) -> float:
+        """5s, 10s, 20s ... capped at 300s."""
+        exponent = min(max(int(previous_failures), 0), 16)
+        return min(TOKEN_RENEW_BACKOFF_MAX_SECS, TOKEN_RENEW_BACKOFF_INITIAL_SECS * (2**exponent))
+
+    def __show_welcome_notification(self) -> None:
+        try:
+            addon = xbmcaddon.Addon(id=ADDON_ID)
+            addon_name = addon.getAddonInfo("name")
+            username = utils.get_username()
+            welcome = addon.getLocalizedString(WELCOME_AUTHENTICATED_STR_ID)
+            msg = f"{welcome} {username}" if username else welcome
+            icon = addon.getAddonInfo("icon")
+            xbmcgui.Dialog().notification(addon_name, msg, icon=icon, time=2000, sound=False)
+        except Exception as exc:
+            log_exception(exc, "Could not show welcome notification")

@@ -83,14 +83,12 @@
 				<top>25</top>
 				<width>1130</width>
 				<height>75</height>
-				<align>center</align>
 				<onup>Dialog.Close(1107)</onup>
 				<ondown>Dialog.Close(1107)</ondown>
 				<onup>300</onup>
 				<ondown>300</ondown>
 				<onback>300</onback>
 				<orientation>horizontal</orientation>
-				<focusposition></focusposition>
 				<scrolltime tween="cubic" easing="inout">500</scrolltime>
 				<itemlayout width="120" height="72">
 					<control type="image">
@@ -112,7 +110,7 @@
 				<content>
 					<!-- shutdown menu options for loginscreen -->
 					<item id="991">
-						<label>$LOCALIZE[70001]</label>
+						<label>$LOCALIZE[31837]</label>
 						<icon>icons/kodi.png</icon>
 						<onclick>Dialog.Close(all)</onclick>
 						<onclick condition="System.AddonIsEnabled(script.globalsearch)">RunScript(script.globalsearch)</onclick>
@@ -120,13 +118,13 @@
 						<onclick condition="!System.hasAddon(script.globalsearch)">InstallAddon(script.globalsearch)</onclick>
 					</item>
 					<item id="992">
-						<label>$LOCALIZE[70002]</label>
+						<label>$LOCALIZE[31838]</label>
 						<icon>icons/addons.png</icon>
 						<onclick>Dialog.Close(all)</onclick>
 						<onclick>ActivateWindow(addonbrowser,addons://search/,return)</onclick>
 					</item>
 					<item id="993">
-						<label>$LOCALIZE[70003]</label>
+						<label>$LOCALIZE[31839]</label>
 						<icon>icons/youtube.png</icon>
 						<onclick>Dialog.Close(all)</onclick>
 						<onclick condition="System.AddonIsEnabled(plugin.video.youtube)">ActivateWindow(videos,"plugin://plugin.video.youtube/kodion/search/input_prompt",return)</onclick>
@@ -134,7 +132,7 @@
 						<onclick condition="!System.HasAddon(plugin.video.youtube)">InstallAddon(plugin.video.youtube)</onclick>
 					</item>
 					<item id="994">
-						<label>$LOCALIZE[70004]</label>
+						<label>$LOCALIZE[31890]</label>
 						<icon>icons/themoviedb.png</icon>
 						<onclick>Dialog.Close(all)</onclick>
 						<onclick condition="System.AddonIsEnabled(script.extendedinfo)">RunScript(script.extendedinfo,info=moviedbbrowser,search=True)</onclick>
@@ -142,7 +140,7 @@
 						<onclick condition="!System.HasAddon(script.extendedinfo)">InstallAddon(script.extendedinfo)</onclick>						
 					</item>
 					<item id="995">
-						<label>$LOCALIZE[70032]</label>
+						<label>$LOCALIZE[31918]</label>
 						<icon>icons/wikipedia.png</icon>
 						<onclick>Dialog.Close(all)</onclick>
 						<onclick condition="System.AddonIsEnabled(script.wikipedia)">RunScript(script.wikipedia,language=$VAR[language_iso639-1])</onclick>

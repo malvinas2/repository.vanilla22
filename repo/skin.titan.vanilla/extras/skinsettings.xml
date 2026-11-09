@@ -428,9 +428,7 @@
     <setting id="videoinfo_buttons" value="||MULTISELECT||" label="" condition="" icon="" description="">
         <option id="videoinfo_button_play" label="$LOCALIZE[208]" condition="" default="true"/>
         <option id="videoinfo_button_trailer" label="$LOCALIZE[20410]" condition="" default="true"/>
-        <option id="videoinfo_button_youtubevideos" label="$LOCALIZE[31797]" condition="" default="true"/>
         <option id="videoinfo_button_cast" label="$LOCALIZE[206]" condition="" default="true"/>
-        <option id="videoinfo_button_similar" label="$LOCALIZE[31622]" condition="" default="true"/>
 		<option id="videoinfo_button_director" label="$LOCALIZE[70052]" condition="" default="true"/>
         <option id="videoinfo_button_plot" label="$LOCALIZE[207]" condition="" default="true"/>
         <option id="videoinfo_button_extendedinfo" label="$LOCALIZE[31269]" condition="" default="true"/>
@@ -446,6 +444,7 @@
         <option id="videoinfo_button_discart" label="$LOCALIZE[31200]" condition="" default="true"/>
         <option id="videoinfo_button_panel" label="$LOCALIZE[31155]" condition="" default="true"/>
         <option id="videoinfo_button_myrating" label="My Rating" condition="" default="true"/>
+        <option id="videoinfo_button_mediacodec" label="$LOCALIZE[31350]" condition="" default="true"/>		
     </setting>
 
     <!-- options to show in musicinfo - multiselect -->

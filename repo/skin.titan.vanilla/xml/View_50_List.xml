@@ -59,7 +59,7 @@
 					<onup>500</onup>
 					<ondown>500</ondown>
 					<onleft>100</onleft>
-					<onright></onright>
+					<onright>noop</onright>
 					<orientation>vertical</orientation>
 					<left>570</left>
 					<top>20</top>
@@ -123,7 +123,7 @@
 					<onup>500</onup>
 					<ondown>500</ondown>
 					<onleft>100</onleft>
-					<onright></onright>
+					<onright>noop</onright>
 					<orientation>vertical</orientation>
 					<control type="label">
 						<left>0</left>
@@ -175,7 +175,7 @@
 					<onup>500</onup>
 					<ondown>500</ondown>
 					<onleft>100</onleft>
-					<onright></onright>
+					<onright>noop</onright>
 					<orientation>vertical</orientation>
 					<control type="button">
 						<width>870</width>
@@ -183,7 +183,7 @@
 						<height>50</height>
 						<textcolor>$INFO[Skin.String(ViewDetailsHighlightTextColor)]</textcolor>
 						<shadowcolor>$INFO[Skin.String(ViewDetailsHighlightTextShadowColor)]</shadowcolor>
-						<disabledcolor fallback="white">$INFO[Skin.String(ViewDetailsHighlightTextColor)]</disabledcolor>
+						<disabledcolor>$INFO[Skin.String(ViewDetailsHighlightTextColor)]</disabledcolor>
 						<label>$VAR[ListTitlePVR]</label>
 						<include>ListDetailsBtn</include>
 					</control>

@@ -1,0 +1,573 @@
+# Online Properties
+
+Window properties from external APIs, updated automatically when movies and TV shows are focused or during playback.
+
+[← Back to Index](../index.md)
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Player Online Properties](#player-online-properties)
+- [Music Video Online Properties](#music-video-online-properties)
+- [Music Player Online Properties](#music-player-online-properties)
+- [Enabling the Service](#enabling-the-service)
+- [TMDb Properties](#tmdb-properties)
+- [Ratings](#ratings)
+- [Rotten Tomatoes Status](#rotten-tomatoes-status)
+- [Awards](#awards)
+- [Common Sense Media](#common-sense-media)
+- [Trakt](#trakt)
+- [MDBList](#mdblist)
+
+---
+
+## Overview
+
+The online service fetches metadata from external APIs when movies and TV shows are focused or during video playback:
+
+- **TMDb** - Full metadata, images, credits, trailers
+- **OMDb** - Awards data
+- **MDBList** - Ratings, Common Sense Media, RT status
+- **Trakt** - Ratings, subgenres
+
+**Browsing** - Properties set with `SkinInfo.Online.*` prefix:
+
+```xml
+<label>$INFO[Window(Home).Property(SkinInfo.Online.Title)]</label>
+<label>$INFO[Window(Home).Property(SkinInfo.Online.Rating.imdb)]</label>
+```
+
+**Video playback** - Properties set with `SkinInfo.Player.Online.*` prefix:
+
+```xml
+<label>$INFO[Window(Home).Property(SkinInfo.Player.Online.Title)]</label>
+<label>$INFO[Window(Home).Property(SkinInfo.Player.Online.Rating.imdb)]</label>
+```
+
+Supported media types: `movie`, `tvshow`, `season`, `episode`, `musicvideo`. A season or episode carries its show's properties, apart from its ratings: see [Episode and Season Ratings](#episode-and-season-ratings).
+
+Items outside the library are covered too, such as add-on widgets, when they carry a TMDb or IMDb ID or a title to look up. A season or episode outside the library needs its show's ID or title, and gets no episode ratings.
+
+---
+
+## Player Online Properties
+
+The same properties available for library browsing are also available during video playback with the `SkinInfo.Player.Online.*` prefix.
+
+| Context | Property Prefix |
+|---------|-----------------|
+| Library browsing | `SkinInfo.Online.` |
+| Video playback | `SkinInfo.Player.Online.` |
+
+Both contexts can be active simultaneously - you can browse the library while playing a video, and each will have its own set of properties.
+
+### Example
+
+```xml
+<!-- Now playing info overlay -->
+<control type="group">
+    <visible>Player.HasVideo</visible>
+    <control type="label">
+        <label>$INFO[Window(Home).Property(SkinInfo.Player.Online.Title)]</label>
+    </control>
+    <control type="label">
+        <label>IMDb: $INFO[Window(Home).Property(SkinInfo.Player.Online.Rating.imdb)]</label>
+    </control>
+    <control type="label">
+        <label>$INFO[Window(Home).Property(SkinInfo.Player.Online.Awards)]</label>
+    </control>
+</control>
+```
+
+---
+
+## Music Video Online Properties
+
+**Prefix:** `SkinInfo.MusicVideo.Online.*`
+
+Properties fetched from AudioDB, Last.fm, Wikipedia, and Fanart.tv when music video items or music video artist nodes are focused.
+
+### Artist
+
+| Property           | Description                                |
+|--------------------|--------------------------------------------|
+| `Artist.Bio`       | Artist biography (AudioDB / Last.fm)       |
+| `Artist.FanArt`    | Current fanart URL (rotates automatically) |
+| `Artist.FanArt.Count` | Total fanart images available           |
+| `Artist.Thumb`     | Artist thumbnail (Fanart.tv / AudioDB)     |
+| `Artist.Clearlogo` | Artist clearlogo (Fanart.tv / AudioDB)     |
+| `Artist.Banner`    | Artist banner (Fanart.tv / AudioDB)        |
+
+### Track
+
+| Property           | Description                           |
+|--------------------|---------------------------------------|
+| `Track.Wiki`       | Track description (Last.fm / Wikipedia / AudioDB) |
+| `Track.Tags`       | Top tags (" / " separated, up to 10) |
+| `Track.Listeners`  | Last.fm listener count                |
+| `Track.Playcount`  | Last.fm global play count             |
+
+### Album
+
+| Property           | Description                           |
+|--------------------|---------------------------------------|
+| `Album.Wiki`       | Album description (Last.fm / Wikipedia / AudioDB) |
+| `Album.Tags`       | Top tags (" / " separated, up to 10) |
+| `Album.Label`      | Record label                          |
+
+### Example
+
+```xml
+<control type="group">
+    <visible>!String.IsEmpty(Window(Home).Property(SkinInfo.MusicVideo.Online.Artist.Bio))</visible>
+
+    <!-- Artist fanart background -->
+    <control type="image">
+        <texture>$INFO[Window(Home).Property(SkinInfo.MusicVideo.Online.Artist.FanArt)]</texture>
+    </control>
+
+    <!-- Artist bio -->
+    <control type="textbox">
+        <label>$INFO[Window(Home).Property(SkinInfo.MusicVideo.Online.Artist.Bio)]</label>
+    </control>
+
+    <!-- Track wiki -->
+    <control type="textbox">
+        <label>$INFO[Window(Home).Property(SkinInfo.MusicVideo.Online.Track.Wiki)]</label>
+    </control>
+</control>
+```
+
+---
+
+## Music Player Online Properties
+
+Properties fetched from AudioDB, Last.fm, Wikipedia, MusicBrainz, and Fanart.tv during playback. Works with library items, local files, and radio addon streams.
+
+Audio and music video playback use separate prefixes:
+
+| Context | Prefix |
+|---------|--------|
+| Audio playback | `SkinInfo.Player.Online.Music.` |
+| Music video playback | `SkinInfo.Player.Online.MusicVideo.` |
+
+### Artist
+
+| Property           | Description                                |
+|--------------------|--------------------------------------------|
+| `Artist.Name`      | Artist name                                |
+| `Artist.Bio`       | Artist biography (AudioDB / Last.fm)       |
+| `Artist.FanArt`    | Current fanart URL (rotates automatically) |
+| `Artist.FanArt.Count` | Total fanart images available           |
+| `Artist.Thumb`     | Artist thumbnail (Fanart.tv / AudioDB)     |
+| `Artist.Clearlogo` | Artist clearlogo (Fanart.tv / AudioDB)     |
+| `Artist.Banner`    | Artist banner (Fanart.tv / AudioDB)        |
+| `Artist.Discography.<N>.Name` | Studio albums, `<N>` 1 to 10: the ten newest, oldest first (MusicBrainz) |
+| `Artist.Similar.<N>.Name` | Similar artists, `<N>` 1 to 10 (Last.fm) |
+
+### Track
+
+Populated when a track title is available.
+
+| Property           | Description                           |
+|--------------------|---------------------------------------|
+| `Track.Wiki`       | Track description (Last.fm / Wikipedia / AudioDB) |
+| `Track.Tags`       | Top tags (" / " separated, up to 10) |
+| `Track.Listeners`  | Last.fm listener count                |
+| `Track.Playcount`  | Last.fm global play count             |
+
+### Album
+
+Populated when an album name is available.
+
+| Property           | Description                           |
+|--------------------|---------------------------------------|
+| `Album.Wiki`       | Album description (Last.fm / Wikipedia / AudioDB) |
+| `Album.Tags`       | Top tags (" / " separated, up to 10) |
+| `Album.Label`      | Record label                          |
+
+Fanart rotates at the [slideshow refresh interval](../tools/slideshow.md#skininfoslideshowrefreshinterval).
+
+Fanart.tv is the primary source. TheAudioDB fanart is used only if Fanart.tv returns no results.
+
+### Example: Audio Playback
+
+```xml
+<control type="group">
+    <visible>Player.HasAudio</visible>
+
+    <!-- Rotating artist fanart background -->
+    <control type="image">
+        <visible>!String.IsEmpty(Window(Home).Property(SkinInfo.Player.Online.Music.Artist.FanArt))</visible>
+        <texture>$INFO[Window(Home).Property(SkinInfo.Player.Online.Music.Artist.FanArt)]</texture>
+    </control>
+
+    <!-- Artist bio -->
+    <control type="textbox">
+        <label>$INFO[Window(Home).Property(SkinInfo.Player.Online.Music.Artist.Bio)]</label>
+    </control>
+
+    <!-- Track info -->
+    <control type="textbox">
+        <label>$INFO[Window(Home).Property(SkinInfo.Player.Online.Music.Track.Wiki)]</label>
+    </control>
+</control>
+```
+
+### Example: Music Video Playback
+
+```xml
+<control type="group">
+    <visible>Player.HasVideo + VideoPlayer.Content(musicvideos)</visible>
+
+    <!-- Artist clearlogo -->
+    <control type="image">
+        <visible>!String.IsEmpty(Window(Home).Property(SkinInfo.Player.Online.MusicVideo.Artist.Clearlogo))</visible>
+        <texture>$INFO[Window(Home).Property(SkinInfo.Player.Online.MusicVideo.Artist.Clearlogo)]</texture>
+    </control>
+
+    <!-- Track wiki -->
+    <control type="textbox">
+        <label>$INFO[Window(Home).Property(SkinInfo.Player.Online.MusicVideo.Track.Wiki)]</label>
+    </control>
+</control>
+```
+
+---
+
+## Enabling the Service
+
+The online service runs once the skin enables it, see [Enabling the Service](../getting-started.md#enabling-the-service). API keys are required for some data sources.
+
+**API Key Settings:**
+
+| API | Required | Setting Location |
+|-----|----------|------------------|
+| TMDb | No | Settings → Advanced (custom key optional) |
+| OMDb | No | Settings → API Keys |
+| MDBList | No | Settings → API Keys |
+| Trakt | No | Settings → API Keys |
+
+TMDb uses a built-in API key by default. You can optionally provide your own key in Advanced settings.
+
+---
+
+## TMDb Properties
+
+### Basic Information
+
+| Property | Description | Media Types |
+|----------|-------------|-------------|
+| `Title` | Title | Movie, TVShow |
+| `OriginalTitle` | Original title | Movie, TVShow |
+| `Plot` | Overview/description | Movie, TVShow |
+| `PlotOutline` | Short plot in English, from OMDb. Requires OMDb API key | Movie, TVShow |
+| `Tagline` | Tagline | Movie, TVShow |
+| `Status` | Release status | Movie, TVShow |
+| `Runtime` | Runtime in minutes | Movie, TVShow |
+| `Runtime.Hours` | Hours component, empty under an hour | Movie, TVShow |
+| `Runtime.Minutes` | Minutes component, empty on the hour | Movie, TVShow |
+| `Popularity` | TMDb popularity score | Movie, TVShow |
+| `Homepage` | Official website URL | Movie, TVShow |
+| `Year` | Release year | Movie, TVShow |
+| `Premiered` | Release/first air date (`YYYY-MM-DD`) | Movie, TVShow |
+| `PremieredFormatted` | Formatted date | Movie, TVShow |
+| `Genre` | Genres separated by " / " | Movie, TVShow |
+| `GenrePrimary` | First genre only | Movie, TVShow |
+| `Country` | Countries separated by " / " | Movie, TVShow |
+| `Studio` | Studios/networks separated by " / " | Movie, TVShow |
+| `StudioPrimary` | First studio or network only | Movie, TVShow |
+
+### Movie-Specific
+
+| Property | Description |
+|----------|-------------|
+| `Budget` | Production budget (formatted with commas) |
+| `Revenue` | Box office revenue (formatted with commas) |
+| `Set` | Collection name |
+| `SetID` | Collection TMDb ID |
+
+### TV Show-Specific
+
+| Property | Description |
+|----------|-------------|
+| `Type` | Show type (Scripted, Documentary, etc.) |
+| `Seasons`, `Season` | Total season count |
+| `Episodes`, `Episode` | Total episode count |
+| `Creator` | Creator(s) separated by " / " |
+| `LastAired` | Last air date (`YYYY-MM-DD`) |
+| `LastAiredFormatted` | Formatted last air date |
+| `LastEpisodeTitle` | Last aired episode title |
+| `LastEpisode` | Last aired episode number |
+| `LastEpisodeSeason` | Last aired episode season |
+| `LastEpisodeAired` | Last episode air date (formatted) |
+| `NextEpisodeTitle` | Next episode title |
+| `NextEpisode` | Next episode number |
+| `NextEpisodeSeason` | Next episode season |
+| `NextEpisodeAired` | Next episode air date (formatted) |
+| `NextEpisodeAiredLong` | Next episode air date in the long date format, day and month names in Kodi's language |
+
+### Credits
+
+| Property | Description |
+|----------|-------------|
+| `Cast` | Top 10 cast names separated by " / " |
+| `Director` | Director(s) separated by " / " |
+| `Writer` | Writer(s) separated by " / " |
+| `Cast.1.Name` | First cast member name |
+| `Cast.1.Role` | First cast member role |
+| `Cast.1.Thumb` | First cast member thumbnail URL |
+| `Cast.2.Name` | Second cast member name |
+| `Cast.2.Role` | Second cast member role |
+| `Cast.2.Thumb` | Second cast member thumbnail URL |
+| ... | Up to Cast.5 |
+
+### Images
+
+| Property | Description |
+|----------|-------------|
+| `Poster` | Poster image URL |
+| `Fanart` | Backdrop image URL |
+| `Clearlogo` | Clear logo URL, in the online metadata language, else English, else one with no language set |
+
+### IDs
+
+| Property | Description |
+|----------|-------------|
+| `IMDBNumber`, `UniqueID.IMDB` | IMDB ID |
+| `TMDBID`, `UniqueID.TMDB` | TMDb ID |
+| `TVDBID`, `UniqueID.TVDB` | TVDB ID (TV shows only) |
+
+### Other
+
+| Property | Description |
+|----------|-------------|
+| `MPAA` | US certification (PG-13, R, TV-MA, etc.) |
+| `Trailer` | YouTube trailer plugin URL |
+| `TrailerYouTubeID` | YouTube video ID |
+| `Tag` | Keywords separated by " / " |
+
+---
+
+## Ratings
+
+Ratings from multiple sources. Each source provides three properties, Roger Ebert and
+Letterboxd add a fourth, and RT Critics adds two. A source with no rating sets none of them.
+
+| Property Pattern | Description |
+|------------------|-------------|
+| `Rating`, `Votes` | Rating and vote count from the Default ratings source setting, TMDb's when that source has none |
+| `Rating.{source}` | Rating value (0-10 scale) |
+| `Rating.{source}.Votes` | Vote count |
+| `Rating.{source}.Percent` | Rating as percentage (0-100) |
+| `Rating.{source}.Stars` | Roger Ebert and Letterboxd only, on their own scale out of 4 and 5 |
+| `Rating.tomatoes.Fresh`, `Rating.tomatoes.Rotten` | RT Critics only: fresh and rotten review counts, either can be off by one. Empty without a vote count |
+
+### Available Sources
+
+| Source | Property Prefix | Provider |
+|--------|-----------------|----------|
+| TMDb | `Rating.tmdb` | MDBList, else TMDb |
+| IMDb | `Rating.imdb` | MDBList, else OMDb |
+| Trakt | `Rating.trakt` | Trakt, else MDBList |
+| Metacritic | `Rating.metacritic` | MDBList, else OMDb |
+| Metacritic User | `Rating.metacriticuser` | MDBList |
+| Letterboxd | `Rating.letterboxd` | MDBList |
+| RT Critics | `Rating.tomatoes` | MDBList, else OMDb |
+| RT Audience | `Rating.popcorn` | MDBList |
+| Roger Ebert | `Rating.rogerebert` | MDBList |
+| MyAnimeList | `Rating.myanimelist` | MDBList |
+| MDBList aggregate | `Rating.mdblistscore` | MDBList |
+
+`Rating.mdblistscore` is MDBList's own aggregate of the other sources, not a rating their users gave. It carries no vote count.
+
+Which sources appear depends on what the providers return for the title.
+
+### Example
+
+```xml
+<label>TMDb: $INFO[Window(Home).Property(SkinInfo.Online.Rating.tmdb)]</label>
+<label>IMDb: $INFO[Window(Home).Property(SkinInfo.Online.Rating.imdb)]</label>
+<label>RT Critics: $INFO[Window(Home).Property(SkinInfo.Online.Rating.tomatoes.Percent)]%</label>
+```
+
+### Episode and Season Ratings
+
+`Rating.*` always describes the focused or playing item. On an episode it holds the episode's own
+ratings from `imdb`, `tmdb` and `trakt`. `imdb` needs the IMDb dataset, which a ratings update
+downloads. A season has no ratings of its own, so `Rating.*` is not set.
+
+On both, the show's ratings and Rotten Tomatoes status are set under `TVShow.`:
+
+| Property | Description |
+|----------|-------------|
+| `TVShow.Rating`, `TVShow.Votes` | The show's `Rating` and `Votes` |
+| `TVShow.Season`, `TVShow.Episode` | The show's season and episode counts |
+| `TVShow.Rating.{source}` | The show's `Rating.{source}`, with `.Votes`, `.Percent`, `.Stars`, `.Fresh` and `.Rotten`, see [Ratings](#ratings) |
+| `TVShow.Tomatometer`, `TVShow.Popcornmeter`, `TVShow.Metacritic`, `TVShow.RogerEbert` | The show's status, see [Rotten Tomatoes Status](#rotten-tomatoes-status) |
+
+```xml
+<label>Episode: $INFO[Window(Home).Property(SkinInfo.Online.Rating.tmdb)]</label>
+<label>Show: $INFO[Window(Home).Property(SkinInfo.Online.TVShow.Rating.tmdb)]</label>
+```
+
+---
+
+## Rotten Tomatoes Status
+
+| Property | Values | Description |
+|----------|--------|-------------|
+| `Tomatometer` | "Certified", "Fresh", "Rotten" | Critics status |
+| `Popcornmeter` | "Hot", "Fresh", "Spilled" | Audience status |
+| `Metacritic` | "MustSee" | Metacritic Must-See (MDBList) |
+| `RogerEbert` | "ThumbsDown" | RogerEbert.com thumbs down, its zero-star review (MDBList) |
+
+### Example
+
+```xml
+<control type="image">
+    <visible>String.IsEqual(Window(Home).Property(SkinInfo.Online.Tomatometer),Certified)</visible>
+    <texture>certified-fresh.png</texture>
+</control>
+<control type="image">
+    <visible>String.IsEqual(Window(Home).Property(SkinInfo.Online.Tomatometer),Fresh)</visible>
+    <texture>fresh.png</texture>
+</control>
+<control type="image">
+    <visible>String.IsEqual(Window(Home).Property(SkinInfo.Online.Tomatometer),Rotten)</visible>
+    <texture>rotten.png</texture>
+</control>
+```
+
+---
+
+## Awards
+
+Awards data from OMDb. Requires OMDb API key.
+
+| Property | Description |
+|----------|-------------|
+| `Awards` | Full awards text |
+
+#### Award Counts
+
+Wins and nominations for a movie or TV show, for every award below. Nominations include wins. On a
+season or episode they are the show's. An award the title was never nominated for has no
+properties. No API key is needed, and the counts update after each awards season without an
+add-on update.
+
+| Property | Description |
+|----------|-------------|
+| `Awards.<Award>.Wins` | Times won |
+| `Awards.<Award>.Nominations` | Times nominated, wins included |
+| `Awards.<Award>.Won` | `"true"` when won at least once |
+| `Awards.<Award>.Nominated` | `"true"` when nominated at least once |
+
+| `<Award>` | Award |
+|-----------|-------|
+| `Oscar` | Academy Awards |
+| `GoldenGlobe` | Golden Globe Awards |
+| `BAFTA` | BAFTA Film and Television Awards |
+| `Emmy` | Primetime Emmy Awards |
+| `InternationalEmmy` | International Emmy Awards |
+| `SAG` | Screen Actors Guild Awards (now the Actor Awards) |
+| `CriticsChoice` | Critics' Choice Awards |
+| `DGA` | Directors Guild of America Awards |
+| `WGA` | Writers Guild of America Awards |
+| `PGA` | Producers Guild of America Awards |
+| `Spirit` | Independent Spirit Awards |
+| `Cesar` | César Awards |
+| `Annie` | Annie Awards |
+| `Saturn` | Saturn Awards |
+| `Razzie` | Golden Raspberry Awards |
+
+```xml
+<label>$INFO[Window(Home).Property(SkinInfo.Online.Awards.Oscar.Wins),Won , Oscars]</label>
+```
+
+Award data from Wikipedia (CC BY-SA 4.0) and the Television Academy.
+
+#### Awards (MDBList)
+
+MDBList tags whether a title won or was nominated, never how many times. These sit alongside the
+`Awards` text above, which comes from OMDb. Each is `"true"` when it applies and absent otherwise.
+For an award in the counts above, the flags are also set from the counts. The Oscar flags come
+from the counts alone.
+
+| Property | Description |
+|----------|-------------|
+| `Awards.Oscar.Won` / `Awards.Oscar.Nominated` | Academy Award |
+| `Awards.BestPicture.Won` / `Awards.BestPicture.Nominated` | Best Picture |
+| `Awards.BestDirector.Won` / `Awards.BestDirector.Nominated` | Best Director |
+| `Awards.GoldenGlobe.Won` / `Awards.GoldenGlobe.Nominated` | Golden Globe |
+| `Awards.Razzie.Won` / `Awards.Razzie.Nominated` | Golden Raspberry |
+| `Awards.Emmy.Won` / `Awards.Emmy.Nominated` | Emmy |
+| `Awards.Festival.Cannes` / `.Venice` / `.Sundance` / `.Toronto` | Festival top prize |
+| `Awards.FilmRegistry` | US National Film Registry |
+
+### Example
+
+```xml
+<label>$INFO[Window(Home).Property(SkinInfo.Online.Awards)]</label>
+```
+
+---
+
+## Common Sense Media
+
+Parental guidance data from MDBList. Requires MDBList API key.
+
+| Property | Description |
+|----------|-------------|
+| `CommonSense.Age` | Recommended minimum age |
+| `CommonSense.Violence` | Violence severity (1-5) |
+| `CommonSense.Nudity` | Nudity severity (1-5) |
+| `CommonSense.Language` | Language severity (1-5) |
+| `CommonSense.Drinking` | Substance use severity (1-5) |
+| `CommonSense.Selection` | `true` for a Common Sense Selection, else `false` |
+| `CommonSense.Summary` | Localized summary |
+| `CommonSense.Reasons` | Localized content reasons |
+
+Severity levels: 1 = Minimal, 5 = Severe
+
+### Example
+
+```xml
+<label>Ages $INFO[Window(Home).Property(SkinInfo.Online.CommonSense.Age)]+</label>
+<label>$INFO[Window(Home).Property(SkinInfo.Online.CommonSense.Summary)]</label>
+```
+
+---
+
+## Trakt
+
+Data from Trakt API.
+
+| Property | Description |
+|----------|-------------|
+| `Trakt.Subgenres` | Curated subgenres separated by " / " |
+
+Rating properties are included in the [Ratings](#ratings) section.
+
+### Example
+
+```xml
+<label>$INFO[Window(Home).Property(SkinInfo.Online.Trakt.Subgenres)]</label>
+```
+
+---
+
+## MDBList
+
+Additional data from MDBList.
+
+| Property | Description |
+|----------|-------------|
+| `MDBList.Trailer` | Trailer URL |
+| `MDBList.Certification` | Content certification |
+
+---
+
+[↑ Top](#online-properties) · [Index](../index.md)

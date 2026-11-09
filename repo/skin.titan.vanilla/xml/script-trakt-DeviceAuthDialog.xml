@@ -119,7 +119,7 @@
 					<align>center</align>
 					<aligny>center</aligny>
 					<label>$ADDON[script.trakt 32155]</label>
-					<textcolor fallback="white">$INFO[Skin.String(ButtonTextColor)]</textcolor>
+					<textcolor>$INFO[Skin.String(ButtonTextColor)]</textcolor>
 					<focusedcolor>$INFO[Skin.String(ButtonFocusTextColor)]</focusedcolor>
 					<disabledcolor>aaffffff</disabledcolor>
 					<pulseonselect>false</pulseonselect>
@@ -132,7 +132,7 @@
 					<align>center</align>
 					<aligny>center</aligny>
 					<label>$ADDON[script.trakt 32156]</label>
-					<textcolor fallback="white">$INFO[Skin.String(ButtonTextColor)]</textcolor>
+					<textcolor>$INFO[Skin.String(ButtonTextColor)]</textcolor>
 					<focusedcolor>$INFO[Skin.String(ButtonFocusTextColor)]</focusedcolor>
 					<disabledcolor>aaffffff</disabledcolor>
 					<pulseonselect>false</pulseonselect>

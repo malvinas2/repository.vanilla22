@@ -14,6 +14,8 @@ from utils import log_msg, log_exception, ADDON_ID
 
 ZEROCONF_PORT = 10001
 
+# The add-on's client id, shared by all its users. An own client id can be set
+# in addition, see utils.get_own_client_id() and spotify_client.py.
 CLIENT_ID = "2eb96f9b37494be1824999d58028a305"
 SPOTTY_SCOPE = [
     "user-read-playback-state",
@@ -103,6 +105,29 @@ class SpottyAuth:
         utils.cache_auth_token(str(auth_token["access_token"]))
         utils.cache_auth_token_expires_at(str(auth_token["expires_at"]))
 
+        self.__renew_own_token()
+
+    def __renew_own_token(self) -> None:
+        """
+        Token of the user's own client id, which is used in addition to the
+        shared one. It is renewed together with the shared token, as both are
+        valid for an hour.
+        """
+        own_auth_token = None
+        own_client_id = utils.get_own_client_id()
+        if own_client_id and own_client_id != CLIENT_ID:
+            for _ in range(3):
+                own_auth_token = self.__get_token(own_client_id)
+                if own_auth_token:
+                    break
+                time.sleep(1)
+            if own_auth_token:
+                log_msg("Retrieved Spotify auth token for the own client id.")
+            else:
+                log_msg("Could not get an auth token for the own client id.", LOGERROR)
+
+        utils.cache_own_auth_token(str(own_auth_token["access_token"]) if own_auth_token else "")
+
     def __get_retry_auth_token(self) -> Dict[str, str]:
         auth_token = None
         max_retries = 20
@@ -119,13 +144,17 @@ class SpottyAuth:
 
         return auth_token
 
-    def __get_token(self) -> Dict[str, str]:
+    def __get_token(self, client_id: str = CLIENT_ID) -> Dict[str, str]:
         token_info = None
 
         try:
+            # never read the token of a previous call, e.g. of another client id
+            if os.path.exists(self.__spotty.get_spotty_token_file()):
+                os.remove(self.__spotty.get_spotty_token_file())
+
             args = [
                 "--client-id",
-                CLIENT_ID,
+                client_id,
                 "--scope",
                 ",".join(SPOTTY_SCOPE),
                 "--save-token",
@@ -142,7 +171,6 @@ class SpottyAuth:
 
             with open(self.__spotty.get_spotty_token_file()) as f:
                 json_token = json.load(f)
-            log_msg(f"Spotty json token: {json_token}")
 
             # Transform token info to spotipy compatible format.
             token_info = {
@@ -151,7 +179,7 @@ class SpottyAuth:
                 "expires_at": int(time.time()) + json_token["expiresIn"],
                 "refresh_token": json_token["accessToken"],
             }
-            log_msg(f"Token: {token_info}", LOGDEBUG)
+            log_msg(f"Got token, expires in {token_info['expires_in']}s.", LOGDEBUG)
 
         except Exception as exc:
             log_exception(exc, "Get Spotify token error")

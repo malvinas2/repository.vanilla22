@@ -87,7 +87,7 @@
 						<font>Reg28</font>
 						<textcolor>$INFO[Skin.String(OSDPrimaryTextColor)]</textcolor>
 						<shadowcolor>$INFO[Skin.String(OSDPrimaryTextShadowColor)]</shadowcolor>
-						<label>$LOCALIZE[30036]</label>
+						<label>$LOCALIZE[31957]</label>
 						 <!-- $INFO[Player.TimeRemaining(ss),,] -->
 						<visible>!Integer.IsGreater(Player.TimeRemaining,59)</visible>
 					</control>
@@ -130,7 +130,7 @@
 						<control type="image">
 							<width>19</width>
 							<height>19</height>
-							<aspect>keep</aspect>
+							<aspectratio>keep</aspectratio>
 							<texture colordiffuse="$INFO[Skin.String(OSDPrimaryTextColor)]">flags/rating.png</texture>
 							<animation effect="slide" end="0,8" time="0" condition="true">Conditional</animation>
 							<visible>!String.IsEmpty(Window.Property(rating))</visible>
@@ -179,7 +179,7 @@
 						<bottom>20</bottom>
 						<width>46</width>
 						<height>46</height>
-						<aspect>keep</aspect>
+						<aspectratio>keep</aspectratio>
 						<texture colordiffuse="$VAR[NextUpFontColor]">special://home/addons/service.upnext/resources/skins/default/media/nextupicons/00.png</texture>
 						<animation effect="slide" end="13,-5" time="0" condition="true">Conditional</animation>
 					</control>

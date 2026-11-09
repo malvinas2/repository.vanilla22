@@ -137,7 +137,7 @@
 					<include>SideBladeMenuButton</include>
 					<label>$LOCALIZE[20077]</label>
 					<onclick>ClearProperty(ShowViewSubMenu,home)</onclick>
-					<onclick>SetFocus(5000)</onclick>
+					<onclick>SetFocus(3016,5000)</onclick>
 					<onclick>SetProperty(SkinSettingSection,6,home)</onclick>
 					<onclick>ActivateWindow(3016)</onclick>
 				</control>

@@ -1,0 +1,11 @@
+DialogNotification.xml - for normal pop-up notifications
+
+DialogExtendedProgressBar.xml - for any pop-up that shows progress eg. library update
+
+MusicVisualisation.xml and VideoFullScreen.xml - background of the music/video windows - i.e. these are always displayed when playing music/video fullscreen.
+
+DialogSeekBar.xml - typically holds the progress bar which is displayed when seeking/pausing etc. (depending on visibility conditions). It is visible on top of the musicvis/videofullscreen. You might also show other elements here like title or album art that you want to appear above the background video/visualisation on a conditional basis.
+
+MusicOSD.xml and VideoOSD.xml - hold the buttons like play/pause to control playback i.e. it is opened by the user clicking select and closes by the user pressing back. Anything user interactable will need to go in these windows for the user to access it.
+
+DialogFullScreenInfo.xml - dialog which opens when you press info on the remote in fullscreen video. It isn't required for a skin to work. If you don't have it then I'm fairly sure Kodi sets Player.ShowInfo to true instead.

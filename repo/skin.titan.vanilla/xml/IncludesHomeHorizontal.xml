@@ -57,10 +57,7 @@
 					<onright>4444</onright>
 					<viewtype>list</viewtype>
 					<orientation>horizontal</orientation>
-					<focusposition>3</focusposition>
-					<movement>3</movement>
 					<onup>300</onup>
-					<itemgap>6</itemgap>
 					<onback>SetFocus(300)</onback>
 					<ondown condition="!Skin.HasSetting(DisablePowerMenu)">ActivateWindow(ShutdownMenu)</ondown>
 					<animation type="Conditional" condition="String.IsEqual(Container(4444).NumItems,1)">

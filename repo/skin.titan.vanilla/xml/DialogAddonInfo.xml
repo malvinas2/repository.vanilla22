@@ -2,6 +2,7 @@
 <!--Titan-->
 <window>
 	<defaultcontrol always="true">9000</defaultcontrol>
+	<onload condition="!ListItem.Property(addon.isinstalled) + Window.IsActive(addonbrowser)">SetFocus(6)</onload>
 	<onunload>ClearProperty(showinfo,addoninformation)</onunload>
 	<controls>
 		<!--Dialog Overlay-->
@@ -72,7 +73,7 @@
 				<left>680</left>
 				<top>220</top>
 				<width>1200</width>
-				<height>250</height>
+				<height>310</height>
 				<texture border="5">dialogs/default/inner.png</texture>
 			</control>
 			<!--Icon-->
@@ -80,8 +81,8 @@
 				<left></left>
 				<right>60</right>
 				<top>235</top>
-				<width>350</width>
-				<height>220</height>
+				<width>450</width>
+				<height>280</height>
 				<fadetime>800</fadetime>
 				<aspectratio align="right" aligny="center" scalediffuse="true">keep</aspectratio>
 				<texture background="true" diffuse="diffuse/poster.png" fallback="DefaultVideo.png" border="5">$INFO[ListItem.Icon]</texture>
@@ -92,7 +93,7 @@
 				<control type="button">
 					 <!--Addon Type-->
 					<width>800</width>
-					<height>60</height>
+					<height>47</height>
 					<align>left</align>
 					<textoffsetx>20</textoffsetx>
 					<textwidth>540</textwidth>
@@ -106,7 +107,7 @@
 				<control type="button">
 					<!--Origin-->
 					<width>800</width>
-					<height>60</height>
+					<height>47</height>
 					<align>left</align>
 					<textoffsetx>20</textoffsetx>
 					<textwidth>540</textwidth>
@@ -118,9 +119,37 @@
 					<visible>!String.IsEmpty(ListItem.AddonOrigin)</visible>
 				</control>
 				<control type="button">
+					<!--Binary-->
+					<width>800</width>
+					<height>47</height>
+					<align>left</align>
+					<textoffsetx>20</textoffsetx>
+					<textwidth>540</textwidth>
+					<texturenofocus>dialogs/default/separator.png</texturenofocus>
+					<label>$LOCALIZE[467]:</label>
+					<label2>$LOCALIZE[31832]</label2>
+					<enable>false</enable>
+					<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+					<visible>ListItem.Property(Addon.IsBinary)</visible>
+				</control>
+				<control type="button">
+					<!--Addon Size-->
+					<width>800</width>
+					<height>47</height>
+					<align>left</align>
+					<textoffsetx>20</textoffsetx>
+					<textwidth>540</textwidth>
+					<texturenofocus>dialogs/default/separator.png</texturenofocus>
+					<label>$LOCALIZE[22031]:</label>
+					<label2>$INFO[ListItem.AddonSize]</label2>
+					<enable>false</enable>
+					<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+					<visible>!String.IsEmpty(ListItem.AddonSize)</visible>
+				</control>
+				<control type="button">
 					<!--Status-->
 					<width>800</width>
-					<height>60</height>
+					<height>47</height>
 					<align>left</align>
 					<textoffsetx>20</textoffsetx>
 					<textwidth>540</textwidth>
@@ -134,9 +163,10 @@
 				<control type="fadelabel">
 					<!--Disclaimer-->
 					<width>800</width>
-					<height>60</height>
+					<height>47</height>
 					<align>left</align>
-					<autoscroll>true</autoscroll>
+					<textoffsetx>20</textoffsetx>
+					<scroll>true</scroll>
 					<label>   $INFO[ListItem.AddonDisclaimer]</label>
 					<textcolor>red</textcolor>
 					<visible>!String.IsEmpty(ListItem.AddonDisclaimer)</visible>
@@ -171,6 +201,27 @@
 				<label fallback="19055">$INFO[ListItem.AddonNews]</label>
 				<visible>String.IsEqual(Window.Property(showinfo),news)</visible>
 			</control>
+			<!-- Button to open text viewer for detailed information about version history like in Estuary -->
+			<!-- implemented but not activated -->
+			<control type="button" id="5000">
+				<left>680</left>
+				<top>600</top>
+				<width>1200</width>
+				<height>350</height>
+				<label></label>
+				<texturenofocus></texturenofocus>
+				<!-- <texturefocus></texturefocus> -->
+				<texturefocus border="8" colordiffuse="$INFO[Skin.String(ButtonFocusColor)]">diffuse/bgborder.png</texturefocus>
+				<!-- <visible>Control.HasFocus(10811)</visible> -->
+				<!-- <texturenofocus border="0">dialogs/dialog-bg.png</texturenofocus> -->
+				<onup>9000</onup>
+				<ondown>9000</ondown>
+				<onclick>SetProperty(TextViewer_Header,$LOCALIZE[31833] $INFO[ListItem.AddonVersion],home)</onclick>
+				<onclick>SetProperty(TextViewer_Text,$ESCINFO[ListItem.AddonNews],home)</onclick>
+				<onclick>ActivateWindow(1126)</onclick>
+				<enable>!String.IsEmpty(ListItem.AddonNews)</enable>
+				<!-- <visible>false</visible> -->
+			</control>			
 			<!-- screenshots -->
 			<control type="panel" id="50">
 				<left>680</left>
@@ -203,7 +254,7 @@
 			<!--Button Group-->
 			<control type="grouplist" id="9000">
 				<left>680</left>
-				<top>960</top>
+				<top>970</top>
 				<orientation>horizontal</orientation>
 				<itemgap>5</itemgap>
 				<onup>50</onup>
@@ -218,17 +269,14 @@
 					<onclick>Close</onclick>
 					<visible>Control.IsEnabled(11111)</visible>
 				</control>
-				<control type="togglebutton" id="22111">
+				<control type="button" id="22111">
 					<!--screenshots-->
 					<width>300</width>
 					<height>80</height>
 					<align>center</align>
 					<label>$LOCALIZE[20008]</label>
-					<altlabel>$LOCALIZE[29915]</altlabel>
-					<usealttexture>String.IsEqual(Window.Property(showinfo),screenshots)</usealttexture>
 					<include>DialogButtonOther</include>
 					<onclick condition="!String.IsEqual(Window.Property(showinfo),screenshots)">SetProperty(showinfo,screenshots)</onclick>
-					<onclick condition="String.IsEqual(Window.Property(showinfo),screenshots)">ClearProperty(showinfo)</onclick>
 					<visible>Integer.IsGreater(Container(50).NumItems,0)</visible>
 				</control>
 				<control type="togglebutton" id="22112">
@@ -236,12 +284,13 @@
 					<width>300</width>
 					<height>80</height>
 					<align>center</align>
-					<label>$LOCALIZE[29916]</label>
-					<altlabel>$LOCALIZE[29915]</altlabel>
-					<usealttexture>String.IsEqual(Window.Property(showinfo),news)</usealttexture>
-					<onclick condition="!String.IsEqual(Window.Property(showinfo),news)">SetProperty(showinfo,news)</onclick>
-					<onclick condition="String.IsEqual(Window.Property(showinfo),news)">ClearProperty(showinfo)</onclick>
+					<label>$LOCALIZE[29915]</label>
+					<altlabel>$LOCALIZE[29916]</altlabel>
+					<usealttexture>!String.IsEqual(Window.Property(showinfo),news) + !String.IsEmpty(ListItem.AddonNews)</usealttexture>
+					<onclick condition="!String.IsEqual(Window.Property(showinfo),news) + !String.IsEmpty(ListItem.AddonNews)">SetProperty(showinfo,news)</onclick>
+					<onclick condition="String.IsEqual(Window.Property(showinfo),news) | String.IsEqual(Window.Property(showinfo),screenshots)">ClearProperty(showinfo)</onclick>
 					<include>DialogButtonOther</include>
+					<visible>!String.IsEmpty(ListItem.AddonNews) | Integer.IsGreater(Container(50).NumItems,0)</visible>
 				</control>
 				<control type="button" id="12">
 				  <!--Launch Addon button-->
@@ -269,9 +318,9 @@
 					<label>$LOCALIZE[24022]</label>
 					<include>DialogButtonOther</include>
 					<visible>Control.IsEnabled(6)</visible>
-					<selected>ListItem.Property(addon.isinstalled) | !Window.IsActive(addonbrowser)</selected>
+					<!-- <selected>ListItem.Property(addon.isinstalled) | !Window.IsActive(addonbrowser)</selected> -->
 				</control>
-				<control type="button" id="7">
+				<control type="togglebutton" id="7">
 					<!--Enable/Disable Addon button-->
 					<width>300</width>
 					<height>80</height>
@@ -279,7 +328,7 @@
 					<label>$LOCALIZE[24021]</label>
 					<include>DialogButtonOther</include>
 					<visible>Control.IsEnabled(7)</visible>
-					<selected>!String.StartsWith(Control.GetLabel(7),$LOCALIZE[24022]) | !Window.IsActive(addonbrowser)</selected>
+					<!-- <selected>!String.StartsWith(Control.GetLabel(7),$LOCALIZE[24022]) | !Window.IsActive(addonbrowser)</selected> -->
 				</control>
 				<control type="button" id="9">
 				   <!--Addon Settings-->
@@ -327,7 +376,7 @@
 				<left></left>
 				<right>10</right>
 				<!-- <bottom>52</bottom> -->
-				<top>970</top>
+				<top>980</top>
 				<width>20</width>
 				<height>60</height>
 				<aspectratio>keep</aspectratio>
@@ -341,7 +390,7 @@
 				<left></left>
 				<right>1250</right>
 				<!-- <bottom>52</bottom> -->
-				<top>970</top>
+				<top>980</top>
 				<width>20</width>
 				<height>60</height>
 				<aspectratio>keep</aspectratio>

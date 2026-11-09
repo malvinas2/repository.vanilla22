@@ -268,8 +268,10 @@
 				<selected>Control.HasFocus(51)</selected>
 				<texturefocus></texturefocus>
 				<texturenofocus></texturenofocus>
-				<textureradiofocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/menu.png</textureradiofocus>
-				<textureradionofocus colordiffuse="$INFO[Skin.String(ViewDetailsTextColor)]">common/menu.png</textureradionofocus>
+				<textureradioonfocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/menu.png</textureradioonfocus>
+				<textureradioonnofocus colordiffuse="$INFO[Skin.String(ViewDetailsTextColor)]">common/menu.png</textureradioonnofocus>
+				<textureradioofffocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/menu.png</textureradioofffocus>
+				<textureradiooffnofocus colordiffuse="$INFO[Skin.String(ViewDetailsTextColor)]">common/menu.png</textureradiooffnofocus>
 				<radiowidth>60</radiowidth>
 				<radioheight>60</radioheight>
 				<onclick condition="!String.IsEqual(Window(Home).Property(ShowViewSubMenu),show)">SetProperty(ShowViewSubMenu, show,home)</onclick>
@@ -290,8 +292,10 @@
 				<selected>Control.HasFocus(52)</selected>
 				<texturefocus></texturefocus>
 				<texturenofocus></texturenofocus>
-				<textureradiofocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/back.png</textureradiofocus>
-				<textureradionofocus colordiffuse="$INFO[Skin.String(ViewDetailsTextColor)]">touchcontrols/back.png</textureradionofocus>
+				<textureradioonfocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/back.png</textureradioonfocus>
+				<textureradioonnofocus colordiffuse="$INFO[Skin.String(ViewDetailsTextColor)]">touchcontrols/back.png</textureradioonnofocus>
+				<textureradioofffocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/back.png</textureradioofffocus>
+				<textureradiooffnofocus colordiffuse="$INFO[Skin.String(ViewDetailsTextColor)]">touchcontrols/back.png</textureradiooffnofocus>
 				<radiowidth>60</radiowidth>
 				<radioheight>60</radioheight>
 				<onclick>Close</onclick>
@@ -465,8 +469,10 @@
 					<height>100%</height>
 					<width>60</width>
 					<height>60</height>
-					<textureradiofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/left.png</textureradiofocus>
-					<textureradionofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/left.png</textureradionofocus>
+					<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/left.png</textureradioonfocus>
+					<textureradioonnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/left.png</textureradioonnofocus>
+					<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/left.png</textureradioofffocus>
+					<textureradiooffnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/left.png</textureradiooffnofocus>
 					<radiowidth>40</radiowidth>
 					<radioheight>40</radioheight>
 					<radioposx>0</radioposx>
@@ -483,8 +489,10 @@
 					<height>60</height>
 					<onleft>53</onleft>
 					<ondown>77777</ondown>
-					<textureradiofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/right.png</textureradiofocus>
-					<textureradionofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/right.png</textureradionofocus>
+					<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/right.png</textureradioonfocus>
+					<textureradioonnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/right.png</textureradioonnofocus>
+					<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/right.png</textureradioofffocus>
+					<textureradiooffnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/right.png</textureradiooffnofocus>
 					<radiowidth>40</radiowidth>
 					<radioheight>40</radioheight>
 					<radioposx>0</radioposx>
@@ -500,7 +508,6 @@
 				<width>960</width>
 				<height>555</height>
 				<orientation>horizontal</orientation>
-				<focusposition>2</focusposition>
 				<onup>51</onup>
 				<ondown>51</ondown>
 				<onfocus>51</onfocus>
@@ -585,7 +592,7 @@
 			<label>$INFO[Skin.String($PARAM[skinsetting].label)]</label>
 			<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
 			<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
-			<onclick>RunScript(script.skinshortcuts,type=widgets&amp;showNone=true&amp;skinWidgetName=$PARAM[skinsetting].label&amp;skinWidgetTarget=$PARAM[skinsetting].target&amp;skinWidgetPath=$PARAM[skinsetting].path)</onclick>
+			<onclick>RunScript(script.skinshortcutsV2,type=widgets&amp;showNone=true&amp;skinWidgetName=$PARAM[skinsetting].label&amp;skinWidgetTarget=$PARAM[skinsetting].target&amp;skinWidgetPath=$PARAM[skinsetting].path)</onclick>
 			<texturenofocus></texturenofocus>
 			<visible>Skin.String($PARAM[skinsetting].label)</visible>
 		</control>
@@ -598,7 +605,7 @@
 			<label>$LOCALIZE[31822]</label>
 			<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
 			<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
-			<onclick>RunScript(script.skinshortcuts,type=widgets&amp;showNone=true&amp;skinWidgetName=$PARAM[skinsetting].label&amp;skinWidgetTarget=$PARAM[skinsetting].target&amp;skinWidgetPath=$PARAM[skinsetting].path)</onclick>
+			<onclick>RunScript(script.skinshortcutsV2,type=widgets&amp;showNone=true&amp;skinWidgetName=$PARAM[skinsetting].label&amp;skinWidgetTarget=$PARAM[skinsetting].target&amp;skinWidgetPath=$PARAM[skinsetting].path)</onclick>
 			<texturenofocus></texturenofocus>
 			<visible>!Skin.String($PARAM[skinsetting].label)</visible>
 		</control>

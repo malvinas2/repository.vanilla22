@@ -536,14 +536,14 @@ msgctxt "#31784"
 msgid "Decoder"
 msgstr "Dekoder"
 
-msgctxt "#30035"
+msgctxt "#31956"
 msgid "Continue watching in $INFO[Window.Property(remaining)] seconds"
 msgstr "Fortsätt titta om $INFO[Window.Property(remaining)] sekunder"
 
-msgctxt "#30036"
+msgctxt "#31957"
 msgid "Up next in $INFO[Window.Property(remaining)] seconds"
 msgstr "Kommer strax om $INFO[Window.Property(remaining)] sekunder"
 
-msgctxt "#30037"
+msgctxt "#31958"
 msgid "Next episode in $INFO[Window.Property(remaining)] seconds"
 msgstr "Nästa avsnitt om $INFO[Window.Property(remaining)] sekunder"

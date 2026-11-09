@@ -61,7 +61,6 @@
 					<altlabel>$LOCALIZE[584]</altlabel>
 					<usealttexture>Container.SortDirection(Ascending)</usealttexture>
 				</control>
-
 				<control type="edit" id="19">
 					<visible>Container.CanFilter + !Container.CanFilterAdvanced</visible>
 					<description>Filter</description>
@@ -80,11 +79,33 @@
 					<onclick>right</onclick>
 					<onclick>Filter</onclick>
 				</control>
+
+				<control type="image" id="6201">
+					<!--Seperator-->
+					<width>458</width>
+					<height>10</height>
+					<align>left</align>
+					<texture>common/menu-separator.png</texture>
+				</control>
 				
 				<include>SideBladeViewCommands</include>
 
 			</control>
 		</control>
+		
+		<control type="group">
+			<visible>Integer.IsEqual(Container.NumItems,0)</visible>
+			<control type="textbox">
+				<left>500</left>
+				<top>90</top>
+				<width>900</width>
+				<bottom>0</bottom>
+				<aligny>center</aligny>
+				<align>center</align>
+				<label>$LOCALIZE[31351]</label>
+			</control>
+		</control>
+		
 		<include condition="Skin.HasSetting(DebugGrid) | Skin.HasSetting(DebugInfo)">DebugInfo</include>
 	</controls>
 </window>

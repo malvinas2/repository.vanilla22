@@ -44,7 +44,7 @@
 				<left>60</left>
 				<height>50</height>
 				<bottom>20</bottom>
-				<include condition="[Window.IsActive(Videos) | Window.IsActive(videoplaylist) | Window.IsActive(script-globalsearch.xml)]">mediaflags</include>
+				<include condition="[Window.IsActive(Videos) | Window.IsActive(videoplaylist) | Window.IsActive(script-globalsearch.xml) | Window.IsActive(favouritesbrowser)]">mediaflags</include>
 				<!-- slide if touchcontrols present -->
 				<animation type="Conditional" condition="Control.IsVisible(99123)">
 					<effect type="slide" start="0" end="280" time="0" tween="cubic" easing="inout" delay="0" />
@@ -465,12 +465,12 @@
 				<visible>Window.IsActive(tvrecordings) | Window.IsActive(tvtimers) | Window.IsActive(tvsearch)</visible>
 				<left>60</left>
 				<top>16</top>
-				<width>500</width>
+				<width>1000</width>
 				<align>left</align>
 				<font>Reg30</font>
 				<textcolor>$INFO[Skin.String(FooterTextColor)]</textcolor>
 				<shadowcolor>$INFO[Skin.String(FooterTextShadowColor)]</shadowcolor>
-				<label>$INFO[PVR.backenddiskspace]</label>
+				<label>$INFO[PVR.ClientName]$INFO[PVR.InstanceName, (,)]: $INFO[PVR.BackendDiskspace]</label>
 				<visible>!Control.IsVisible(99123)</visible>
 			</control>
 			 </control>
@@ -479,7 +479,8 @@
 	<include name="FooterContentGeneral">
 		<control type="group">
 			<!--Title-->
-			<visible>!Window.IsActive(DialogVideoInfo.xml) + !Window.IsVisible(favouritesbrowser)</visible>
+			<!-- <visible>!Window.IsActive(DialogVideoInfo.xml) + !Window.IsVisible(favouritesbrowser)</visible> -->
+			<visible>!Window.IsActive(DialogVideoInfo.xml)</visible>
 			<animation effect="slide" end="0,16" time="0" condition="!Skin.HasTheme(classic)">Conditional</animation>
 			<height>80</height>
 			<bottom>20</bottom>
@@ -633,15 +634,6 @@
 	<include name="StarRatingFooter">
 		<control type="group">
 			<bottom>25</bottom>
-			<right>60</right>
-			<width>315</width>
-			<height>55</height>
-			<include>StarRating</include>
-		</control>
-	</include>
-	<include name="StarRatingFooterClassic">
-		<control type="group">
-			<bottom>40</bottom>
 			<right>60</right>
 			<width>315</width>
 			<height>55</height>

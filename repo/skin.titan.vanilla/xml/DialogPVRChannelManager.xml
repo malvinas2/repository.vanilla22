@@ -37,7 +37,7 @@
 				<top>135</top>
 				<width>1214</width>
 				<include>DialogHeader</include>
-				<label>$LOCALIZE[19199] • $LOCALIZE[19024]</label>
+				<label>$LOCALIZE[19199] • $LOCALIZE[19024]$INFO[Container(20).NumItems, (,)]</label>
 				<visible>!String.IsEmpty(Window.Property(IsRadio))</visible>
 				<align>center</align>
 			</control>
@@ -47,7 +47,7 @@
 				<top>135</top>
 				<width>1214</width>
 				<include>DialogHeader</include>
-				<label>$LOCALIZE[19199] • $LOCALIZE[19023]</label>
+				<label>$LOCALIZE[19199] • $LOCALIZE[19023]$INFO[Container(20).NumItems, (,)]</label>
 				<visible>String.IsEmpty(Window.Property(IsRadio))</visible>
 				<align>center</align>
 			</control>
@@ -58,14 +58,14 @@
 				<control type="group" id="8001">
 					<!--Group Left-->
 					<control type="image">
-						<left>0</left>
+						<left>-10</left>
 						<top>40</top>
 						<width>600</width>
 						<height>631</height>
 						<texture border="5">dialogs/default/inner.png</texture>
 					</control>
 					<control type="list" id="20">
-						<left>0</left>
+						<left>-10</left>
 						<top>40</top>
 						<width>600</width>
 						<height>630</height>
@@ -129,6 +129,14 @@
 								<visible>!Control.HasFocus(20)</visible>
 								<control type="image">
 									<left>0</left>
+									<top>0</top>
+									<width>600</width>
+									<height>90</height>
+									<texture colordiffuse="$INFO[Skin.String(ButtonFocusColor)]" border="5">diffuse/panel_trans.png</texture>
+									<!-- <colordiffuse>$INFO[Skin.String(ButtonFocusColor)]</colordiffuse> -->
+								</control>
+								<control type="image">
+									<left>0</left>
 									<top>1</top>
 									<width>600</width>
 									<height>90</height>
@@ -144,7 +152,7 @@
 											<width>480</width>
 											<height>56</height>
 											<label>$INFO[ListItem.Property(Number),(,) ]$INFO[ListItem.Property(Name)]</label>
-											<include>DialogListNF</include>
+											<include>DialogListFO</include>
 											<scroll>false</scroll>
 										</control>
 										<control type="label">
@@ -153,7 +161,7 @@
 											<width>480</width>
 											<height>56</height>
 											<label>$INFO[ListItem.Property(ClientName),$LOCALIZE[19210]: ,]</label>
-											<include>DialogListNF</include>
+											<include>DialogListFO</include>
 											<scroll>false</scroll>
 										</control>
 									</control>
@@ -165,7 +173,7 @@
 											<width>430</width>
 											<height>56</height>
 											<label>$INFO[ListItem.Property(Number),(,) ]$INFO[ListItem.Property(Name)]</label>
-											<include>DialogListNF</include>
+											<include>DialogListFO</include>
 											<scroll>false</scroll>
 										</control>
 										<control type="label">
@@ -174,7 +182,7 @@
 											<width>430</width>
 											<height>56</height>
 											<label>$INFO[ListItem.Property(ClientName),$LOCALIZE[19210]: ,]</label>
-											<include>DialogListNF</include>
+											<include>DialogListFO</include>
 											<scroll>false</scroll>
 										</control>
 									</control>
@@ -187,7 +195,7 @@
 									<top>0</top>
 									<width>600</width>
 									<height>90</height>
-									<texture colordiffuse="$INFO[Skin.String(ButtonColor)]" border="5">diffuse/panel_trans.png</texture>
+									<texture colordiffuse="$INFO[Skin.String(ButtonFocusColor)]" border="5">diffuse/panel_trans.png</texture>
 									<colordiffuse>$INFO[Skin.String(ButtonFocusColor)]</colordiffuse>
 									<visible>ListItem.IsSelected</visible>
 								</control>
@@ -220,7 +228,7 @@
 											<height>56</height>
 											<label>$INFO[ListItem.Property(ClientName),$LOCALIZE[19210]: ,]</label>
 											<include>DialogListFO</include>
-											<scroll>false</scroll>
+											<scroll>true</scroll>
 										</control>
 									</control>
 									<control type="group">
@@ -241,7 +249,7 @@
 											<height>56</height>
 											<label>$INFO[ListItem.Property(ClientName),$LOCALIZE[19210]: ,]</label>
 											<include>DialogListFO</include>
-											<scroll>false</scroll>
+											<scroll>true</scroll>
 										</control>
 									</control>
 								</control>
@@ -286,18 +294,20 @@
 					<width>20</width>
 					<height>620</height>
 					<onleft>8001</onleft>
-					<onright>8002</onright>
+					<!-- <onright>8002</onright> -->
 					<onup>60</onup>
 					<ondown>60</ondown>
 					<showonepage>false</showonepage>
-					<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling(20) | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
-					<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling(20) | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
+					<onright condition="Integer.IsGreater(Container(20).NumItems, 0)">80021</onright>
+					<onright condition="Integer.IsEqual(Container(20).NumItems, 0)">80022</onright>
+					<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container(20).Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
+					<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container(20).Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
 				</control>	
 				
 				<control type="group" id="8002">
 					<!--Group Right-->
 					<control type="group" id="80021">
-						<left>614</left>
+						<left>624</left>
 						<top>0</top>
 						<control type="label">
 							<description>Misc Options Header</description>
@@ -307,7 +317,7 @@
 							<height>34</height>
 							<align>left</align>
 							<textoffsetx>20</textoffsetx>
-							<label>[B]$LOCALIZE[70051][/B]</label>
+							<label>[B]$LOCALIZE[31937][/B]</label>
 							<include>DialogButtonBig</include>
 						</control>
 						<control type="image">
@@ -436,7 +446,7 @@
 						</control>
 					</control>
 					<control type="group" id="80022">
-						<left>614</left>
+						<left>624</left>
 						<top>500</top>
 						<control type="label">
 							<description>Misc Options Header</description>
@@ -446,7 +456,7 @@
 							<height>34</height>
 							<align>left</align>
 							<textoffsetx>20</textoffsetx>
-							<label>[B]$LOCALIZE[70050][/B]</label>
+							<label>[B]$LOCALIZE[31936][/B]</label>
 							<include>DialogButtonBig</include>
 						</control>
 						<control type="image">
@@ -486,15 +496,14 @@
 							<height>50</height>
 							<align>left</align>
 							<textoffsetx>20</textoffsetx>
-							<textwidth>280</textwidth>
+							<textwidth>270</textwidth>
 							<texturenofocus>dialogs/default/separator.png</texturenofocus>
 							<include>DialogButtonSmall</include>
 							<label>$LOCALIZE[19205]</label>
 							<onleft>34</onleft>
-							<onright>8003</onright>
+							<onright>noop</onright>
 							<onup>14</onup>
 							<ondown>35</ondown>
-							<scroll>true</scroll>
 						</control>
 						<control type="button" id="34">
 							<description>TV/Radio Button</description>
@@ -504,7 +513,7 @@
 							<height>50</height>
 							<align>left</align>
 							<textoffsetx>20</textoffsetx>
-							<textwidth>540</textwidth>
+							<textwidth>270</textwidth>
 							<texturenofocus>dialogs/default/separator.png</texturenofocus>
 							<include>DialogButtonSmall</include>
 							<label>$LOCALIZE[19024]</label>
@@ -522,7 +531,7 @@
 							<height>50</height>
 							<align>left</align>
 							<textoffsetx>20</textoffsetx>
-							<textwidth>280</textwidth>
+							<textwidth>270</textwidth>
 							<texturenofocus>dialogs/default/separator.png</texturenofocus>
 							<include>DialogButtonSmall</include>
 							<label>$LOCALIZE[19023]</label>
@@ -540,7 +549,8 @@
 							<height>50</height>
 							<align>left</align>
 							<textoffsetx>20</textoffsetx>
-							<textwidth>280</textwidth>
+							<textwidth>270</textwidth>
+							<disabledcolor>AAFFFFFF</disabledcolor>
 							<include>DialogButtonSmall</include>
 							<texturefocus colordiffuse="$INFO[Skin.String(ButtonFocusColor)]">colors/color_white.png</texturefocus>
 							<texturenofocus>dialogs/default/separator.png</texturenofocus>
@@ -559,17 +569,16 @@
 							<height>50</height>
 							<align>left</align>
 							<textoffsetx>20</textoffsetx>
-							<textwidth>280</textwidth>
+							<textwidth>270</textwidth>
 							<include>DialogButtonSmall</include>
 							<texturefocus colordiffuse="$INFO[Skin.String(ButtonFocusColor)]">colors/color_white.png</texturefocus>
 							<texturenofocus>dialogs/default/separator.png</texturenofocus>
 							<label>$LOCALIZE[19041]</label>
 							<onleft>31</onleft>
-							<onright>8003</onright>
+							<onright>noop</onright>
 							<onup>30</onup>
 							<ondown>SetProperty(Focus,1)</ondown>
 							<ondown>8003</ondown>
-							<scroll>true</scroll>
 						</control>						
 					</control>
 				</control>

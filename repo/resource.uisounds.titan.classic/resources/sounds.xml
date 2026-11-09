@@ -79,10 +79,11 @@
 
 	<windows>
 
-		<window>
-			<name>infodialog</name>
-			<activate>out.wav</activate>
-		</window>
+<!-- example (outdated) -->
+		<!-- <window> -->
+			<!-- <name>infodialog</name> -->
+			<!-- <activate>out.wav</activate> -->
+		<!-- </window> -->
 
 		<window>
 			<name>startup</name>

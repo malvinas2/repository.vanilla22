@@ -1,0 +1,672 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+'''provides a simple stateless caching system for Kodi addons and plugins'''
+
+import os
+import sys
+import xbmcvfs
+import xbmcgui
+import xbmc
+import xbmcaddon
+import datetime
+import time
+import sqlite3
+import json
+import zlib
+
+class _SqlResult(object):
+    '''rows fetched before the connection is closed (cursor-like API)'''
+
+    def __init__(self, rows):
+        self._rows = list(rows or [])
+
+    def fetchone(self):
+        return self._rows[0] if self._rows else None
+
+    def fetchall(self):
+        return list(self._rows)
+
+
+class SimpleCache(object):
+    '''simple stateless caching system for Kodi'''
+    enable_mem_cache = True
+    data_is_json = False
+    global_checksum = None
+    _exit = False
+    _auto_clean_interval = datetime.timedelta(hours=4)
+    # VACUUM rewrites the whole database file; it is never run from the
+    # 4-hourly cleanup (plugin processes) but only via vacuum_if_due(),
+    # which the service calls rarely while nothing is playing.
+    _vacuum_interval = datetime.timedelta(days=7)
+    _vacuum_marker = "simplecache.vacuum.lastexecuted"
+    _win = None
+    _busy_tasks = []
+    _database = None
+
+    def __init__(self, addon_id):
+        '''Initialize our caching class'''
+        self.addon_id = addon_id
+        self._win = xbmcgui.Window(10000)
+        self._monitor = xbmc.Monitor()
+        self.check_cleanup()
+        self._log_msg("Initialized")
+
+    def close(self):
+        '''tell any tasks to stop immediately (as we can be called multithreaded) and cleanup objects'''
+        self._exit = True
+        # wait for all tasks to complete
+        while self._busy_tasks and not self._monitor.abortRequested():
+            xbmc.sleep(25)
+        del self._win
+        del self._monitor
+        self._log_msg("Closed")
+
+    def __del__(self):
+        '''make sure close is called'''
+        if not self._exit:
+            self.close()
+
+    def get(self, endpoint, checksum="", json_data=False, mem_cache=True):
+        '''
+            get object from cache and return the results
+            endpoint: the (unique) name of the cache object as reference
+            checkum: optional argument to check if the checksum in the cacheobject matches the checkum provided
+            mem_cache: False keeps this entry database-only (no window property copy),
+                       for large collections that would otherwise be serialised twice
+        '''
+        checksum = self._get_checksum(checksum)
+        cur_time = self._get_timestamp(datetime.datetime.now())
+        result = None
+        use_mem = self.enable_mem_cache and mem_cache
+        # 1: try memory cache first
+        if use_mem:
+            result = self._get_mem_cache(endpoint, checksum, cur_time, json_data)
+
+        # 2: fallback to _database cache
+        if result is None:
+            result = self._get_db_cache(endpoint, checksum, cur_time, json_data, use_mem)
+
+        return result
+
+    def set(self, endpoint, data, checksum="", expiration=datetime.timedelta(days=30), json_data=False,
+            mem_cache=True):
+        '''
+            set data in cache
+        '''
+        task_name = "set.%s" % endpoint
+        self._busy_tasks.append(task_name)
+        try:
+            checksum = self._get_checksum(checksum)
+            expires = self._get_timestamp(datetime.datetime.now() + expiration)
+
+            # memory cache: write to window property
+            if self.enable_mem_cache and mem_cache and not self._exit:
+                self._set_mem_cache(endpoint, checksum, expires, data, json_data)
+            elif not mem_cache and not self._exit:
+                # database-only entry: drop any stale window-property copy
+                self._win.clearProperty(endpoint)
+
+            # db cache
+            if not self._exit:
+                self._set_db_cache(endpoint, checksum, expires, data, json_data)
+        finally:
+            # remove this task from list
+            self._busy_tasks.remove(task_name)
+
+    def get_many(self, endpoints, checksum="", json_data=False, mem_cache=True):
+        '''
+            get several objects from cache at once (same rules as get())
+            returns a dict {endpoint: data} holding only the endpoints found;
+            all database misses are read over a single connection
+        '''
+        checksum = self._get_checksum(checksum)
+        cur_time = self._get_timestamp(datetime.datetime.now())
+        use_mem = self.enable_mem_cache and mem_cache
+        results = {}
+        missing = []
+        seen = set()
+        for endpoint in endpoints:
+            if endpoint in seen:
+                continue
+            seen.add(endpoint)
+            result = None
+            if use_mem:
+                result = self._get_mem_cache(endpoint, checksum, cur_time, json_data)
+            if result is None:
+                missing.append(endpoint)
+            else:
+                results[endpoint] = result
+        if missing:
+            results.update(
+                self._get_db_cache_many(missing, checksum, cur_time, json_data, use_mem)
+            )
+        return results
+
+    def set_many(self, items, checksum="", expiration=datetime.timedelta(days=30), json_data=False,
+                 mem_cache=True):
+        '''
+            set several objects in cache at once (same rules as set())
+            items: dict {endpoint: data} or iterable of (endpoint, data) pairs;
+            the database rows are written in one transaction
+        '''
+        items = list(items.items() if isinstance(items, dict) else items)
+        if not items:
+            return
+        task_name = "set_many.%s" % items[0][0]
+        self._busy_tasks.append(task_name)
+        try:
+            checksum = self._get_checksum(checksum)
+            expires = self._get_timestamp(datetime.datetime.now() + expiration)
+            for endpoint, data in items:
+                if self._exit:
+                    break
+                if self.enable_mem_cache and mem_cache:
+                    self._set_mem_cache(endpoint, checksum, expires, data, json_data)
+                elif not mem_cache:
+                    self._win.clearProperty(endpoint)
+            if not self._exit:
+                rows = [(endpoint, expires, json.dumps(data), checksum) for endpoint, data in items]
+                query = ("INSERT OR REPLACE INTO simplecache( id, expires, data, checksum) "
+                         "VALUES (?, ?, ?, ?)")
+
+                def _write(connection):
+                    connection.execute("BEGIN IMMEDIATE")
+                    try:
+                        connection.executemany(query, rows)
+                        connection.execute("COMMIT")
+                    except Exception:
+                        try:
+                            connection.execute("ROLLBACK")
+                        except Exception:
+                            pass
+                        raise
+                    return True
+
+                self._run_on_database(_write)
+        finally:
+            self._busy_tasks.remove(task_name)
+
+    def check_cleanup(self):
+        '''check if cleanup is needed - public method, may be called by calling addon'''
+        cur_time = datetime.datetime.now()
+        lastexecuted = self._win.getProperty("simplecache.clean.lastexecuted")
+        if not lastexecuted:
+            self._win.setProperty("simplecache.clean.lastexecuted", cur_time.isoformat())
+        else:
+            try:
+                last_dt = datetime.datetime.fromisoformat(lastexecuted)
+            except (ValueError, TypeError):
+                last_dt = cur_time
+                self._win.setProperty("simplecache.clean.lastexecuted", cur_time.isoformat())
+            if (last_dt + self._auto_clean_interval) < cur_time:
+                self._do_cleanup()
+
+    def _get_mem_cache(self, endpoint, checksum, cur_time, json_data):
+        '''
+            get cache data from memory cache
+            we use window properties because we need to be stateless
+        '''
+        result = None
+        cachedata = self._win.getProperty(endpoint)
+
+        if cachedata:
+            try:
+                cachedata = json.loads(cachedata)
+            except (json.JSONDecodeError, TypeError, ValueError):
+                self._win.clearProperty(endpoint)
+                return None
+            if not isinstance(cachedata, (list, tuple)) or len(cachedata) < 3:
+                self._win.clearProperty(endpoint)
+                return None
+            if cachedata[0] > cur_time:
+                if not checksum or checksum == cachedata[2]:
+                    result = cachedata[1]
+        return result
+
+    def _set_mem_cache(self, endpoint, checksum, expires, data, json_data):
+        '''
+            window property cache as alternative for memory cache
+            usefull for (stateless) plugins
+        '''
+        cachedata = (expires, data, checksum)
+        cachedata_str = json.dumps(cachedata)
+        self._win.setProperty(endpoint, cachedata_str)
+
+
+    def _get_db_cache(self, endpoint, checksum, cur_time, json_data, use_mem=True):
+        '''get cache data from sqllite _database'''
+        result = None
+        query = "SELECT expires, data, checksum FROM simplecache WHERE id = ?"
+        cache_data = self._execute_sql(query, (endpoint,))
+        if cache_data:
+            cache_data = cache_data.fetchone()
+            if cache_data and cache_data[0] > cur_time:
+                if not checksum or cache_data[2] == checksum:
+                    try:
+                        result = json.loads(cache_data[1])
+                    except (json.JSONDecodeError, TypeError, ValueError):
+                        self._execute_sql(
+                            "DELETE FROM simplecache WHERE id = ?", (endpoint,)
+                        )
+                        return None
+                    if self.enable_mem_cache and use_mem:
+                        self._set_mem_cache(endpoint, checksum, cache_data[0], result, json_data)
+        return result
+
+    def _get_db_cache_many(self, endpoints, checksum, cur_time, json_data, use_mem=True):
+        '''get several cache entries from the sqllite _database over one connection'''
+        chunk_size = 500  # stay below SQLITE_MAX_VARIABLE_NUMBER on old builds
+
+        def _read(connection):
+            rows = []
+            for start in range(0, len(endpoints), chunk_size):
+                chunk = endpoints[start:start + chunk_size]
+                query = "SELECT id, expires, data, checksum FROM simplecache WHERE id IN (%s)" % (
+                    ",".join("?" * len(chunk)))
+                rows.extend(connection.execute(query, chunk).fetchall())
+            results = {}
+            corrupt = []
+            for endpoint, expires, data, row_checksum in rows:
+                if not expires > cur_time:
+                    continue
+                if checksum and row_checksum != checksum:
+                    continue
+                try:
+                    results[endpoint] = (expires, json.loads(data))
+                except (json.JSONDecodeError, TypeError, ValueError):
+                    corrupt.append((endpoint,))
+            if corrupt:
+                connection.executemany("DELETE FROM simplecache WHERE id = ?", corrupt)
+            return results
+
+        rows = self._run_on_database(_read) or {}
+        results = {}
+        for endpoint, (expires, result) in rows.items():
+            if self.enable_mem_cache and use_mem:
+                self._set_mem_cache(endpoint, checksum, expires, result, json_data)
+            results[endpoint] = result
+        return results
+
+    def _set_db_cache(self, endpoint, checksum, expires, data, json_data):
+        ''' store cache data in _database '''
+        query = "INSERT OR REPLACE INTO simplecache( id, expires, data, checksum) VALUES (?, ?, ?, ?)"
+        data = json.dumps(data)
+        self._execute_sql(query, (endpoint, expires, data, checksum))
+
+    def _do_cleanup(self):
+        '''perform cleanup task: drop expired rows in one statement (no VACUUM)'''
+        if self._exit or self._monitor.abortRequested():
+            return
+        if self._win.getProperty("simplecachecleanbusy"):
+            # another process is cleaning; do not register a busy task
+            return
+        task_name = "cleanup"
+        self._busy_tasks.append(task_name)
+        self._win.setProperty("simplecachecleanbusy", "busy")
+        try:
+            cur_time = datetime.datetime.now()
+            cur_timestamp = self._get_timestamp(cur_time)
+            self._log_msg("Running cleanup...")
+
+            def _delete_expired(connection):
+                connection.execute("BEGIN IMMEDIATE")
+                try:
+                    expired = connection.execute(
+                        "SELECT id FROM simplecache WHERE expires < ?", (cur_timestamp,)
+                    ).fetchall()
+                    connection.execute(
+                        "DELETE FROM simplecache WHERE expires < ?", (cur_timestamp,)
+                    )
+                    connection.execute("COMMIT")
+                except Exception:
+                    try:
+                        connection.execute("ROLLBACK")
+                    except Exception:
+                        pass
+                    raise
+                return [row[0] for row in expired]
+
+            expired_ids = self._run_on_database(_delete_expired)
+            if expired_ids is None:
+                return
+            # Only expired entries lose their window-property mirror; live
+            # mirrors stay valid (they carry their own expiry) and db-only
+            # entries never had one, so clearing them is a no-op.
+            for cache_id in expired_ids:
+                if self._exit:
+                    break
+                self._win.clearProperty(cache_id)
+            self._win.setProperty("simplecache.clean.lastexecuted", cur_time.isoformat())
+            self._log_msg("Auto cleanup done (%d expired rows)" % len(expired_ids))
+        finally:
+            self._busy_tasks.remove(task_name)
+            self._win.clearProperty("simplecachecleanbusy")
+
+    def clear_all(self):
+        '''delete every entry (and its window-property mirror) without removing the file
+
+        Unlinking a WAL database that other processes (e.g. the service's
+        WalKeepAlive) have open can corrupt it; emptying the table is safe.
+        Returns False when the database could not be cleared.
+        '''
+        def _clear(connection):
+            connection.execute("BEGIN IMMEDIATE")
+            try:
+                ids = connection.execute("SELECT id FROM simplecache").fetchall()
+                connection.execute("DELETE FROM simplecache")
+                connection.execute("COMMIT")
+            except Exception:
+                try:
+                    connection.execute("ROLLBACK")
+                except Exception:
+                    pass
+                raise
+            return [row[0] for row in ids]
+
+        ids = self._run_on_database(_clear)
+        if ids is None:
+            return False
+        for cache_id in ids:
+            self._win.clearProperty(cache_id)
+        return True
+
+    def vacuum_if_due(self, interval=None, min_free_ratio=0.1):
+        '''compact the database file when the last VACUUM is older than interval
+
+        Meant for the long-running service only (and only while nothing is
+        playing): VACUUM rewrites the whole file and blocks writers meanwhile.
+        It is skipped when less than min_free_ratio of the pages are free.
+        Returns True when a VACUUM ran.
+        '''
+        interval = interval or self._vacuum_interval
+        if self._exit or self._monitor.abortRequested():
+            return False
+        cur_time = datetime.datetime.now()
+        last = self.get(self._vacuum_marker, mem_cache=False)
+        try:
+            if last and datetime.datetime.fromisoformat(last) + interval > cur_time:
+                return False
+        except (ValueError, TypeError):
+            pass
+        task_name = "vacuum"
+        self._busy_tasks.append(task_name)
+        try:
+            def _vacuum(connection):
+                page_count = connection.execute("PRAGMA page_count").fetchone()[0]
+                free_pages = connection.execute("PRAGMA freelist_count").fetchone()[0]
+                if not page_count or free_pages < page_count * min_free_ratio:
+                    return False
+                connection.execute("VACUUM")
+                return True
+
+            vacuumed = bool(self._run_on_database(_vacuum))
+            self.set(self._vacuum_marker, cur_time.isoformat(),
+                     expiration=datetime.timedelta(days=365), mem_cache=False)
+            self._log_msg("VACUUM %s" % ("done" if vacuumed else "not needed"))
+            return vacuumed
+        finally:
+            self._busy_tasks.remove(task_name)
+
+    def _get_database_file(self):
+        '''path of the sqlite file (profile folder is created when missing)'''
+        addon = xbmcaddon.Addon(self.addon_id)
+        dbpath = addon.getAddonInfo('profile')
+        dbfile = xbmcvfs.translatePath("%s/simplecache.db" % dbpath)
+
+        if not xbmcvfs.exists(dbpath):
+            xbmcvfs.mkdirs(dbpath)
+        del addon
+        return dbfile
+
+    def _get_database(self):
+        '''get reference to our sqllite _database - performs basic integrity check'''
+        dbfile = self._get_database_file()
+        connection = None
+        try:
+            connection = sqlite3.connect(dbfile, timeout=30, isolation_level=None)
+            connection.execute('SELECT * FROM simplecache LIMIT 1')
+            self._configure_connection(connection)
+            return connection
+        except Exception as error:
+            if connection is not None:
+                try:
+                    connection.close()
+                except Exception:
+                    pass
+            if isinstance(error, sqlite3.OperationalError) and (
+                    "locked" in str(error) or "busy" in str(error)):
+                # busy for the whole timeout (e.g. a long VACUUM): not corrupt,
+                # so never delete it (other processes may have it open)
+                self._log_msg("_database busy: %s" % str(error), xbmc.LOGWARNING)
+                return None
+            # our _database is corrupt or doesn't exist yet, we simply try to recreate it
+            # a leftover -wal/-shm must never be replayed into a new file
+            for path in (dbfile, dbfile + "-wal", dbfile + "-shm"):
+                if xbmcvfs.exists(path):
+                    xbmcvfs.delete(path)
+            try:
+                connection = sqlite3.connect(dbfile, timeout=30, isolation_level=None)
+                connection.execute(
+                    """CREATE TABLE IF NOT EXISTS simplecache(
+                    id TEXT UNIQUE, expires INTEGER, data TEXT, checksum INTEGER)""")
+                self._configure_connection(connection)
+                return connection
+            except Exception as error:
+                self._log_msg("Exception while initializing _database: %s" % str(error), xbmc.LOGWARNING)
+                self.close()
+                return None
+
+    @staticmethod
+    def _configure_connection(connection):
+        '''WAL journal (persistent, safe for concurrent plugin + service processes
+        on a local filesystem) and NORMAL sync: small writes no longer fsync
+        twice per statement. A cache can afford losing the last commit on power
+        loss; WAL keeps the file consistent either way.'''
+        try:
+            connection.execute("PRAGMA journal_mode=WAL")
+            connection.execute("PRAGMA synchronous=NORMAL")
+            connection.execute("PRAGMA journal_size_limit=4194304")
+        except sqlite3.Error:
+            # e.g. another process holds a lock while switching journal mode;
+            # the default rollback journal keeps working
+            pass
+
+    def _execute_sql(self, query, data=None):
+        '''little wrapper around execute and executemany to just retry a db command if db is locked
+
+        Returns a cursor-like object whose rows were fetched before the
+        connection was closed, or None on failure.
+        '''
+        retries = 0
+        error = None
+        # always use new db object because we need to be sure that data is available for other simplecache instances
+        _database = self._get_database()
+        if _database is None:
+            self._log_msg("_database unavailable; skipping query", xbmc.LOGWARNING)
+            return None
+        try:
+            while not retries == 10 and not self._monitor.abortRequested():
+                if self._exit:
+                    return None
+                try:
+                    if isinstance(data, list):
+                        cursor = _database.executemany(query, data)
+                    elif data:
+                        cursor = _database.execute(query, data)
+                    else:
+                        cursor = _database.execute(query)
+                    return _SqlResult(cursor.fetchall())
+                except sqlite3.OperationalError as exc:
+                    error = exc
+                    if "locked" in str(exc):
+                        self._log_msg("retrying DB commit...")
+                        retries += 1
+                        self._monitor.waitForAbort(0.5)
+                    else:
+                        break
+                except Exception as exc:
+                    error = exc
+                    break
+            self._log_msg("_database ERROR ! -- %s" % str(error), xbmc.LOGWARNING)
+        finally:
+            try:
+                _database.close()
+            except Exception:
+                pass
+        return None
+
+    def _run_on_database(self, func):
+        '''run func(connection) on one fresh connection, retrying while the db is locked
+
+        Returns func's result, or None on failure.
+        '''
+        retries = 0
+        error = None
+        _database = self._get_database()
+        if _database is None:
+            self._log_msg("_database unavailable; skipping query", xbmc.LOGWARNING)
+            return None
+        try:
+            while not retries == 10 and not self._monitor.abortRequested():
+                if self._exit:
+                    return None
+                try:
+                    return func(_database)
+                except sqlite3.OperationalError as exc:
+                    error = exc
+                    if "locked" in str(exc):
+                        self._log_msg("retrying DB commit...")
+                        retries += 1
+                        self._monitor.waitForAbort(0.5)
+                    else:
+                        break
+                except Exception as exc:
+                    error = exc
+                    break
+            self._log_msg("_database ERROR ! -- %s" % str(error), xbmc.LOGWARNING)
+        finally:
+            try:
+                _database.close()
+            except Exception:
+                pass
+        return None
+
+    @staticmethod
+    def _log_msg(msg, loglevel=xbmc.LOGDEBUG):
+        '''helper to send a message to the kodi log'''
+        xbmc.log("Skin Helper Simplecache --> %s" % msg, level=loglevel)
+
+    @staticmethod
+    def _get_timestamp(date_time):
+        '''Converts a datetime object to unix timestamp'''
+        return int(time.mktime(date_time.timetuple()))
+
+    def _get_checksum(self, stringinput):
+        '''get int checksum from string
+
+        CRC32 of the UTF-8 text: the former sum of character codes collided
+        for many inputs (e.g. "...-N" vs "...-(N+9)" time buckets).
+        '''
+        if not stringinput and not self.global_checksum:
+            return 0
+        if self.global_checksum:
+            stringinput = "%s-%s" %(self.global_checksum, stringinput)
+        else:
+            stringinput = str(stringinput)
+        return zlib.crc32(stringinput.encode("utf-8")) & 0xffffffff
+
+
+class WalKeepAlive(object):
+    '''An idle database connection for a long-running process (the service) to hold.
+
+    In WAL mode the last connection to close checkpoints the WAL and deletes it
+    (fsyncs plus unlinks). Every plugin operation opens and closes its own
+    connection, so without a holder each small write would still pay that cost.
+    The held connection never keeps a transaction open, so the automatic
+    checkpoints (every ~1000 WAL pages) keep running.
+    '''
+
+    def __init__(self, addon_id):
+        self.addon_id = addon_id
+        self._connection = None
+        self._identity = None
+        # Connections whose file was deleted/replaced (corrupt-database
+        # recreation) are never closed: closing the last connection of a WAL
+        # database deletes "<db>-wal"/"<db>-shm" by name, i.e. the new file's.
+        self._orphaned = []
+
+    @staticmethod
+    def _file_identity(path):
+        try:
+            stat = os.stat(path)
+            return (stat.st_dev, stat.st_ino)
+        except OSError:
+            return None
+
+    def refresh(self):
+        '''(re)open when not open yet or the database file was deleted/replaced'''
+        cache = SimpleCache(self.addon_id)
+        try:
+            dbfile = cache._get_database_file()
+            identity = self._file_identity(dbfile)
+            if self._connection is not None and identity is not None and identity == self._identity:
+                return True
+            if self._connection is not None:
+                self._orphaned.append(self._connection)
+                self._connection = None
+                self._identity = None
+            if identity is None:
+                return False  # nothing to hold until a plugin creates the cache
+            connection = cache._get_database()
+            if connection is None:
+                return False
+            self._connection = connection
+            self._identity = self._file_identity(dbfile)
+            return True
+        finally:
+            cache.close()
+
+    def close(self):
+        if self._connection is not None:
+            try:
+                self._connection.close()
+            except Exception:
+                pass
+        self._connection = None
+        self._identity = None
+
+
+def use_cache(cache_days=14):
+    '''
+        wrapper around our simple cache to use as decorator
+        Usage: define an instance of SimpleCache with name "cache" (self.cache) in your class
+        Any method that needs caching just add @use_cache as decorator
+        NOTE: use unnamed arguments for calling the method and named arguments for optional settings
+    '''
+    def decorator(func):
+        '''our decorator'''
+        def decorated(*args, **kwargs):
+            '''process the original method and apply caching of the results'''
+            method_class = args[0]
+            method_class_name = method_class.__class__.__name__
+            cache_str = "%s.%s" % (method_class_name, func.__name__)
+            # cache identifier is based on positional args only
+            # named args are considered optional and ignored
+            for item in args[1:]:
+                cache_str += u".%s" % item
+            cache_str = cache_str.lower()
+            cachedata = method_class.cache.get(cache_str)
+            global_cache_ignore = False
+            try:
+                global_cache_ignore = method_class.ignore_cache
+            except Exception:
+                pass
+            if cachedata is not None and not kwargs.get("ignore_cache", False) and not global_cache_ignore:
+                return cachedata
+            else:
+                result = func(*args, **kwargs)
+                method_class.cache.set(cache_str, result, expiration=datetime.timedelta(days=cache_days))
+                return result
+        return decorated
+    return decorator

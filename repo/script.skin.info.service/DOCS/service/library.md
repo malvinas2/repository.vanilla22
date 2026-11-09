@@ -1,0 +1,866 @@
+# Library Properties
+
+Window properties set automatically by the service when library items are focused.
+
+[← Back to Index](../index.md)
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Unified Properties](#unified-properties)
+- [Movies](#movies)
+- [Movie Sets](#movie-sets)
+- [TV Shows](#tv-shows)
+- [Seasons](#seasons)
+- [Episodes](#episodes)
+- [Music Videos](#music-videos)
+- [Artists](#artists)
+- [Albums](#albums)
+- [Video Player](#video-player)
+- [Music Player](#music-player)
+- [Property Clearing](#property-clearing)
+
+---
+
+## Overview
+
+All properties are available via `Window(Home).Property(...)`. Properties populate automatically when items with a valid `ListItem.DBID` are focused.
+
+```xml
+<label>$INFO[Window(Home).Property(SkinInfo.Movie.Title)]</label>
+<texture>$INFO[Window(Home).Property(SkinInfo.Movie.Art(poster))]</texture>
+```
+
+---
+
+## Unified Properties
+
+**Prefix:** `SkinInfo.ListItem.*`
+
+Media-type-agnostic properties that work regardless of what item is focused.
+
+### Basic Information
+
+| Property | Description | Available For |
+|----------|-------------|---------------|
+| `Title` | Item title | All |
+| `Plot` | Plot or description | Movie, TVShow, Episode, Set, Artist, Album, MusicVideo |
+| `Year` | Release year | Movie, TVShow, Album, MusicVideo |
+| `Genre` | Genre(s), `" / "` separated | All except Season |
+
+### Runtime (Video)
+
+| Property | Description | Available For |
+|----------|-------------|---------------|
+| `Runtime` | Total runtime in minutes | Movie, TVShow, Season, Episode, Set, MusicVideo |
+| `Runtime.Hours` | Hours component | Movie, TVShow, Season, Episode, Set, MusicVideo |
+| `Runtime.Minutes` | Minutes component | Movie, TVShow, Season, Episode, Set, MusicVideo |
+
+`Runtime` is always whole minutes. For a clock-formatted value use `Duration` below.
+
+### Time Watched (Video)
+
+Total time spent watching an item, equal to `Runtime × PlayCount`. `Runtime` is in whole minutes. For a TV show or season it is the sum of its episodes' `WatchTime`. Empty when unwatched.
+
+| Property | Description | Available For |
+|----------|-------------|---------------|
+| `WatchTime` | Total minutes watched | Movie, TVShow, Season, Episode, MusicVideo |
+| `WatchTime.Hours` | Hours component | Movie, TVShow, Season, Episode, MusicVideo |
+| `WatchTime.Minutes` | Minutes component | Movie, TVShow, Season, Episode, MusicVideo |
+
+### Duration
+
+Clock-formatted counterpart to `Runtime`. `m:ss` under an hour, `h:mm:ss` at an hour or over.
+
+| Property | Description | Available For |
+|----------|-------------|---------------|
+| `Duration` | Duration as `m:ss` or `h:mm:ss` | Album, MusicVideo |
+| `Duration.Seconds` | Total seconds | Album, MusicVideo |
+
+### Ratings
+
+| Property | Description | Available For |
+|----------|-------------|---------------|
+| `Rating` | Primary rating (0-10) | Movie, TVShow, Episode, Album, MusicVideo |
+| `Rating.Votes` | Vote count | Movie, TVShow, Episode, Album |
+| `Rating.Percent` | Rating as percentage (0-100) | Movie, TVShow, Episode, Album, MusicVideo |
+| `UserRating` | User's personal rating (1-10) | All except Set, Artist |
+| `Rating.{source}` | Rating from specific source | Movie, TVShow, Episode |
+| `Rating.{source}.Votes` | Vote count for source | Movie, TVShow, Episode |
+| `Rating.{source}.Percent` | Source rating as percentage | Movie, TVShow, Episode |
+| `Rating.{source}.Stars` | Roger Ebert and Letterboxd, out of 4 and 5 | Movie, TVShow, Episode |
+| `Tomatometer` | "Fresh" or "Rotten" (based on ≥60%) | Movie, TVShow |
+| `Popcornmeter` | "Fresh" or "Spilled" (based on ≥60%) | Movie, TVShow |
+
+### Example
+
+```xml
+<label>$INFO[Window(Home).Property(SkinInfo.ListItem.Title)]</label>
+<label>$INFO[Window(Home).Property(SkinInfo.ListItem.Year)] - $INFO[Window(Home).Property(SkinInfo.ListItem.Genre)]</label>
+<label>$INFO[Window(Home).Property(SkinInfo.ListItem.Rating)]</label>
+
+<!-- Rotten Tomatoes Tomatometer (library data) -->
+<control type="image">
+    <visible>String.IsEqual(Window(Home).Property(SkinInfo.ListItem.Tomatometer),Fresh)</visible>
+    <texture>fresh.png</texture>
+</control>
+<control type="image">
+    <visible>String.IsEqual(Window(Home).Property(SkinInfo.ListItem.Tomatometer),Rotten)</visible>
+    <texture>rotten.png</texture>
+</control>
+```
+
+---
+
+## Movies
+
+**Prefix:** `SkinInfo.Movie.*`
+
+### Basic Information
+
+| Property | Description |
+|----------|-------------|
+| `Title` | Movie title |
+| `OriginalTitle` | Original title |
+| `Year` | Release year |
+| `Plot` | Full plot description |
+| `PlotOutline` | Short plot summary |
+| `Tagline` | Movie tagline |
+| `Rating` | Default rating value |
+| `Votes` | Number of votes |
+| `UserRating` | User's rating (0-10) |
+| `MPAA` | Content rating (PG-13, R, etc.) |
+| `Runtime` | Runtime in minutes |
+| `Runtime.Hours` | Runtime hours component |
+| `Runtime.Minutes` | Runtime minutes component |
+| `Premiered` | Premiere date |
+| `PremieredFormatted` | `Premiered` in the region's date format |
+| `PercentPlayed` | Playback progress percentage |
+| `IsResumable` | `true` when there is a resume point |
+| `WatchTime` | Total minutes watched (`Runtime × Playcount`) |
+| `WatchTime.Hours` | Hours component |
+| `WatchTime.Minutes` | Minutes component |
+
+### Movie Set
+
+| Property | Description |
+|----------|-------------|
+| `Set` | Movie set name |
+| `SetID` | Movie set database ID |
+
+### Library Data
+
+| Property | Description |
+|----------|-------------|
+| `Playcount` | Number of times played |
+| `LastPlayed` | Last played date |
+| `DateAdded` | Date added to library |
+| `Tag` | Tags, `" / "` separated |
+| `IMDBNumber` | IMDB ID |
+| `Top250` | IMDB Top 250 ranking |
+| `UniqueID.IMDB` | IMDB unique ID |
+| `UniqueID.TMDB` | TMDB unique ID |
+| `Trailer` | Trailer URL |
+
+### Credits
+
+| Property | Description |
+|----------|-------------|
+| `Director` | Director(s), `" / "` separated |
+| `Writer` | Writer(s), `" / "` separated |
+| `Cast` | Cast members, `" / "` separated |
+| `Genre` | Genre(s), `" / "` separated |
+| `GenrePrimary` | First genre only |
+| `Studio` | Studio(s), `" / "` separated |
+| `StudioPrimary` | First studio only |
+| `Country` | Country(ies), `" / "` separated |
+
+### Technical
+
+| Property | Description |
+|----------|-------------|
+| `Path` | File path |
+| `FileName` | File name without path |
+| `FileExtension` | File extension (mkv, mp4, etc.) |
+| `Codec` | Video codec |
+| `Resolution` | Video resolution (480, 720, 1080, 4k, 8k) |
+| `Aspect` | Aspect ratio (1.33, 1.78, 2.35, etc.) |
+| `AudioCodec` | Audio codec |
+| `AudioChannels` | Audio channel count |
+| `AudioLanguage` | Language of the audio track shown |
+| `HDRType` | `dolbyvision`, `hdr10`, `hdr10plus`, `hlg`, or empty |
+| `SubtitleLanguage` | Language of the first subtitle track |
+| `SubtitleCount` | Number of subtitle tracks |
+
+### Artwork
+
+| Property | Description |
+|----------|-------------|
+| `Art(poster)` | Poster |
+| `Art(fanart)` | Fanart |
+| `Art(clearlogo)` | Clear logo |
+| `Art(keyart)` | Key art |
+| `Art(landscape)` | Landscape |
+| `Art(banner)` | Banner |
+| `Art(clearart)` | Clear art |
+| `Art(discart)` | Disc art |
+
+### Ratings
+
+| Property | Description |
+|----------|-------------|
+| `Rating.{source}` | Scaled rating (0-10) |
+| `Rating.{source}.Votes` | Vote count |
+| `Rating.{source}.Percent` | Percentage (0-100) |
+| `Rating.{source}.Stars` | Roger Ebert and Letterboxd, out of 4 and 5 |
+| `Tomatometer` | "Fresh" or "Rotten" (based on ≥60%) |
+| `Popcornmeter` | "Fresh" or "Spilled" (based on ≥60%) |
+
+### Video Versions / Extras View (Piers+)
+
+Inside a video versions or extras container (`Container.Content(videoversions)` or `Container.Content(videoextras)`), the parent movie's `SkinInfo.Movie.*` properties stay populated even when focus moves to the virtual "Extras" folder item or to an extras file, so the same `Title`/`Plot`/`Art(...)` keys remain valid throughout the view.
+
+In addition, four aggregates summarize the contents of the parent movie's extras subdirectory:
+
+| Property | Description |
+|----------|-------------|
+| `SkinInfo.Movie.Extras.Count` | Number of extras (empty if none) |
+| `SkinInfo.Movie.Extras.TotalRuntime` | Sum of all extras runtimes in minutes (empty if none) |
+| `SkinInfo.Movie.Extras.Unwatched` | Count of extras with `playcount == 0` (empty if none) |
+| `SkinInfo.Movie.Extras.UnwatchedRuntime` | Sum of unwatched extras runtimes in minutes (empty if none) |
+
+```xml
+<label>Extras ($INFO[Window(Home).Property(SkinInfo.Movie.Extras.Count)])</label>
+<label>$INFO[Window(Home).Property(SkinInfo.Movie.Extras.Unwatched)] unwatched</label>
+<label>$INFO[Window(Home).Property(SkinInfo.Movie.Extras.UnwatchedRuntime)] min remaining</label>
+```
+
+Aggregates are cleared when focus leaves the versions/extras container. Not set on Kodi versions earlier than Piers.
+
+---
+
+## Movie Sets
+
+**Prefix:** `SkinInfo.Set.*`
+
+### Set Information
+
+| Property | Description |
+|----------|-------------|
+| `Title` | Set title |
+| `Plot` | Set plot description |
+| `Count` | Number of movies in set |
+
+### Artwork
+
+| Property | Description |
+|----------|-------------|
+| `Art(poster)` | Poster |
+| `Art(fanart)` | Fanart |
+| `Art(clearlogo)` | Clear logo |
+| `Art(keyart)` | Key art |
+| `Art(landscape)` | Landscape |
+| `Art(banner)` | Banner |
+| `Art(clearart)` | Clear art |
+| `Art(discart)` | Disc art |
+
+### Aggregates
+
+| Property | Description |
+|----------|-------------|
+| `Titles` | Formatted list of all movie titles |
+| `Plots` | Combined plots of all movies |
+| `ExtendedPlots` | Titles + plots combined |
+| `Runtime` | Total runtime in minutes |
+| `Runtime.Hours` | Hours component |
+| `Runtime.Minutes` | Minutes component |
+| `Years` | Distinct release years, sorted ascending (separated by " / ") |
+| `Years.Range` | Earliest to latest year (e.g. `2008 - 2012`; a single year when all match) |
+| `Writers` | All writers (de-duped, separated by " / ") |
+| `Directors` | All directors (de-duped, separated by " / ") |
+| `Genres` | All genres (de-duped, separated by " / ") |
+| `Countries` | All countries (de-duped, separated by " / ") |
+| `Studios` | All studios (de-duped, separated by " / ") |
+
+### Indexed Aggregates
+
+Use `%d` as placeholder for index (1-based):
+
+| Property | Description |
+|----------|-------------|
+| `Writers.%d` | Individual writer |
+| `Directors.%d` | Individual director |
+| `Genres.%d` | Individual genre |
+| `Countries.%d` | Individual country |
+| `Studios.%d` | Primary studio per movie |
+
+### Per-Movie Properties
+
+Use `%d` as placeholder for index (1-based):
+
+| Property | Description |
+|----------|-------------|
+| `Movie.%d.DBID` | Database ID |
+| `Movie.%d.Title` | Movie title |
+| `Movie.%d.Path` | File path |
+| `Movie.%d.Year` | Release year |
+| `Movie.%d.Runtime` | Runtime in minutes |
+| `Movie.%d.Plot` | Full plot |
+| `Movie.%d.PlotOutline` | Short summary |
+| `Movie.%d.Genre` | Genre(s) |
+| `Movie.%d.GenrePrimary` | First genre only |
+| `Movie.%d.Director` | Director(s) |
+| `Movie.%d.Writer` | Writer(s) |
+| `Movie.%d.Studio` | Studio(s) |
+| `Movie.%d.StudioPrimary` | First studio only |
+| `Movie.%d.Country` | Country(ies) |
+| `Movie.%d.VideoResolution` | Video resolution |
+| `Movie.%d.HDRType` | `dolbyvision`, `hdr10`, `hdr10plus`, `hlg`, or empty |
+| `Movie.%d.MPAA` | Content rating |
+| `Movie.%d.Art(poster)` | Poster |
+| `Movie.%d.Art(fanart)` | Fanart |
+| `Movie.%d.Art(clearlogo)` | Clear logo |
+| `Movie.%d.Art(keyart)` | Key art |
+| `Movie.%d.Art(landscape)` | Landscape |
+| `Movie.%d.Art(banner)` | Banner |
+| `Movie.%d.Art(clearart)` | Clear art |
+| `Movie.%d.Art(discart)` | Disc art |
+
+---
+
+## TV Shows
+
+**Prefix:** `SkinInfo.TVShow.*`
+
+### Basic Information
+
+| Property | Description |
+|----------|-------------|
+| `Title` | TV show title |
+| `OriginalTitle` | Original title |
+| `SortTitle` | Sort title |
+| `Year` | Year started |
+| `Plot` | Full plot description |
+| `Premiered` | Premiere date |
+| `PremieredFormatted` | `Premiered` in the region's date format |
+| `Rating` | Default rating value |
+| `Votes` | Number of votes |
+| `UserRating` | User's rating (0-10) |
+| `MPAA` | Content rating |
+| `Status` | Status (Continuing, Ended) |
+
+### Show Details
+
+| Property | Description |
+|----------|-------------|
+| `Episode` | Total episode count |
+| `Season` | Total season count |
+| `WatchedEpisodes` | Number of watched episodes |
+| `WatchedEpisodePercent` | Watched episodes as a percentage |
+| `Runtime` | Average episode runtime in minutes (calculated from library) |
+| `Runtime.Hours` | Hours component of average runtime |
+| `Runtime.Minutes` | Minutes component of average runtime |
+| `TotalRuntime` | Total runtime of all episodes in minutes |
+| `TotalRuntime.Hours` | Hours component of total runtime |
+| `TotalRuntime.Minutes` | Minutes component of total runtime |
+| `WatchTime` | Minutes watched across all episodes |
+| `WatchTime.Hours` | Hours component |
+| `WatchTime.Minutes` | Minutes component |
+| `EpisodeGuide` | Episode guide URL |
+| `Trailer` | Trailer URL |
+
+### Library Data
+
+| Property | Description |
+|----------|-------------|
+| `Playcount` | Number of times played |
+| `LastPlayed` | Last played date |
+| `DateAdded` | Date added to library |
+| `Path` | File path |
+| `IMDBNumber` | IMDB ID |
+| `UniqueID.IMDB` | IMDB unique ID |
+| `UniqueID.TMDB` | TMDB unique ID |
+| `UniqueID.TVDB` | TVDB unique ID |
+
+### Ratings
+
+`SkinInfo.TVShow.Rating.{source}` and its `.Votes`, `.Percent` and `.Stars`, as in the movie [Ratings](#ratings-1).
+
+| Property | Description |
+|----------|-------------|
+| `Tomatometer` | "Fresh" or "Rotten" (based on ≥60%) |
+| `Popcornmeter` | "Fresh" or "Spilled" (based on ≥60%) |
+
+### Credits
+
+| Property | Description |
+|----------|-------------|
+| `Cast` | Cast members, `" / "` separated |
+| `Genre` | Genre(s), `" / "` separated |
+| `GenrePrimary` | First genre only |
+| `Studio` | Studio(s), `" / "` separated |
+| `StudioPrimary` | First studio only |
+| `Tag` | Tags, `" / "` separated |
+
+### Artwork
+
+| Property | Description |
+|----------|-------------|
+| `Art(poster)` | Poster |
+| `Art(fanart)` | Fanart |
+| `Art(clearlogo)` | Clear logo |
+| `Art(keyart)` | Key art |
+| `Art(landscape)` | Landscape |
+| `Art(banner)` | Banner |
+| `Art(clearart)` | Clear art |
+| `Art(thumb)` | Thumbnail |
+
+---
+
+## Seasons
+
+**Prefix:** `SkinInfo.Season.*`
+
+| Property | Description |
+|----------|-------------|
+| `Title` | Season title |
+| `Season` | Season number |
+| `ShowTitle` | Parent TV show title |
+| `Episode` | Total episodes in season |
+| `WatchedEpisodes` | Number of watched episodes |
+| `Runtime` | Average episode runtime in minutes (from parent show) |
+| `Runtime.Hours` | Hours component of average runtime |
+| `Runtime.Minutes` | Minutes component of average runtime |
+| `TotalRuntime` | Total runtime of all season episodes in minutes |
+| `TotalRuntime.Hours` | Hours component of total runtime |
+| `TotalRuntime.Minutes` | Minutes component of total runtime |
+| `WatchTime` | Minutes watched across the season's episodes |
+| `WatchTime.Hours` | Hours component |
+| `WatchTime.Minutes` | Minutes component |
+| `Playcount` | Play count |
+| `UserRating` | User's rating (0-10) |
+| `TVShowID` | Parent TV show database ID |
+
+### Artwork
+
+| Property | Description |
+|----------|-------------|
+| `Art(poster)` | Poster |
+| `Art(fanart)` | Fanart |
+| `Art(clearlogo)` | Clear logo |
+| `Art(keyart)` | Key art |
+| `Art(landscape)` | Landscape |
+| `Art(banner)` | Banner |
+| `Art(clearart)` | Clear art |
+| `Art(thumb)` | Thumbnail |
+
+---
+
+## Episodes
+
+**Prefix:** `SkinInfo.Episode.*`
+
+### Basic Information
+
+| Property | Description |
+|----------|-------------|
+| `Title` | Episode title |
+| `OriginalTitle` | Original title |
+| `Plot` | Episode plot |
+| `Season` | Season number |
+| `Episode` | Episode number |
+| `TVShow` | Parent TV show title |
+| `Rating` | Episode rating |
+| `Votes` | Number of votes |
+| `UserRating` | User's rating (0-10) |
+
+### Episode Details
+
+| Property | Description |
+|----------|-------------|
+| `FirstAired` | Original air date |
+| `Runtime` | Runtime in minutes |
+| `Runtime.Hours` | Runtime hours component |
+| `Runtime.Minutes` | Runtime minutes component |
+| `WatchTime` | Total minutes watched (`Runtime × Playcount`) |
+| `WatchTime.Hours` | Hours component |
+| `WatchTime.Minutes` | Minutes component |
+| `ProductionCode` | Production code |
+| `TVShowID` | Parent TV show database ID |
+| `SeasonID` | Season database ID |
+
+### Library Data
+
+| Property | Description |
+|----------|-------------|
+| `Playcount` | Play count |
+| `LastPlayed` | Last played date |
+| `DateAdded` | Date added to library |
+| `Path` | File path |
+| `UniqueID.IMDB` | IMDB unique ID |
+| `UniqueID.TMDB` | TMDB unique ID |
+| `UniqueID.TVDB` | TVDB unique ID |
+| `PercentPlayed` | Playback progress percentage |
+| `IsResumable` | `true` when there is a resume point |
+
+### Ratings
+
+`SkinInfo.Episode.Rating.{source}` and its `.Votes`, `.Percent` and `.Stars`, as in the movie [Ratings](#ratings-1).
+
+### Credits
+
+| Property | Description |
+|----------|-------------|
+| `Cast` | Cast members, `" / "` separated |
+| `Director` | Director(s), `" / "` separated |
+| `Writer` | Writer(s), `" / "` separated |
+| `Genre` | Genre(s), `" / "` separated |
+| `GenrePrimary` | First genre only |
+| `Studio` | Studio(s), `" / "` separated |
+
+### Technical
+
+| Property | Description |
+|----------|-------------|
+| `FileName` | File name without path |
+| `FileExtension` | File extension (mkv, mp4, etc.) |
+| `Codec` | Video codec |
+| `Resolution` | Video resolution (480, 720, 1080, 4k, 8k) |
+| `Aspect` | Aspect ratio |
+| `AudioCodec` | Audio codec |
+| `AudioChannels` | Audio channel count |
+| `AudioLanguage` | Language of the audio track shown |
+| `HDRType` | `dolbyvision`, `hdr10`, `hdr10plus`, `hlg`, or empty |
+| `SubtitleLanguage` | Language of the first subtitle track |
+| `SubtitleCount` | Number of subtitle tracks |
+
+### Artwork
+
+| Property | Description |
+|----------|-------------|
+| `Art(poster)` | Poster |
+| `Art(fanart)` | Fanart |
+| `Art(clearlogo)` | Clear logo |
+| `Art(keyart)` | Key art |
+| `Art(landscape)` | Landscape |
+| `Art(banner)` | Banner |
+| `Art(clearart)` | Clear art |
+| `Art(thumb)` | Thumbnail |
+
+---
+
+## Music Videos
+
+**Prefix:** `SkinInfo.MusicVideo.*`
+
+### Basic Information
+
+| Property | Description |
+|----------|-------------|
+| `Title` | Music video title |
+| `Artist` | Artist(s), `" / "` separated |
+| `ArtistPrimary` | First artist only |
+| `Album` | Album name |
+| `Year` | Release year |
+| `Plot` | Description |
+| `Runtime` | Runtime in minutes |
+| `Runtime.Hours` | Runtime hours component |
+| `Runtime.Minutes` | Runtime minutes component |
+| `Duration` | Runtime as `m:ss` or `h:mm:ss` |
+| `Duration.Seconds` | Runtime in seconds |
+| `Premiered` | Release date |
+| `PremieredFormatted` | `Premiered` in the region's date format |
+| `Track` | Track number |
+| `WatchTime` | Total minutes watched (`Runtime × Playcount`) |
+| `WatchTime.Hours` | Hours component |
+| `WatchTime.Minutes` | Minutes component |
+
+### Library Data
+
+| Property | Description |
+|----------|-------------|
+| `Playcount` | Play count |
+| `LastPlayed` | Last played date |
+| `DateAdded` | Date added to library |
+| `Path` | File path |
+| `Rating` | Rating |
+| `UserRating` | User's rating (0-10) |
+| `UniqueID.IMDB` | IMDB unique ID |
+| `UniqueID.TMDB` | TMDB unique ID |
+| `PercentPlayed` | Playback progress percentage |
+| `IsResumable` | `true` when there is a resume point |
+
+### Credits
+
+| Property | Description |
+|----------|-------------|
+| `Genre` | Genre(s), `" / "` separated |
+| `GenrePrimary` | First genre only |
+| `Director` | Director(s), `" / "` separated |
+| `Studio` | Studio(s), `" / "` separated |
+| `Tag` | Tags, `" / "` separated |
+
+### Technical
+
+| Property | Description |
+|----------|-------------|
+| `FileName` | File name without path |
+| `FileExtension` | File extension (mkv, mp4, etc.) |
+| `Codec` | Video codec |
+| `Resolution` | Video resolution |
+| `Aspect` | Aspect ratio |
+| `AudioCodec` | Audio codec |
+| `AudioChannels` | Audio channel count |
+| `AudioLanguage` | Language of the audio track shown |
+| `HDRType` | `dolbyvision`, `hdr10`, `hdr10plus`, `hlg`, or empty |
+| `SubtitleLanguage` | Language of the first subtitle track |
+| `SubtitleCount` | Number of subtitle tracks |
+
+### Artwork
+
+| Property | Description |
+|----------|-------------|
+| `Art(poster)` | Poster |
+| `Art(fanart)` | Fanart |
+| `Art(clearlogo)` | Clear logo |
+| `Art(keyart)` | Key art |
+| `Art(landscape)` | Landscape |
+| `Art(banner)` | Banner |
+| `Art(clearart)` | Clear art |
+| `Art(thumb)` | Thumbnail |
+
+### Music Library Cross-Reference
+
+When the music video's artist exists in the music library, additional properties are set:
+
+| Property           | Description                          |
+|--------------------|--------------------------------------|
+| `Artist.Fanart`    | Artist fanart from music library     |
+| `Artist.Thumb`     | Artist thumbnail from music library  |
+| `Artist.Clearlogo` | Artist clearlogo from music library  |
+| `Artist.Banner`    | Artist banner from music library     |
+| `Album.Thumb`      | Album thumbnail (matched by title)   |
+
+### Music Video Artist/Album Nodes
+
+When browsing `videodb://musicvideos/artists/` or `videodb://musicvideos/albums/`, on these nodes the service sets the same `SkinInfo.MusicVideo.*` prefix properties from the music library cross-reference above.
+
+Artist nodes also trigger an online data fetch for artist bio and fanart (see [Online Properties](online.md)).
+
+---
+
+## Artists
+
+**Prefix:** `SkinInfo.Artist.*`
+
+### Basic Information
+
+| Property | Description |
+|----------|-------------|
+| `Artist` | Artist name |
+| `Description` | Artist biography |
+| `Genre` | Genre(s), `" / "` separated |
+| `DateAdded` | Date added to library |
+
+### Artist Details
+
+| Property | Description |
+|----------|-------------|
+| `Style` | Style(s), `" / "` separated |
+| `Mood` | Mood(s), `" / "` separated |
+| `Instrument` | Instrument(s), `" / "` separated |
+| `YearsActive` | Years active, `" / "` separated |
+| `Born` | Birth date |
+| `Formed` | Formation date (for bands) |
+| `Died` | Death date |
+| `Disbanded` | Disbanded date (for bands) |
+| `Type` | Artist type (person/group) |
+| `Gender` | Gender |
+| `SortName` | Sort name |
+| `Disambiguation` | Disambiguation string |
+| `MusicBrainzID` | MusicBrainz ID(s) |
+| `Roles` | Roles, `" / "` separated |
+| `SongGenres` | Song genres, `" / "` separated |
+
+### Artwork
+
+| Property | Description |
+|----------|-------------|
+| `Art(thumb)` | Thumbnail |
+| `Art(fanart)` | Fanart |
+
+### Album Aggregates
+
+| Property | Description |
+|----------|-------------|
+| `Albums.Newest` | Most recent album year |
+| `Albums.Oldest` | Oldest album year |
+| `Albums.Count` | Total album count |
+| `Albums.Playcount` | Total playcount across albums |
+
+### Per-Album Properties
+
+Use `%d` as placeholder for index (1-based):
+
+| Property | Description |
+|----------|-------------|
+| `Album.%d.Title` | Album title |
+| `Album.%d.Year` | Release year |
+| `Album.%d.Artist` | Artist name |
+| `Album.%d.Genre` | Genre |
+| `Album.%d.DBID` | Database ID |
+| `Album.%d.Label` | Record label |
+| `Album.%d.Playcount` | Play count |
+| `Album.%d.Rating` | Album rating |
+| `Album.%d.Art(thumb)` | Thumbnail artwork |
+| `Album.%d.Art(discart)` | Disc artwork |
+
+---
+
+## Albums
+
+**Prefix:** `SkinInfo.Album.*`
+
+### Basic Information
+
+| Property | Description |
+|----------|-------------|
+| `Title` | Album title |
+| `Year` | Release year |
+| `Artist` | Artist(s), `" / "` separated |
+| `DisplayArtist` | Display artist name |
+| `SortArtist` | Sort artist name |
+| `Genre` | Genre(s), `" / "` separated |
+| `SongGenres` | Song genres, `" / "` separated |
+| `Label` | Record label |
+| `Description` | Album description |
+
+### Album Details
+
+| Property | Description |
+|----------|-------------|
+| `Playcount` | Play count |
+| `Rating` | Album rating |
+| `UserRating` | User rating |
+| `Votes` | Number of votes |
+| `MusicBrainzID` | MusicBrainz Album ID |
+| `ReleaseGroupID` | MusicBrainz Release Group ID |
+| `LastPlayed` | Last played timestamp |
+| `DateAdded` | Date added to library |
+| `Compilation` | Whether album is a compilation |
+| `ReleaseType` | Release type |
+| `TotalDiscs` | Total number of discs |
+| `ReleaseDate` | Release date |
+| `OriginalDate` | Original release date |
+| `AlbumDuration` | Total duration in seconds |
+
+### Artwork
+
+| Property | Description |
+|----------|-------------|
+| `Art(thumb)` | Thumbnail |
+| `Art(fanart)` | Fanart |
+| `Art(discart)` | Disc art |
+
+### Song Aggregates
+
+| Property | Description |
+|----------|-------------|
+| `Songs.Tracklist` | Formatted tracklist |
+| `Songs.Discs` | Number of discs |
+| `Songs.Duration` | Total duration as `m:ss` or `h:mm:ss` |
+| `Songs.Count` | Total song count |
+
+### Per-Song Properties
+
+Use `%d` as placeholder for index (1-based):
+
+| Property | Description |
+|----------|-------------|
+| `Song.%d.Title` | Song title |
+| `Song.%d.Duration` | Duration in seconds |
+| `Song.%d.TrackNumber` | Track number |
+| `Song.%d.FileExtension` | File extension |
+
+---
+
+## Video Player
+
+Set during video playback of a library item, cleared when playback stops.
+
+| Prefix | Playing | Properties |
+|--------|---------|------------|
+| `SkinInfo.Player.Rating.*` | Movie or episode | `{source}`, `{source}.Votes`, `{source}.Percent`, `{source}.Stars`, as in the movie [Ratings](#ratings-1) |
+| `SkinInfo.Player.TVShow.*` | Episode | The parent show's [Basic Information](#tv-shows), Show Details and `WatchTime` |
+| `SkinInfo.Player.TVShow.Rating.*` | Episode | The parent show's ratings, as `SkinInfo.Player.Rating.*` |
+| `SkinInfo.Player.Season.*` | Episode | The episode's season, as [Seasons](#seasons): `Episode` is the number of episodes in the season, not the playing episode's number |
+| `SkinInfo.Player.MusicVideo.*` | Music video | Every [Music Videos](#music-videos) property except artwork, plus its Music Library Cross-Reference |
+
+---
+
+## Music Player
+
+**Prefix:** `SkinInfo.Player.Music.*`
+
+Properties from the Kodi music library, set automatically during music playback when the artist changes. Only populated for library artists.
+
+### Artist
+
+| Property | Description |
+|----------|-------------|
+| `Artist` | Current artist name |
+| `Bio` | Artist biography from library |
+| `FanArt` | Artist fanart from library |
+
+### Album Discography
+
+| Property | Description |
+|----------|-------------|
+| `Album.Count` | Number of albums (up to 20) |
+| `Album.{N}.Title` | Album title |
+| `Album.{N}.Year` | Album year |
+| `Album.{N}.Thumb` | Album thumbnail |
+
+Albums are sorted by year (ascending).
+
+### Example
+
+```xml
+<control type="group">
+    <visible>Player.HasAudio</visible>
+
+    <!-- Artist fanart from library -->
+    <control type="image">
+        <visible>!String.IsEmpty(Window(Home).Property(SkinInfo.Player.Music.FanArt))</visible>
+        <texture>$INFO[Window(Home).Property(SkinInfo.Player.Music.FanArt)]</texture>
+    </control>
+
+    <!-- Artist bio from library -->
+    <control type="textbox">
+        <label>$INFO[Window(Home).Property(SkinInfo.Player.Music.Bio)]</label>
+    </control>
+
+    <!-- Album count -->
+    <control type="label">
+        <label>$INFO[Window(Home).Property(SkinInfo.Player.Music.Album.Count)] Albums</label>
+    </control>
+</control>
+```
+
+Properties clear automatically when playback stops or the artist changes.
+
+---
+
+## Property Clearing
+
+Properties clear automatically when:
+
+- Switching media types (movie → tvshow)
+- Losing focus (DBID becomes empty)
+- Indexed properties shrink (set with 5 movies → 3 movies)
+
+---
+
+[↑ Top](#library-properties) · [Index](../index.md)

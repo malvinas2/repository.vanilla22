@@ -1,0 +1,167 @@
+"""The proxy port must be free again once the bottle server is stopped.
+
+A Kodi service restart (e.g. an add-on update) during playback left the old
+listening socket open, so the new service failed to bind with EADDRINUSE and
+every track request timed out until Kodi was restarted.
+"""
+
+import contextlib
+import io
+import os
+import socket
+import sys
+import threading
+import types
+import unittest
+import urllib.request
+
+REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+LIB_DIR = os.path.join(REPO_ROOT, "resources", "lib")
+
+
+def _install_stubs():
+    utils = types.ModuleType("utils")
+    utils.LOGDEBUG = 0
+    utils.PROXY_HOST = "127.0.0.1"
+    utils.log_calls = []
+    utils.log_msg = lambda msg, loglevel=0, *a, **k: utils.log_calls.append((loglevel, msg))
+    utils.log_exception = lambda *a, **k: None
+    sys.modules["utils"] = utils
+    xbmc = types.ModuleType("xbmc")
+    xbmc.LOGWARNING = 2
+    sys.modules["xbmc"] = xbmc
+
+
+def _free_port():
+    with socket.socket() as sock:
+        sock.bind(("127.0.0.1", 0))
+        return sock.getsockname()[1]
+
+
+class StopThreadReleasesPortTest(unittest.TestCase):
+    def setUp(self):
+        self._saved = {name: sys.modules.get(name) for name in ("utils", "xbmc", "bottle", "bottle_manager")}
+        _install_stubs()
+        sys.path[:0] = [LIB_DIR, os.path.join(LIB_DIR, "deps")]
+        sys.modules.pop("bottle_manager", None)
+        import bottle_manager
+
+        self.bottle_manager = bottle_manager
+
+    def tearDown(self):
+        del sys.path[:2]
+        for name, module in self._saved.items():
+            if module is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = module
+
+    def test_port_can_be_bound_after_stop_with_stream_in_flight(self):
+        streaming = threading.Event()
+        release = threading.Event()
+        self.addCleanup(release.set)
+
+        def track():
+            def generate():
+                yield b"x" * 1024
+                streaming.set()
+                release.wait(10)
+                yield b"x"
+
+            return generate()
+
+        track.route = "/track"
+        app = types.SimpleNamespace(track=track)
+        self.bottle_manager.route_all(app)
+
+        port = _free_port()
+        self.bottle_manager.start_thread(port)
+
+        def stream():
+            for _ in range(50):
+                try:
+                    with urllib.request.urlopen(f"http://127.0.0.1:{port}/track", timeout=10) as resp:
+                        resp.read()
+                    return
+                except OSError:
+                    streaming.wait(0.1)
+
+        client = threading.Thread(target=stream, daemon=True)
+        client.start()
+        self.assertTrue(streaming.wait(5), "request never reached the server")
+
+        stopper = threading.Thread(target=self.bottle_manager.stop_thread, daemon=True)
+        stopper.start()
+        stopper.join(5)
+        self.assertFalse(stopper.is_alive(), "stop_thread blocked on the in-flight stream")
+
+        with socket.socket() as sock:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            sock.bind(("127.0.0.1", port))
+
+    def test_bind_failure_is_reported_before_start_returns(self):
+        occupied = socket.socket()
+        self.addCleanup(occupied.close)
+        occupied.bind(("127.0.0.1", 0))
+        occupied.listen(1)
+        port = occupied.getsockname()[1]
+
+        started = self.bottle_manager.start_thread(port)
+
+        self.assertIs(False, started)
+        self.assertFalse(self.bottle_manager.is_healthy())
+        self.assertFalse(getattr(self.bottle_manager, "__manager_thread").is_alive())
+
+    def test_requests_are_not_logged_to_stderr(self):
+        # Kodi logs a Python add-on's stderr at error level.
+        def ping():
+            return "pong"
+
+        ping.route = "/ping"
+        self.bottle_manager.route_all(types.SimpleNamespace(ping=ping))
+        port = _free_port()
+        self.bottle_manager.start_thread(port)
+        self.addCleanup(self.bottle_manager.stop_thread)
+
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr):
+            for _ in range(50):
+                try:
+                    with urllib.request.urlopen(f"http://127.0.0.1:{port}/ping", timeout=5) as resp:
+                        self.assertEqual(resp.read(), b"pong")
+                    break
+                except OSError:
+                    threading.Event().wait(0.1)
+        self.assertEqual(stderr.getvalue(), "")
+
+    def test_requests_are_logged_at_debug_and_errors_at_warning_level(self):
+        def ping():
+            return "pong"
+
+        ping.route = "/ping"
+        self.bottle_manager.route_all(types.SimpleNamespace(ping=ping))
+        port = _free_port()
+        self.bottle_manager.start_thread(port)
+        self.addCleanup(self.bottle_manager.stop_thread)
+        log_calls = sys.modules["utils"].log_calls
+
+        for _ in range(50):
+            try:
+                with urllib.request.urlopen(f"http://127.0.0.1:{port}/ping", timeout=5) as resp:
+                    resp.read()
+                break
+            except OSError:
+                threading.Event().wait(0.1)
+        # A request line wsgiref rejects with "code 400, message ..."
+        with socket.create_connection(("127.0.0.1", port), timeout=5) as sock:
+            sock.sendall(b"not a http request\r\n\r\n")
+            sock.recv(1024)
+
+        access = [call for call in log_calls if "GET /ping" in call[1]]
+        self.assertEqual([level for level, _ in access], [0])
+        errors = [call for call in log_calls if "code 400" in call[1]]
+        self.assertEqual([level for level, _ in errors], [2])
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -9,9 +9,9 @@
 		<!--Numeric-->
 		<control type="group">
 			<left>600</left>
-			<top>250</top>
+			<top>192</top>
 			<width>720</width>
-			<height>640</height>
+			<height>755</height>
 			<include>animation_window_open_close</include>
 			<control type="image">
 				<!--Panel-->
@@ -32,16 +32,26 @@
 				<align>center</align>
 				<include>DialogHeader</include>
 			</control>
-			<control type="label" id="4">
-				<left>0</left>
+
+			<control type="button">
+				<left>120</left>
 				<top>100</top>
-				<width>720</width>
+				<width>470</width>
+				<align>center</align>
+				<include>SmallKey</include>
+				<enable>false</enable>
+			</control>
+
+			<control type="label" id="4">
+				<left>130</left>
+				<top>125</top>
+				<width>440</width>
 				<align>center</align>
 				<include>DialogHeader</include>
 			</control>
 			<control type="group">
 				<left>140</left>
-				<top>130</top>
+				<top>155</top>
 				<!-- First Row -->
 				<control type="group">
 					<left>34</left>
@@ -62,7 +72,7 @@
 						<label>$LOCALIZE[12318]</label>
 						<onleft>17</onleft>
 						<onright>19</onright>
-						<onup>10</onup>
+						<onup>21</onup>
 						<ondown>15</ondown>
 						<include>SmallKey</include>
 					</control>
@@ -72,7 +82,7 @@
 						<label>$LOCALIZE[12319]</label>
 						<onleft>18</onleft>
 						<onright>17</onright>
-						<onup>21</onup>
+						<onup>99</onup>
 						<ondown>16</ondown>
 						<include>SmallKey</include>
 					</control>
@@ -123,7 +133,7 @@
 						<onleft>13</onleft>
 						<onright>12</onright>
 						<onup>14</onup>
-						<ondown>23</ondown>
+						<ondown>20</ondown>
 						<include>SmallKey</include>
 					</control>
 					<control type="button" id="12">
@@ -143,7 +153,7 @@
 						<onleft>12</onleft>
 						<onright>11</onright>
 						<onup>16</onup>
-						<ondown>21</ondown>
+						<ondown>22</ondown>
 						<include>SmallKey</include>
 					</control>
 				</control>
@@ -151,36 +161,87 @@
 				<control type="group">
 					<left>34</left>
 					<top>365</top>
-					<control type="radiobutton" id="23">
-						<description>Backspace button</description>
-						<onleft>21</onleft>
+					<control type="radiobutton" id="20">
+						<description>Navigate left</description>
+						<onleft>22</onleft>
 						<onright>10</onright>
 						<onup>11</onup>
-						<ondown>17</ondown>
-						<include>KeyBack</include>
-						<selected>Control.HasFocus(23)</selected>
+						<ondown>23</ondown>
+						<include>KeyLeft</include>
+						<selected>Control.HasFocus(20)</selected>
 					</control>
 					<control type="button" id="10">
 						<description>:0: button</description>
 						<left>120</left>
 						<label>$LOCALIZE[12310]</label>
-						<onleft>23</onleft>
-						<onright>21</onright>
+						<onleft>20</onleft>
+						<onright>22</onright>
 						<onup>12</onup>
-						<ondown>18</ondown>
+						<ondown>21</ondown>
 						<include>SmallKey</include>
+					</control>
+					<control type="radiobutton" id="22">
+						<description>Navigate right</description>
+						<left>240</left>
+						<onleft>10</onleft>
+						<onright>20</onright>
+						<onup>13</onup>
+						<ondown>99</ondown>
+						<include>KeyRight</include>
+						<selected>Control.HasFocus(22)</selected>
+					</control>
+				</control>
+				<!-- Fifth Row -->
+				<control type="group">
+					<left>34</left>
+					<top>470</top>
+					<control type="radiobutton" id="23">
+						<description>Backspace button</description>
+						<onleft>99</onleft>
+						<onright>21</onright>
+						<onup>20</onup>
+						<ondown>17</ondown>
+						<width>130</width>
+						<include>Key</include>
+						<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/backspace-128.png</textureradioonfocus>
+						<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/backspace-128.png</textureradioofffocus>
+						<textureradioonnofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/backspace-128.png</textureradioonnofocus>
+						<textureradiooffnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/backspace-128.png</textureradiooffnofocus>
+						<radiowidth>70</radiowidth>
+						<radioheight>70</radioheight>
+						<radioposx>30</radioposx>
+						<selected>Control.HasFocus(23)</selected>
 					</control>
 					<control type="radiobutton" id="21">
 						<description>Done button</description>
-						<left>240</left>
-						<onleft>10</onleft>
-						<onright>23</onright>
-						<onup>13</onup>
-						<ondown>19</ondown>
+						<left>120</left>
+						<onleft>23</onleft>
+						<onright>99</onright>
+						<onup>10</onup>
+						<ondown>18</ondown>
 						<include>KeyDone</include>
 						<selected>Control.HasFocus(21)</selected>
 					</control>
-				</control>
+					<control type="radiobutton" id="99">
+						<description>Cancel button</description>
+						<left>240</left>
+						<onleft>21</onleft>
+						<onright>23</onright>
+						<onup>22</onup>
+						<ondown>19</ondown>
+						<width>130</width>
+						<include>Key</include>
+						<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/remove.png</textureradioonfocus>
+						<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/remove.png</textureradioofffocus>
+						<textureradioonnofocus colordiffuse="$INFO[Skin.String(ButtonFocusTextColor)]">dialogs/keyboard/remove.png</textureradioonnofocus>
+						<textureradiooffnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">dialogs/keyboard/remove.png</textureradiooffnofocus>
+						<radiowidth>50</radiowidth>
+						<radioheight>50</radioheight>
+						<radioposx>40</radioposx>
+						<selected>Control.HasFocus(99)</selected>
+						<onclick>Dialog.Close(numericinput)</onclick>
+					</control>
+				</control>			
 			</control>
 		</control>
 	</controls>

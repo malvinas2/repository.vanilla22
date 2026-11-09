@@ -53,15 +53,10 @@
 				<ondown>9000</ondown>
 				<orientation>vertical</orientation>
 				<!--Buttons-->
-				<control type="radiobutton" id="14">
-					<!--Button Watched Toggle-->
-					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[20367]</label>
-				</control>
 			   <control type="button" id="6053">
 					<description>Sort by button</description>
 					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[70030]</label>
+					<label>$LOCALIZE[31916]</label>
 					<label2>[B]$INFO[Container.SortMethod][/B]</label2>
 					<onright>Container.NextSortMethod</onright>
 					<onleft>Container.PreviousSortMethod</onleft>
@@ -71,7 +66,7 @@
 				<control type="button" id="6052">
 					<description>Sort asc</description>
 					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[70031]</label>
+					<label>$LOCALIZE[31917]</label>
 					<label2>[B]$INFO[Container.SortOrder][/B]</label2>
 					<visible>Control.IsEnabled(4)</visible>
 					<onright>SendClick(4)</onright>
@@ -88,15 +83,73 @@
 					<onclick>right</onclick>
 					<label>$LOCALIZE[587]</label>
 				</control>
-				<control type="button" id="98">
+				<control type="radiobutton" id="98">
 					<visible>Container.CanFilterAdvanced</visible>
 					<description>Filter</description>
 					<include>SideBladeMenuButton</include>
 					<label>$LOCALIZE[587]</label>
-					<!-- <selected>Container.Filtered</selected> -->
+					<selected>Container.Filtered</selected>
 					<onclick>right</onclick>
 					<onclick>Filter</onclick>
 				</control>
+
+				<control type="button" id="8">
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[137]</label>
+					<visible>Window.IsVisible(Videos) | Window.IsVisible(Music)</visible>
+				</control>
+
+				<control type="button" id="388">
+					<!--Button Search-->
+					<include>SideBladeMenuButton</include>
+					<label>GlobalSearch</label>
+					<!-- <onclick>RunScript(script.skin.helper.service,action=VIDEOSEARCH)</onclick> -->
+					<!-- <label>$LOCALIZE[31837]</label> -->
+					<onclick condition="System.HasAddon(script.globalsearch)">RunScript(script.globalsearch)</onclick>
+					<onclick condition="!System.HasAddon(script.globalsearch)">InstallAddon(script.globalsearch)</onclick>
+					<visible>!String.Contains(Container.FolderPath,plugin://plugin.video)</visible>
+				</control>
+				<control type="button" id="10">
+					<!--Button Watched Toggle-->
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[20367]</label>
+					<label2>[B]$INFO[Container.NumItems][/B]</label2>
+					<visible>Container.Content(movies) | Container.Content(sets) | Container.Content(tvshows) | Container.content(seasons) | Container.Content(episodes) | Container.Content(MusicVideos)</visible>
+				</control>
+				<control type="button" id="4401">
+					<!--current playlist-->
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[13350]</label>
+					<onclick>ActivateWindow(videoplaylist)</onclick>
+					<visible>Integer.IsGreater(Playlist.Length(video),0)</visible>
+				</control>
+				<control type="button" id="4402">
+					<!--Playlists-->
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[20012]</label>
+					<onclick>ActivateWindow(Videos,special://videoplaylists/,return)</onclick>
+				</control>
+				<control type="button" id="621">
+					<description>Get more</description>
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[21452]</label>
+					<onclick>ActivateWindow(addonbrowser,addons://more/video/,return)</onclick>
+					<visible>Container.Content(addons)</visible>
+				</control>
+				<control type="button" id="624">
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[10140]</label>
+					<onclick>Addon.OpenSettings($INFO[Container.PluginName])</onclick>
+					<visible>!String.IsEmpty(Container.PluginName)</visible>
+				</control>
+				<control type="image" id="6201">
+					<!--Seperator-->
+					<width>458</width>
+					<height>10</height>
+					<align>left</align>
+					<texture>common/menu-separator.png</texture>
+				</control>
+
 				<control type="togglebutton" id="20">
 					<description>Update library</description>
 					<include>SideBladeMenuButton</include>
@@ -105,34 +158,8 @@
 					<alttexturefocus border="5" colordiffuse="$INFO[Skin.String(ButtonFocusColor)]">colors/color_white.png</alttexturefocus>
 					<alttexturenofocus></alttexturenofocus>
 					<usealttexture>library.isscanningvideo</usealttexture>
-					<visible>!String.Contains(Container.FolderPath,plugin://plugin.video)</visible>
-				</control>
-				<control type="button" id="388">
-					<!--Button Search-->
-					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[137]</label>
-					<!-- <onclick>RunScript(script.skin.helper.service,action=VIDEOSEARCH)</onclick> -->
-					<!-- <label>$LOCALIZE[70001]</label> -->
-					<onclick condition="System.HasAddon(script.globalsearch)">RunScript(script.globalsearch)</onclick>
-					<onclick condition="!System.HasAddon(script.globalsearch)">InstallAddon(script.globalsearch)</onclick>
-					<visible>!String.Contains(Container.FolderPath,plugin://plugin.video)</visible>
-				</control>
-				<control type="button" id="4401">
-					<!--current playlist-->
-					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[13350]</label>
-					<onclick>ActivateWindow(videoplaylist)</onclick>
-					<visible>!String.IsEqual(Playlist.Length(video),0)</visible>
-				</control>
-				<control type="button" id="4402">
-					<!--Playlists-->
-					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[20012]</label>
-					<onclick>ActivateWindow(Videos,special://videoplaylists/,return)</onclick>
-				</control>
-				
-				<include>SideBladeViewCommands</include>
-				
+					<visible>!Container.Content(addons)+ String.IsEmpty(Container.PluginName)</visible>
+				</control>				
 				<control type="radiobutton" id="4406">
 					<description>Unlock Shares</description>
 					<include>SideBladeMenuButton</include>
@@ -141,6 +168,10 @@
 					<selected>system.ismaster</selected>
 					<visible>system.haslocks</visible>
 				</control>
+				
+				<include>SideBladeViewCommands</include>
+				
+
 			 </control>
 		</control>
 		

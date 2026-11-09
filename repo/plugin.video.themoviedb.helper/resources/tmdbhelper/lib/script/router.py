@@ -6,6 +6,7 @@ from jurialmunkey.window import get_property
 from jurialmunkey.parser import reconfigure_legacy_params
 from tmdbhelper.lib.addon.logger import kodi_log
 from jurialmunkey.modimp import importmodule
+from tmdbhelper.lib.addon.plugin import ADDON
 
 
 REGEX_WINPROP_FINDALL = r'\$WINPROP\[(.*?)\]'  # $WINPROP[key] = Window(10000).getProperty(TMDbHelper.WinProp.{key})
@@ -32,7 +33,9 @@ class Script(object):
     routing_table = {
         # Node Maker
         'make_node':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.make_node', 'make_node')(**kwargs),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.nodes', 'make_node')(**kwargs),
+        'remove_node':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.nodes', 'remove_node')(**kwargs),
 
         # Kodi Utils
         'split_value':
@@ -40,17 +43,21 @@ class Script(object):
         'kodi_setting':
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.kodi_utils', 'kodi_setting')(**kwargs),
 
-        # ItemBuilder Details
-        'manage_artwork':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.itembuilder', 'manage_artwork')(**kwargs),
-        'select_artwork':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.itembuilder', 'select_artwork')(**kwargs),
-        'refresh_details':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.itembuilder', 'refresh_details')(**kwargs),
-
         # Context Menu
         'related_lists':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.context_menu', 'related_lists')(**kwargs),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.related_lists', 'related_lists')(**kwargs),
+        'drop_collection':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.collectiondrops', 'drop_collection')(**kwargs),
+
+        # TMDb Utils
+        'sync_tmdb':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.tmdb', 'sync_tmdb')(**kwargs),
+        'refresh_details':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.tmdb', 'refresh_item')(**kwargs),
+        'delete_itemtype':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.tmdb', 'delete_itemtype')(**kwargs),
+        'delete_listdata':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.tmdb', 'delete_listdata')(**kwargs),
 
         # Trakt Utils
         'like_list':
@@ -59,40 +66,68 @@ class Script(object):
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'delete_list')(**kwargs),
         'rename_list':
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'rename_list')(**kwargs),
+        'sync_options':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.sync', 'sync_item')(**kwargs),
         'sync_trakt':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'sync_trakt')(**kwargs),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.sync', 'sync_item')(**kwargs),
         'sort_list':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'sort_list')(**kwargs),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.lists', 'sort_list')(**kwargs),
+        'sort_mdblist':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.mdblist', 'sort_mdblist')(**kwargs),
+        'invalidate_sync':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.sync', 'invalidate_sync')(**kwargs),
+        'invalidate_trakt_sync':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.sync', 'invalidate_sync')(**kwargs),
         'get_trakt_stats':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'get_stats')(**kwargs),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.stats', 'get_stats')(**kwargs),
         'authenticate_trakt':
-            lambda **kwargs: importmodule('tmdbhelper.lib.api.trakt.api', 'TraktAPI')(force=True),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'authenticate_trakt')(**kwargs),
         'revoke_trakt':
-            lambda **kwargs: importmodule('tmdbhelper.lib.api.trakt.api', 'TraktAPI')().logout(),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'revoke_trakt')(**kwargs),
+
+        # Modify Functions
+        'modify_identifier':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.modify_identifier', 'modify_identifier')(**kwargs),
+        'modify_artwork':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.modify_artwork', 'modify_artwork')(**kwargs),
 
         # Image Functions
         'blur_image':
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.image_functions', 'blur_image')(**kwargs),
         'image_colors':
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.image_functions', 'image_colors')(**kwargs),
+        'genre_fanart':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.image_functions', 'genre_fanart')(**kwargs),
 
         # User Configuration
+        'configure_sync_provider':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.sync_provider', 'configure_sync_provider')(**kwargs),
+        'configure_ratings_providers':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.ratings', 'configure_ratings_providers')(**kwargs),
+        'configure_ratings_provider_order':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.ratings', 'configure_ratings_provider_order')(**kwargs),
+        'select_sync_provider':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.sync_provider', 'select_sync_provider')(**kwargs),
+        'install_sync_provider':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.sync_provider', 'install_sync_provider')(**kwargs),
+        'open_sync_provider_settings':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.sync_provider', 'open_sync_provider_settings')(**kwargs),
         'provider_allowlist':
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.settings', 'configure_provider_allowlist')(),
 
         # Player Configuration
         'play':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.players', 'play_external')(**kwargs),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.play_player', 'play_player')(**kwargs),
         'play_using':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.players', 'play_using')(**kwargs),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.play_using', 'play_using')(**kwargs),
         'update_players':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.players', 'update_players')(),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.update_players', 'update_players')(),
         'set_defaultplayer':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.players', 'set_defaultplayer')(**kwargs),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.config_players', 'set_defaultplayer')(**kwargs),
         'set_chosenplayer':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.players', 'set_chosenplayer')(**kwargs),
-        'configure_players':
-            lambda **kwargs: importmodule('tmdbhelper.lib.player.configure', 'configure_players')(**kwargs),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.config_players', 'set_chosenplayer')(**kwargs),
+        'customise_players':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.config_players', 'customise_players')(),
 
         # Library Integration
         'add_to_library':
@@ -102,10 +137,14 @@ class Script(object):
         'library_autoupdate':
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.library', 'run_autoupdate')(**kwargs),
         'monitor_userlist':
-            lambda **kwargs: importmodule('tmdbhelper.lib.update.userlist', 'monitor_userlist')(),
+            lambda **kwargs: importmodule('tmdbhelper.lib.update.monitor', 'MonitorUserLists')().multiselect_update(),
 
         # Window Management
         'add_path':
+            lambda **kwargs: importmodule('tmdbhelper.lib.window.manager', 'WindowManager')(**kwargs).router(),
+        'add_tmdb':
+            lambda **kwargs: importmodule('tmdbhelper.lib.window.manager', 'WindowManager')(**kwargs).router(),
+        'add_dbid':
             lambda **kwargs: importmodule('tmdbhelper.lib.window.manager', 'WindowManager')(**kwargs).router(),
         'add_query':
             lambda **kwargs: importmodule('tmdbhelper.lib.window.manager', 'WindowManager')(**kwargs).router(),
@@ -125,18 +164,20 @@ class Script(object):
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.kodi_utils', 'do_wikipedia_gui')(**kwargs),
 
         # Maintenance and Logging
+        'clean_image_cache':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.image_cache', 'clean_image_cache')(**kwargs),
         'log_request':
             lambda **kwargs: importmodule('tmdbhelper.lib.script.method.logging', 'log_request')(**kwargs),
-        'log_sync':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.logging', 'log_sync')(**kwargs),
-        'delete_cache':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.maintenance', 'delete_cache')(**kwargs),
         'recache_kodidb':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.maintenance', 'recache_kodidb')(),
-        'build_awards':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.build_awards', 'build_awards')(**kwargs),
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.maintenance', 'recache_kodidb')(confirmation=True),
         'restart_service':
-            lambda **kwargs: importmodule('tmdbhelper.lib.monitor.service', 'restart_service_monitor')()
+            lambda **kwargs: importmodule('tmdbhelper.lib.monitor.service', 'restart_service_monitor')(),
+        'details_service':
+            lambda **kwargs: importmodule('tmdbhelper.lib.items.database.details.service', 'DetailsService')().run(),
+        'test_func':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.test', 'test_func')(**kwargs),
+        'open_settings':
+            lambda **kwargs: ADDON.openSettings(),
     }
 
     def router(self):

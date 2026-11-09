@@ -117,7 +117,7 @@
 					<width>20</width>
 					<bottom>20</bottom>
 					<onleft>9902</onleft>
-					<onright>9903</onright>
+					<onright>63</onright>
 					<onup>62</onup>
 					<ondown>62</ondown>
 					<orientation>vertical</orientation>
@@ -138,10 +138,6 @@
 					<top>110</top>
 					<right>395</right>
 					<bottom>32</bottom>
-					<onup>9903</onup>
-					<ondown>9903</ondown>
-					<onleft>62</onleft>
-					<onright>63</onright>
 					<include>DialogLabel</include>
 					<!-- <shadowcolor>black</shadowcolor> -->
 					<!-- <font>font14</font> -->
@@ -155,7 +151,7 @@
 					<top>100</top>
 					<width>20</width>
 					<bottom>20</bottom>
-					<onleft>9903</onleft>
+					<onleft>62</onleft>
 					<onright>9001</onright>
 					<onup>63</onup>
 					<ondown>63</ondown>
@@ -198,10 +194,10 @@
 							<height>110</height>
 							<top>500</top>
 							<font>font12</font>
-							<align>bottom</align>
+							<align>center</align>
 							<textcolor>grey</textcolor>
 							<label>$INFO[Window.Property(ImageText)]</label>
-							<visible>!String.IsEmpty((Window.Property(ImageText)))</visible>
+							<!-- <visible>!String.IsEmpty((Window.Property(ImageText)))</visible> -->
 						</control>
 					</control> 
 				</control>

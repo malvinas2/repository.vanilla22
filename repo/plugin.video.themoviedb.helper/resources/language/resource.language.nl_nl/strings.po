@@ -137,11 +137,6 @@ msgid "Hebrew (Israel)"
 msgstr "Hebreeuws (Israël)"
 
 #: /resources/settings.xml
-msgctxt "#32028"
-msgid "Use fanart.tv for widget artwork (increases load times)"
-msgstr "Gebruik fanart.tv voor widget-illustraties (verhoogt de laadtijden)"
-
-#: /resources/settings.xml
 msgctxt "#32029"
 msgid "OMDb API"
 msgstr ""
@@ -149,11 +144,6 @@ msgstr ""
 #: /resources/settings.xml
 msgctxt "#32030"
 msgid "Fanart.tv API"
-msgstr ""
-
-#: /resources/settings.xml
-msgctxt "#32031"
-msgid "Trakt API"
 msgstr ""
 
 #: /resources/settings.xml
@@ -167,46 +157,12 @@ msgid "Default Players"
 msgstr "Standaard spelers"
 
 #: /resources/settings.xml
-msgctxt "#32034"
-msgid "Get watched indicators from Trakt"
-msgstr "Ontvang bekeken indicatoren van Trakt"
-
-#: /resources/settings.xml
-msgctxt "#32035"
-msgid "Get tvshow watched episode counts from Trakt"
-msgstr "Ontvang het aantal bekeken afleveringen van tv-programma's van Trakt"
-
-#: /resources/settings.xml
-msgctxt "#32036"
-msgid "Bundled Players"
-msgstr "gebundelde spelers"
-
-#: /resources/settings.xml
 msgctxt "#32037"
 msgid "Use bundled players"
 msgstr "Gebruik gebundelde spelers"
 
-#: /resources/settings.xml
-msgctxt "#32038"
-msgid "Get additional details from the local Kodi library database"
-msgstr "Krijg aanvullende details van de lokale Kodi bibliotheek database"
 
 #: /resources/settings.xml
-msgctxt "#32039"
-msgid "Kodi Library DB"
-msgstr "Kodi bibliotheek DB"
-
-#: /resources/lib/player.py
-msgctxt "#32040"
-msgid "Item not found."
-msgstr "Item niet gevonden."
-
-#: /resources/lib/player.py
-msgctxt "#32041"
-msgid "The plugin returned no results."
-msgstr "De plug-in heeft geen resultaten opgeleverd."
-
-#: /resources/lib/player.py
 msgctxt "#32042"
 msgid "Choose Action"
 msgstr "Kies actie"
@@ -222,51 +178,6 @@ msgid "Enter Search Query"
 msgstr "Voer zoekopdracht in"
 
 #: /resources/lib/container.py
-msgctxt "#32045"
-msgid "Cache Refresh"
-msgstr "Cache vernieuwen"
-
-#: /resources/lib/container.py
-msgctxt "#32046"
-msgid "Cached details were refreshed"
-msgstr "Gegevens in cache zijn vernieuwd"
-
-#: /resources/lib/container.py
-msgctxt "#32047"
-msgid "Remove from Trakt Collection"
-msgstr "Verwijderen uit Trakt collectie"
-
-#: /resources/lib/container.py
-msgctxt "#32048"
-msgid "Add to Trakt Collection"
-msgstr "Toevoegen aan Trakt collectie"
-
-#: /resources/lib/container.py
-msgctxt "#32049"
-msgid "Remove from Trakt Watchlist"
-msgstr "Verwijderen van Trakt kijklijst"
-
-#: /resources/lib/container.py
-msgctxt "#32050"
-msgid "Add to Trakt Watchlist"
-msgstr "Toevoegen aan Trakt kijklijst"
-
-#: /resources/lib/container.py
-msgctxt "#32051"
-msgid "Remove from Trakt Watched History"
-msgstr "Verwijderen uit Trakt Bekeken Geschiedenis"
-
-#: /resources/lib/container.py
-msgctxt "#32052"
-msgid "Add to Trakt Watched History"
-msgstr "Toevoegen aan Trakt Bekeken Geschiedenis"
-
-#: /resources/lib/container.py
-msgctxt "#32053"
-msgid "Refresh Cache"
-msgstr "Cache vernieuwen"
-
-#: /resources/lib/downloader.py
 msgctxt "#32054"
 msgid "Would you like to clear existing players first?"
 msgstr "Wil je eerst bestaande spelers wissen?"
@@ -307,56 +218,11 @@ msgid "Play with"
 msgstr "Afspelen met"
 
 #: /resources/lib/context.py
-msgctxt "#32062"
-msgid "Successfully Added TMDb ID {0} to {1}"
-msgstr "TMDb ID {0} toegevoegd aan {1}"
-
-#: /resources/lib/context.py
-msgctxt "#32063"
-msgid "Successfully Removed TMDb ID {0} from {1}"
-msgstr "TMDb ID {0} verwijderd uit {1}"
-
-#: /resources/lib/context.py
-msgctxt "#32064"
-msgid ""
-"Do you wish to remove {0} from your Trakt {1}?\n"
-"\n"
-"TMDb {2} ID {3}"
-msgstr "u wilt {0} verwijderen uit uw Trakt {1}?\n"
-"\n"
-"TMDb {2} ID {3}"
-
-#: /resources/lib/context.py
-msgctxt "#32065"
-msgid ""
-"Do you wish to add {0} to your Trakt {1}?\n"
-"\n"
-"TMDb {2} ID {3}"
-msgstr "Wilt u {0} toevoegen aan uw Trakt {1}?\n"
-"\n"
-"TMDb {2} ID {3}"
-
-#: /resources/settings.xml
 msgctxt "#32066"
 msgid "Debug logging"
 msgstr ""
 
 #: /resources/settings.xml
-msgctxt "#32067"
-msgid "Fuzzy local library matching"
-msgstr "Fuzzy lokale bibliotheek matching"
-
-#: /resources/settings.xml
-msgctxt "#32068"
-msgid "Allow fuzzy matches (ignore year) for movies"
-msgstr "Sta vage overeenkomsten toe (negeer jaar) voor films"
-
-#: /resources/settings.xml
-msgctxt "#32069"
-msgid "Allow fuzzy matches (ignore year) for tvshows"
-msgstr "Sta vage overeenkomsten toe (negeer jaar) voor series"
-
-#: /resources/lib/tmdb.py
 msgctxt "#32070"
 msgid "Male"
 msgstr "Man"
@@ -367,144 +233,47 @@ msgid "Female"
 msgstr "Vrouw"
 
 #: /resources/settings.xml
-msgctxt "#32072"
-msgid "Unaired Items"
-msgstr "Niet uitgezonden"
-
-#: /resources/settings.xml
-msgctxt "#32073"
-msgid "Hide unaired movies"
-msgstr "Niet uitgezonden films verbergen"
-
-#: /resources/settings.xml
 msgctxt "#32074"
 msgid "Library Integration"
 msgstr "Bibliotheekintegratie"
 
-#: /resources/settings.xml
-msgctxt "#32075"
-msgid "TV"
-msgstr ""
 
-#: /resources/settings.xml
-msgctxt "#32076"
-msgid "Update library after adding items"
-msgstr "Update bibliotheek na het toevoegen van items"
 
-#: /resources/settings.xml
-msgctxt "#32077"
-msgid "Ignore folder creation checks"
-msgstr "Negeer controles voor het maken van mappen"
 
 #: /resources/lib/container/basedir.py
 msgctxt "#32078"
 msgid "Still to Watch"
 msgstr "Nog te kijken"
 
-#: /resources/settings.xml
-msgctxt "#32079"
-msgid "System Use Only"
-msgstr "Alleen systeemgebruik"
 
-#: /resources/settings.xml
-msgctxt "#32080"
-msgid "Other"
-msgstr "Ander"
-
-#: /resources/settings.xml
-msgctxt "#32081"
-msgid "Show next page item on widgets (requires skin reload)"
-msgstr "Toon volgende pagina item op widgets (vereist opnieuw laden van de skin)"
-
-#: /resources/settings.xml
-msgctxt "#32082"
-msgid "Watchlist sort method"
-msgstr "Kijklijst sorteermethode"
-
-#: /resources/settings.xml
-msgctxt "#32083"
-msgid "Accounts"
-msgstr ""
-
-#: /resources/settings.xml
-msgctxt "#32084"
-msgid "Hide unaired episodes"
-msgstr "Niet uitgezonden afleveringen verbergen"
 
 #: /resources/settings.xml
 msgctxt "#32085"
 msgid "Flatten seasons"
 msgstr "Seizoenen afvlakken"
 
-#: /resources/settings.xml
-msgctxt "#32086"
-msgid "Auto-update library and add new/missing episodes"
-msgstr "Bibliotheek automatisch bijwerken en nieuwe/ontbrekende afleveringen toevoegen"
-
-#: /resources/settings.xml
-msgctxt "#32087"
-msgid "Use resolvedURL method for suppressing strm next playlist error"
-msgstr "Gebruik de opgeloste URL-methode voor het onderdrukken van strm volgende afspeellijstfout"
-
-#: /resources/settings.xml
-msgctxt "#32088"
-msgid "Navigation"
-msgstr "Navigatie"
-
-#: /resources/settings.xml
-msgctxt "#32089"
-msgid "Select Action"
-msgstr "Selecteer actie"
 
 #: /resources/settings.xml
 msgctxt "#32090"
 msgid "Content"
 msgstr ""
 
-#: /resources/settings.xml
-msgctxt "#32091"
-msgid "Special season folders"
-msgstr "Speciale seizoens mappen"
+
 
 #: /resources/settings.xml
-msgctxt "#32092"
-msgid "Widgets"
-msgstr ""
-
-#: /resources/settings.xml
-msgctxt "#32093"
-msgid "Next episodes sort method"
-msgstr "Volgende afleveringen sorteermethode"
-
-#: /resources/settings.xml
-msgctxt "#32094"
-msgid "Prioritise local files over default player"
-msgstr "Prioriteit geven aan lokale bestanden boven standaardspeler"
-
-#: /resources/lib/traktapi.py
 msgctxt "#32095"
 msgid "Enter the code"
 msgstr "voer de code in"
 
 #: /resources/lib/traktapi.py
 msgctxt "#32096"
-msgid "Go to [B]https://trakt.tv/activate[/B]"
-msgstr "Ga naar [B]https://trakt.tv/activate[/B]"
+msgid "Go to [B]{}[/B]"
+msgstr "Ga naar [B]{}[/B]"
 
 #: /resources/lib/traktapi.py
 msgctxt "#32097"
 msgid "Trakt Authentication"
 msgstr "Trakt authenticatie"
-
-#: /resources/lib/container.py
-msgctxt "#32098"
-msgid "Exists"
-msgstr ""
-
-#: /resources/lib/container.py
-msgctxt "#32099"
-msgid "A value has already been set for this parameter"
-msgstr "Er is al een waarde ingesteld voor deze parameter"
 
 #: /resources/lib/container.py
 msgctxt "#32100"
@@ -522,38 +291,9 @@ msgid "Add Items"
 msgstr "Items toevoegen"
 
 #: /resources/lib/container.py
-msgctxt "#32103"
-msgid "No Value Added"
-msgstr "Geen toegevoegde waarde"
-
-#: /resources/lib/container.py
-msgctxt "#32104"
-msgid ""
-"TMDb ID for {} not found or none selected.\n"
-"Do you want to add another value?"
-msgstr ""
-"TMDb ID voor {} niet gevonden of niet geselecteerd.\n"
-"Wilt u nog een waarde toevoegen?"
-
-#: /resources/lib/container.py
-msgctxt "#32105"
-msgid "Do you want to add another value?"
-msgstr "Wilt u een andere waarde toevoegen?"
-
-#: /resources/lib/container.py
-msgctxt "#32106"
-msgid "Added"
-msgstr "Toegevoegd"
-
-#: /resources/lib/container.py
 msgctxt "#32107"
 msgid "Set Match Method"
 msgstr "Match-methode instellen"
-
-#: /resources/lib/container.py
-msgctxt "#32108"
-msgid "Choose matching method for parameters with multiple values."
-msgstr "Kies een afstemmingsmethode voor parameters met meerdere waarden."
 
 #: /resources/lib/container.py
 msgctxt "#32109"
@@ -566,16 +306,6 @@ msgid "Match ALL Values"
 msgstr "Overeenkomen met ALLE waarden"
 
 #: /resources/lib/container.py
-msgctxt "#32111"
-msgid "Select Items"
-msgstr "Selecteer items"
-
-#: /resources/lib/container.py
-msgctxt "#32112"
-msgid "Select Genres"
-msgstr "Selecteer genres"
-
-#: /resources/lib/container.py
 msgctxt "#32113"
 msgid "Also accepts X days relative from today in the format T-X or T+X (e.g. T-10 is ten days ago)"
 msgstr "Accepteert ook X dagen relatief vanaf vandaag in het formaat T-X of T+X (bijv. T-10 is tien dagen geleden)"
@@ -586,34 +316,9 @@ msgid "Enter"
 msgstr ""
 
 #: /resources/lib/container.py
-msgctxt "#32115"
-msgid "Company"
-msgstr "Bedrijf"
-
-#: /resources/lib/container.py
-msgctxt "#32116"
-msgid "Network"
-msgstr "Netwerk"
-
-#: /resources/lib/container.py
 msgctxt "#32117"
 msgid "Keyword"
 msgstr "trefwoord"
-
-#: /resources/lib/container.py
-msgctxt "#32118"
-msgid "Person"
-msgstr "Persoon"
-
-#: /resources/lib/container.py
-msgctxt "#32119"
-msgid "Select Release Types"
-msgstr "Selecteer release types"
-
-#: /resources/lib/container.py
-msgctxt "#32120"
-msgid "Select Region for Release"
-msgstr "Selecteer regio voor release"
 
 #: /resources/lib/container.py
 msgctxt "#32121"
@@ -631,11 +336,6 @@ msgid "If error persists and the folders are created correctly, please disable f
 msgstr "Als de fout aanhoudt en de mappen correct zijn gemaakt, schakel dan de controle van het maken van het mappad uit in de instellingen van TMDBHelper."
 
 #: /resources/lib/context.py
-msgctxt "#32124"
-msgid "Adding"
-msgstr "Toevoegen"
-
-#: /resources/lib/context.py
 msgctxt "#32125"
 msgid "Add Trakt list to Kodi library"
 msgstr "Voeg Trakt lijst toe aan Kodi bibliotheek"
@@ -645,30 +345,7 @@ msgctxt "#32126"
 msgid "Are you sure you want to add this Trakt list to your Kodi library?"
 msgstr "Weet je zeker dat je deze Trakt lijst aan je Kodi bibliotheek wilt toevoegen?"
 
-#: /resources/lib/context.py
-msgctxt "#32127"
-msgid "by user"
-msgstr "door gebruiker"
 
-#: /resources/lib/context.py
-msgctxt "#32128"
-msgid "This list contains"
-msgstr "Deze lijst bevat:"
-
-#: /resources/lib/context.py
-msgctxt "#32129"
-msgid "items"
-msgstr ""
-
-#: /resources/settings.xml
-msgctxt "#32130"
-msgid "Auto-update library at time"
-msgstr "Bibliotheek automatisch bijwerken op tijd"
-
-#: /resources/settings.xml
-msgctxt "#32131"
-msgid "Auto-update library from Trakt list(s)"
-msgstr "Bibliotheek automatisch bijwerken vanuit Trakt lijst(en)"
 
 #: /resources/lib/script.py
 msgctxt "#32132"
@@ -680,155 +357,7 @@ msgctxt "#32133"
 msgid "Select List(s)"
 msgstr "Selecteer lijst(en)"
 
-#: /resources/settings.xml
-msgctxt "#32134"
-msgid "User slug"
-msgstr ""
 
-#: /resources/lib/traktapi.py
-msgctxt "#32135"
-msgid "Successfully removed {} {} from {} list."
-msgstr "{} {} is verwijderd uit de {} lijst."
-
-#: /resources/lib/traktapi.py
-msgctxt "#32136"
-msgid "Successfully added {} {} to {} list."
-msgstr "{} {} is toegevoegd aan de {} lijst."
-
-#: /resources/lib/traktapi.py
-msgctxt "#32137"
-msgid "Failed to remove {} {} from {} list."
-msgstr "Kan {} {} niet verwijderen uit de {} lijst."
-
-#: /resources/lib/traktapi.py
-msgctxt "#32138"
-msgid "Failed to add {} {} to {} list."
-msgstr "Kan {} {} niet toevoegen aan {} lijst."
-
-#: /resources/lib/traktapi.py
-msgctxt "#32139"
-msgid "Remove from Trakt list"
-msgstr "Verwijderen van Trakt lijst"
-
-#: /resources/lib/traktapi.py
-msgctxt "#32140"
-msgid "Add to Trakt list"
-msgstr "Toevoegen aan Trakt lijst"
-
-#: /resources/lib/traktapi.py
-msgctxt "#32141"
-msgid "Create new list..."
-msgstr "Nieuwe lijst maken..."
-
-#: /resources/settings.xml
-msgctxt "#32142"
-msgid "Hide watched items on widgets"
-msgstr "Verberg bekeken items op widgets"
-
-#: /resources/lib/context.py
-msgctxt "#32143"
-msgid "Cached details for {} successfully refreshed!"
-msgstr "Gegevens in cache voor {} zijn vernieuwd!"
-
-#: /resources/lib/context.py
-msgctxt "#32144"
-msgid "Refresh TheMovieDb Details"
-msgstr "Vernieuw de details van TheMovieDb"
-
-#: /addon.xml
-msgctxt "#32145"
-msgid "TMDbHelper Options"
-msgstr "TMDbHelper opties"
-
-#: /addon.xml
-msgctxt "#32146"
-msgid "Play using (TMDbHelper)"
-msgstr "Afspelen met (TMDbHelper)"
-
-#: /addon.xml
-msgctxt "#32147"
-msgid "Browse seasons (TMDbHelper)"
-msgstr "Bladeren door seizoenen (TMDbHelper)"
-
-#: /addon.xml
-msgctxt "#32148"
-msgid "Add/Remove from Trakt Watchlist"
-msgstr "Toevoegen/verwijderen uit Trakt kijklijst"
-
-#: /addon.xml
-msgctxt "#32149"
-msgid "Add/Remove from Trakt History"
-msgstr "Toevoegen/verwijderen uit Trakt geschiedenis"
-
-#: /addon.xml
-msgctxt "#32150"
-msgid "Add/Remove from Trakt Collection"
-msgstr "Toevoegen/verwijderen uit Trakt Collectie"
-
-#: /addon.xml
-msgctxt "#32151"
-msgid "Add to Kodi Library"
-msgstr "Toevoegen aan Kodi bibliotheek"
-
-#: /addon.xml
-msgctxt "#32152"
-msgid "Remove from list"
-msgstr "Verwijder van Lijst"
-
-#: /addon.xml
-msgctxt "#32153"
-msgid "Refresh cached details"
-msgstr "Gegevens in cache vernieuwen"
-
-#: /resources/settings.xml
-msgctxt "#32154"
-msgid "Update library now"
-msgstr "Bibliotheek nu bijwerken"
-
-#: /resources/settings.xml
-msgctxt "#32155"
-msgid "Next Aired (Library)"
-msgstr "Volgende uitgezonden (bibliotheek)"
-
-#: /resources/settings.xml
-msgctxt "#32156"
-msgid "Next aired library calendar links to local tvshow"
-msgstr "Volgende uitgezonden bibliotheek kalender links naar lokale series"
-
-#: /resources/lib/context.py
-msgctxt "#32157"
-msgid "Unable to find TMDb ID for item."
-msgstr "Kan TMDb ID voor item niet vinden."
-
-#: /resources/settings.xml
-msgctxt "#32158"
-msgid "Automatically use player if only one available"
-msgstr "Speler automatisch gebruiken als er maar één beschikbaar is"
-
-#: /resources/lib/container.py
-msgctxt "#32159"
-msgid "Select Original Language"
-msgstr "Selecteer originele taal"
-
-#: /resources/lib/context.py
-msgctxt "#32160"
-msgid "Adding {} - {} to library..."
-msgstr "{} - {} toevoegen aan bibliotheek..."
-
-#: /resources/lib/traktapi.py
-msgctxt "#32161"
-msgid "Do you wish to update the library with this list now?"
-msgstr "Wilt u de bibliotheek nu bijwerken met deze lijst?"
-
-#: /resources/settings.xml
-msgctxt "#32162"
-msgid "Automatically play local files"
-msgstr "Lokale bestanden automatisch afspelen"
-
-#: /resources/settings.xml
-msgctxt "#32163"
-msgid "Use fanart.tv for service monitor artwork"
-msgstr "Gebruik fanart.tv voor artwork van de servicemonitor"
 
 #: /resources/lib/context.py
 msgctxt "#32164"
@@ -838,11 +367,6 @@ msgid ""
 msgstr ""
 "Het toevoegen van Trakt lijsten aan de bibliotheek is beperkt tot [B]{}[/B] series en [B]{}[/B] films per lijst.\n"
 "Deze limiet is ingesteld om ervoor te zorgen dat de API's die gratis gegevens verstrekken, worden gerespecteerd."
-
-#: /resources/lib/context.py
-msgctxt "#32165"
-msgid "List length exceeds limits. Skipping..."
-msgstr "De lengte van de lijst overschrijdt de limieten.  Overslaan..."
 
 #: /resources/lib/context.py
 msgctxt "#32166"
@@ -859,10 +383,6 @@ msgctxt "#32168"
 msgid "[B]{}[/B] by user [B]{}[/B]"
 msgstr "[B]{}[/B] door gebruiker [B]{}[/B]"
 
-#: /resources/settings.xml
-msgctxt "#32169"
-msgid "Logout of Trakt account..."
-msgstr "Uitloggen van Trakt account..."
 
 #: /resources/lib/libraryupdate.py
 msgctxt "#32170"
@@ -1099,40 +619,6 @@ msgctxt "#32216"
 msgid "Successfully logged out of Trakt user account"
 msgstr "Succesvol uitgelogd van Trakt gebruikersaccount"
 
-#: /resources/lib/script.py
-msgctxt "#32217"
-msgid "No artwork found for {} ID {}"
-msgstr "Geen artwork gevonden voor {} ID {}"
-
-#: /resources/lib/script.py
-msgctxt "#32218"
-msgid ""
-"Artwork found for {} ID {}\n"
-"{}"
-msgstr ""
-"Artwork gevonden voor {} ID {}\n"
-"{}"
-
-#: /resources/lib/fanarttv.py
-msgctxt "#32219"
-msgid "Language {} | {} likes | ID {}"
-msgstr "Taal {} |  {} houdt van |  ID {}"
-
-#: /resources/lib/script.py
-msgctxt "#32220"
-msgid "Select artwork"
-msgstr "Selecteer artwork"
-
-#: /resources/lib/script.py
-msgctxt "#32221"
-msgid "Refresh all artwork"
-msgstr "Alle artwork vernieuwen"
-
-#: /resources/lib/listitem.py
-msgctxt "#32222"
-msgid "Manage artwork"
-msgstr "Artwork beheren"
-
 #: /resources/lib/plugin.py
 msgctxt "#32223"
 msgid "Recommended"
@@ -1189,11 +675,6 @@ msgid "Refresh details"
 msgstr "Details vernieuwen"
 
 #: /resources/lib/script.py
-msgctxt "#32234"
-msgid "Refreshed details for {} ID {}"
-msgstr "Vernieuwde details voor {} ID {}"
-
-#: /resources/lib/listitem.py
 msgctxt "#32235"
 msgid "Browse lists"
 msgstr "Door lijsten bladeren"
@@ -1207,16 +688,6 @@ msgstr "Selecteer item"
 msgctxt "#32237"
 msgid "Clear Discover History"
 msgstr "Ontdek geschiedenis wissen"
-
-#: /resources/lib/userdiscover.py
-msgctxt "#32238"
-msgid "Discover {}"
-msgstr "Ontdek {}"
-
-#: /resources/lib/userdiscover.py
-msgctxt "#32239"
-msgid "Match"
-msgstr "Overeenkomst"
 
 #: /resources/lib/userdiscover.py
 msgctxt "#32240"
@@ -1349,11 +820,6 @@ msgid "With Companies"
 msgstr "Met bedrijven"
 
 #: /resources/lib/userdiscover.py
-msgctxt "#32266"
-msgid "Without"
-msgstr "Zonder"
-
-#: /resources/lib/userdiscover.py
 msgctxt "#32267"
 msgid "Without Keywords"
 msgstr "Zonder trefwoorden"
@@ -1379,39 +845,9 @@ msgid "Vote Count ( < or = )"
 msgstr "Aantal stemmen ( < of = )"
 
 #: /resources/lib/userdiscover.py
-msgctxt "#32272"
-msgid "Vote Average ( > or = )"
-msgstr "Stemgemiddelde ( > of = )"
-
-#: /resources/lib/userdiscover.py
-msgctxt "#32273"
-msgid "Vote Average ( < or = )"
-msgstr "Stemgemiddelde ( < of = )"
-
-#: /resources/lib/userdiscover.py
-msgctxt "#32274"
-msgid "Runtime (Minutes) ( > or = )"
-msgstr "Looptijd (minuten) ( > of = )"
-
-#: /resources/lib/userdiscover.py
-msgctxt "#32275"
-msgid "Runtime (Minutes) ( < or = )"
-msgstr "Looptijd (minuten) ( < of = )"
-
-#: /resources/lib/userdiscover.py
 msgctxt "#32276"
 msgid "Search for"
 msgstr "Zoeken"
-
-#: /resources/lib/userdiscover.py
-msgctxt "#32277"
-msgid "Add Rule"
-msgstr "Regel toevoegen"
-
-#: /resources/lib/userdiscover.py
-msgctxt "#32278"
-msgid "Enter Network IDs separated with \" / \""
-msgstr "Voer netwerk ID's in gescheiden door \" / \""
 
 #: /resources/lib/userdiscover.py
 msgctxt "#32279"
@@ -1432,11 +868,6 @@ msgstr "Laaste week"
 msgctxt "#32282"
 msgid "Yesterday"
 msgstr "Gisteren"
-
-#: /resources/lib/basedir.py
-msgctxt "#32283"
-msgid "Next Week"
-msgstr "Volgende week"
 
 #: /resources/lib/basedir.py
 msgctxt "#32284"
@@ -1482,16 +913,6 @@ msgstr "Toevoegen aan kijklijst"
 msgctxt "#32292"
 msgid "Remove from watchlist"
 msgstr "Verwijderen van kijklijst"
-
-#: /resources/lib/script.py
-msgctxt "#32293"
-msgid "Add to recommendations"
-msgstr "Toevoegen aan aanbevelingen"
-
-#: /resources/lib/script.py
-msgctxt "#32294"
-msgid "Remove from recommendations"
-msgstr "Verwijderen uit aanbevelingen"
 
 #: /resources/lib/script.py
 msgctxt "#32295"
@@ -1562,16 +983,6 @@ msgid "No comments found!"
 msgstr "Geen reacties gevonden!"
 
 #: /resources/lib/request/api.py
-msgctxt "#32307"
-msgid "Suppressing retries for {} seconds"
-msgstr "Nieuwe pogingen gedurende {} seconden onderdrukken"
-
-#: /resources/lib/request/api.py
-msgctxt "#32308"
-msgid "ConnectionError: {}"
-msgstr "Verbindingsfout: {}"
-
-#: /addon.xml
 msgctxt "#32309"
 msgid "Browse sorted list"
 msgstr "Door gesorteerde lijst bladeren"
@@ -1646,31 +1057,6 @@ msgid "Select player"
 msgstr "Kies speler"
 
 #: /resources/lib/helpers/update.py
-msgctxt "#32323"
-msgid "Item added to library"
-msgstr "Item toegevoegd aan bibliotheek"
-
-#: /resources/lib/player/players.py
-msgctxt "#32324"
-msgid "Select Play Method"
-msgstr "Selecteer Afspeelmethode"
-
-#: /resources/lib/player/players.py
-msgctxt "#32325"
-msgid ""
-"Configuration for player is missing \"is_resolvable\" flag. Please select resolve method.\n"
-"\n"
-"setResolvedUrl is the preferred method and generally should work for any player addon that plays files directly, uses inputstream adapative, or only prompts to select bitrate/quality. PlayMedia should be used for any player addon which first runs a script to scrape sources or otherwise does not work correctly using the setResolvedUrl method.\n"
-"\n"
-"To override this dialog, set a resolve method for the player in TMDbHelper's player settings configuration dialog."
-msgstr ""
-"Configuratie voor speler ontbreekt de vlag \"is_resolvable\". Selecteer de oplossingsmethode.\n"
-"\n"
-"setResolvedUrl is de voorkeursmethode en zou over het algemeen moeten werken voor elke speler addon die bestanden rechtstreeks afspeelt, inputstream adapatief gebruikt of alleen vraagt ​​om bitrate / kwaliteit te selecteren. PlayMedia moet worden gebruikt voor elke speler addon die eerst een script uitvoert om bronnen te schrapen of anderszins  werkt niet correct met de setResolvedUrl methode.\n"
-"\n"
-"Om dit dialoogvenster te negeren, stelt u een oplossingsmethode in voor de speler in het configuratievenster voor spelerinstellingen van TMDbHelper."
-
-#: /resources/lib/helpers/timedate.py
 msgctxt "#32326"
 msgid "This Month"
 msgstr "Deze maand"
@@ -1699,16 +1085,6 @@ msgstr "Resetten naar standaardwaarden"
 msgctxt "#32331"
 msgid "Enter New Name for {}"
 msgstr "Voer een nieuwe naam in voor {}"
-
-#: /resources/lib/player/configure.py
-msgctxt "#32332"
-msgid "Choose resolve method for player"
-msgstr "Kies de oplossingsmethode voor speler"
-
-#: /resources/lib/player/configure.py
-msgctxt "#32333"
-msgid "User Choice"
-msgstr "Gebruikerskeuze"
 
 #: /resources/lib/player/configure.py
 msgctxt "#32334"
@@ -1745,27 +1121,6 @@ msgstr ""
 "Als u sluit zonder op te slaan, gaan uw wijzigingen verloren."
 
 #: /resources/lib/player/configure.py
-msgctxt "#32338"
-msgid "Close without Saving"
-msgstr "Sluiten zonder op te slaan"
-
-#: /resources/lib/player/configure.py
-msgctxt "#32339"
-msgid "{} playback URL resolve method"
-msgstr "{} methode voor het oplossen van afspeel URL"
-
-#: /resources/lib/player/configure.py
-msgctxt "#32340"
-msgid ""
-"Please note that setResolvedUrl is Kodi's preferred method for resolving playback URLs. The PlayMedia method should only be used if you experience difficulties using setResolvedUrl with this particular player.\n"
-"\n"
-"Are you sure you want to set this player's resolve method to PlayMedia?"
-msgstr ""
-"Houd er rekening mee dat setResolvedUrl Kodi's voorkeursmethode is voor het oplossen van afspeel URL's. De PlayMedia methode mag alleen worden gebruikt als u problemen ondervindt bij het gebruik van setResolvedUrl met deze specifieke speler.\n"
-"\n"
-"Weet u zeker dat u de oplossingsmethode van deze speler wilt instellen op PlayMedia?"
-
-#: /resources/lib/player/configure.py
 msgctxt "#32341"
 msgid "Choose fallback player method"
 msgstr "Kies fallback player methode"
@@ -1776,70 +1131,17 @@ msgid "Fallbacks for {}"
 msgstr "Terugval voor {}"
 
 #: /resources/lib/player/configure.py
-msgctxt "#32343"
-msgid "Choose fallback for {} {}"
-msgstr "Kies terugval voor {} {}"
-
-#: /resources/lib/player/configure.py
 msgctxt "#32344"
 msgid "Enter New Priority for {}"
 msgstr "Voer nieuwe prioriteit in voor {}"
 
-#: /resources/lib/tmdb/api.py
-msgctxt "#32345"
-msgid "Episode groups"
-msgstr "Afleveringsgroepen"
 
-#: /resources/settings.xml
-msgctxt "#32346"
-msgid "Use hack to get Kodi Trakt addon to scrobble local files"
-msgstr "Gebruik hack om Kodi Trakt addon te krijgen om lokale bestanden te scrobbelen"
-
-#: /resources/settings.xml
-msgctxt "#32347"
-msgid "Log output of Trakt request"
-msgstr "Logboekuitvoer van Trakt verzoek"
-
-#: /resources/settings.xml
-msgctxt "#32348"
-msgid "Log output of TMDb request"
-msgstr "Logboekuitvoer van TMDb verzoek"
 
 #: /resources/lib/kodi/library.py
-msgctxt "#32349"
-msgid "Creating movies playlist"
-msgstr "Afspeellijst voor filmss maken"
-
-#: /resources/lib/kodi/library.py
-msgctxt "#32350"
-msgid "Creating tvshows playlist"
-msgstr "Afspeellijst voor series maken"
-
-#: /resources/settings.xml
 msgctxt "#32351"
 msgid "Dummy ResolvedURL"
 msgstr ""
 
-#: /resources/settings.xml
-msgctxt "#32352"
-msgid "Dummy video duration (seconds)"
-msgstr "Dummy videoduur (seconden)"
-
-#: /resources/lib/player/players.py
-msgctxt "#32353"
-msgid "Missing \"is_resolvable\" Flag"
-msgstr "Ontbrekende vlag \"is_resolvable\""
-
-#: /resources/lib/player/players.py
-msgctxt "#32354"
-msgid ""
-"Does this player resolve directly to a single playable file?\n"
-"\n"
-"Select \"Yes\" for any player that plays directly from single source. Select \"No\" for players that scrape multiple sources or otherwise do not work with the setResolvedURL method."
-msgstr ""
-"Kan deze speler rechtstreeks worden omgezet in een enkel afspeelbaar bestand?\n"
-"\n"
-"Selecteer \"Ja\" voor elke speler die rechtstreeks vanaf één bron speelt. Selecteer \"Nee\" voor spelers die meerdere bronnen schrapen of anderszins niet werken met de setResolvedURL methode."
 
 #: /resources/lib/script/sync.py
 msgctxt "#32355"
@@ -1887,25 +1189,11 @@ msgctxt "#32362"
 msgid "Do you want to add this item to the library now?"
 msgstr "Wil je dit item nu aan de bibliotheek toevoegen?"
 
-#: /resources/settings.xml
-msgctxt "#32363"
-msgid "Delay before playing after dummy resolves (seconds)"
-msgstr "Vertraging voor het afspelen nadat de dummy is opgelost (seconden)"
-
-#: /resources/settings.xml
-msgctxt "#32364"
-msgid "Reroute PlayMedia to call xbmc.Player() directly"
-msgstr "Leid PlayMedia om om xbmc.Player() rechtstreeks aan te roepen"
 
 #: /resources/lib/addon/plugin.py
 msgctxt "#32365"
 msgid "Combined"
 msgstr "gecombineerd"
-
-#: /resources/settings.xml
-msgctxt "#32366"
-msgid "Hide items without airdates"
-msgstr "Verberg items zonder Uitzenddatums"
 
 #: /resources/settings.xml
 msgctxt "#32367"
@@ -1927,20 +1215,12 @@ msgctxt "#32370"
 msgid "landscape"
 msgstr ""
 
-#: /resources/settings.xml
-msgctxt "#32371"
-msgid "Preferred artwork for thumbs"
-msgstr "Voorkeur artwork voor thumbs"
 
 #: /resources/settings.xml
 msgctxt "#32372"
 msgid "fanart"
 msgstr ""
 
-#: /resources/settings.xml
-msgctxt "#32373"
-msgid "Restrict dummy setResolvedUrl method to library strm"
-msgstr "Beperk de dummy setResolvedUrl methode tot bibliotheek strm"
 
 #: /resources/lib/player/players.py
 msgctxt "#32374"
@@ -1957,81 +1237,12 @@ msgctxt "#32376"
 msgid "Building Player Dialog"
 msgstr "Spelers dialoogvenster bouwen"
 
-#: /resources/lib/trakt/api.py
-msgctxt "#32377"
-msgid "Playcount"
-msgstr "Afspelen"
-
-#: /resources/settings.xml
-msgctxt "#32378"
-msgid "Show All"
-msgstr "Toon alles"
-
-#: /resources/settings.xml
-msgctxt "#32379"
-msgid "Hide Specials"
-msgstr "Specials verbergen"
-
-#: /resources/settings.xml
-msgctxt "#32380"
-msgid "Hide Up Next"
-msgstr "Volgende verbergen"
-
-#: /resources/settings.xml
-msgctxt "#32381"
-msgid "Hide Up Next and Specials"
-msgstr "Verbergen Volgende en Specials"
-
-#: /resources/settings.xml
-msgctxt "#32382"
-msgid "Hide Episode Groups"
-msgstr "Afleveringsgroepen verbergen"
-
-#: /resources/settings.xml
-msgctxt "#32383"
-msgid "Hide Episode Groups and Specials"
-msgstr "Afleveringsgroepen en specials verbergen"
-
-#: /resources/settings.xml
-msgctxt "#32384"
-msgid "Hide Episode Groups and Up Next"
-msgstr "Afleveringsgroepen verbergen en Volgende"
-
-#: /resources/settings.xml
-msgctxt "#32385"
-msgid "Hide All"
-msgstr "Verberg alles"
-
-#: /resources/settings.xml
-msgctxt "#32386"
-msgid "Delete Cache"
-msgstr "Cache verwijderen"
 
 #: /resources/lib/script/router.py
 msgctxt "#32387"
 msgid "Delete {} Cache"
 msgstr "Verwijder {} cache"
 
-#: /resources/lib/script/router.py
-msgctxt "#32388"
-msgid ""
-"Are you sure you want to delete the {} cache? This action cannot be undone.\n"
-"\n"
-"TMDbHelper performs regular automatic cache management and cleaning. You should only delete the cache manually in cases of persistent cache related errors."
-msgstr ""
-"Weet u zeker dat u de {} cache wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.\n"
-"\n"
-"TMDbHelper voert regelmatig automatisch cachebeheer en opschoning uit. U dient de cache alleen handmatig te verwijderen in het geval van aanhoudende cachegerelateerde fouten."
-
-#: /resources/lib/script/router.py
-msgctxt "#32389"
-msgid "Cache deleted!"
-msgstr "Cache verwijderd!"
-
-#: /resources/settings.xml
-msgctxt "#32390"
-msgid "Use alternative .nfo filename to avoid externally managed .nfo conflicts"
-msgstr "Gebruik een alternatieve .nfo bestandsnaam om extern beheerde .nfo conflicten te vermijden"
 
 #: /resources/lib/script/router.py
 msgctxt "#32391"
@@ -2059,15 +1270,6 @@ msgctxt "#32394"
 msgid "Quick Update"
 msgstr "Snelle update"
 
-#: /resources/settings.xml
-msgctxt "#32395"
-msgid "Log timer reports for directories"
-msgstr "Timerrapporten loggen voor mappen"
-
-#: /resources/settings.xml
-msgctxt "#32396"
-msgid "Unwatched counts only on in-progress tvshows"
-msgstr "Niet bekeken telt alleen voor lopende series"
 
 #: /resources/settings.xml
 msgctxt "#32397"
@@ -2079,40 +1281,7 @@ msgctxt "#32398"
 msgid "Medium"
 msgstr ""
 
-#: /resources/settings.xml
-msgctxt "#32399"
-msgid "Fallback to English when main language unavailable"
-msgstr "Terugvallen op Engels wanneer de hoofdtaal niet beschikbaar is"
 
-#: /resources/settings.xml
-msgctxt "#32400"
-msgid "Play local Kodi library files"
-msgstr "Speel lokale Kodi bibliotheekbestanden af"
-
-#: /resources/settings.xml
-msgctxt "#32401"
-msgid "TMDb detailed information"
-msgstr "TMDb gedetailleerde informatie"
-
-#: /resources/settings.xml
-msgctxt "#32402"
-msgid "Get additional details and artwork from TMDb"
-msgstr "Ontvang aanvullende details en artwork van TMDb"
-
-#: /resources/settings.xml
-msgctxt "#32403"
-msgid "Increase synced lists items per page (increases load times)"
-msgstr "Verhoog gesynchroniseerde lijsten met items per pagina (verhoogt de laadtijden)"
-
-#: /resources/settings.xml
-msgctxt "#32404"
-msgid "Flatten tvshows with multiple episodes airing same day"
-msgstr "Maak series plat met meerdere afleveringen die dezelfde dag worden uitgezonden"
-
-#: /resources/lib/addon/constants.py
-msgctxt "#32405"
-msgid "Your TV Shows Airing This Week"
-msgstr "Je series die deze week worden uitgezonden"
 
 #: /resources/lib/container/basedir.py
 msgctxt "#32406"
@@ -2120,15 +1289,6 @@ msgid "Your In-Progress Episodes"
 msgstr "Je lopende afleveringen"
 
 #: /resources/settings.xml
-msgctxt "#32407"
-msgid "Get resume points from Trakt (increases load times)"
-msgstr "Ontvang waar gebleven van Trakt (verhoogt de laadtijden)"
-
-#: /resources/settings.xml
-msgctxt "#32408"
-msgid "Prefer artwork from TMDb first if available"
-msgstr "Liever artwork van TMDb eerst indien beschikbaar"
-
 msgctxt "#30030"
 msgid "Hindi (India)"
 msgstr "Hindi (India)"
@@ -2281,30 +1441,7 @@ msgctxt "#30067"
 msgid "Zulu (South Africa)"
 msgstr "Zoeloe (Zuid-Afrika)"
 
-#: /resources/settings.xml
-msgctxt "#32000"
-msgid "TMDb API key"
-msgstr ""
 
-#: /resources/settings.xml
-msgctxt "#32001"
-msgid "OMDb API key"
-msgstr ""
-
-#: /resources/settings.xml
-msgctxt "#32002"
-msgid "Days to cache details"
-msgstr "Dagen om details te cachen"
-
-#: /resources/settings.xml
-msgctxt "#32003"
-msgid "Days to cache lists"
-msgstr "Dagen om lijsten te cachen"
-
-#: /resources/settings.xml
-msgctxt "#32004"
-msgid "MPAA rating prefix"
-msgstr "MPAA classificatie voorvoegsel"
 
 #: /resources/settings.xml
 msgctxt "#32005"
@@ -2312,29 +1449,10 @@ msgid "Language and country"
 msgstr "Taal en land"
 
 #: /resources/lib/utils.py
-msgctxt "#32006"
-msgid "Choose item"
-msgstr "Kies item"
-
-#: /resources/lib/requestapi.py
 msgctxt "#32007"
 msgid "Unauthorised 401 Error"
 msgstr "Ongeautoriseerde 401 fout"
 
-#: /resources/lib/requestapi.py
-msgctxt "#32008"
-msgid "API Key"
-msgstr ""
-
-#: /resources/lib/requestapi.py
-msgctxt "#32009"
-msgid "API returned 401 unauthorised error. If you have entered an API key for this service$COMMA please check that it is correct. If this error relates to TMDb API$COMMA please post a debug log to [B]https://github.com/jurialmunkey/plugin.video.themoviedb.helper/issues[/B]"
-msgstr "API heeft 401 ongeautoriseerde fout geretourneerd. Als u een API sleutel voor deze service$COMMA heeft ingevoerd, controleer dan of deze correct is.  Als deze fout betrekking heeft op TMDb API$COMMA, plaats dan een foutopsporingslogboek naar [B]https://github.com/jurialmunkey/plugin.video.themoviedb.helper/issues[/B]"
-
-#: /resources/settings.xml
-msgctxt "#32010"
-msgid "Authenticate Trakt account..."
-msgstr "Verifieer Trakt account..."
 
 #: /resources/lib/traktapi.py
 msgctxt "#32011"
@@ -2347,74 +1465,15 @@ msgid "You must authenticate your Trakt account to use this feature."
 msgstr "U moet uw Trakt account verifiëren om deze functie te gebruiken."
 
 #: /resources/settings.xml
-msgctxt "#32013"
-msgid "Display Trakt list management options in TMDb details list"
-msgstr "Toon Trakt lijstbeheeropties in TMDb detailslijst"
-
-#: /resources/settings.xml
 msgctxt "#32014"
 msgid "Players"
 msgstr "spelers"
 
-#: /resources/settings.xml
-msgctxt "#32015"
-msgid "Players URL"
-msgstr "Spelers URL"
 
-#: /resources/settings.xml
-msgctxt "#32016"
-msgid "Update players from URL"
-msgstr "Spelers updaten vanaf URL"
 
-#: /resources/settings.xml
-msgctxt "#32017"
-msgid "API Keys"
-msgstr ""
 
-#: /resources/settings.xml
-msgctxt "#32018"
-msgid "Fanart.tv API key"
-msgstr ""
 
-#: /resources/settings.xml
-msgctxt "#32019"
-msgid "Fanart.tv client key"
-msgstr ""
 
-#: /resources/settings.xml
-msgctxt "#32020"
-msgid "Only use if default api key is deactivated"
-msgstr "Alleen gebruiken als de standaard API sleutel is gedeactiveerd"
-
-#: /resources/settings.xml
-msgctxt "#32021"
-msgid "Use fanart.tv for plugin artwork (increases load times)"
-msgstr "Gebruik fanart.tv voor plugin artwork (verhoogt de laadtijden)"
-
-#: /resources/settings.xml
-msgctxt "#32022"
-msgid "Play / Open"
-msgstr "Afspelen / Openen"
-
-#: /resources/settings.xml
-msgctxt "#32023"
-msgid "Default select action in addon"
-msgstr "Standaard actie selecteren in addon"
-
-#: /resources/settings.xml
-msgctxt "#32024"
-msgid "Default player for movies"
-msgstr "Standaardspeler voor films"
-
-#: /resources/settings.xml
-msgctxt "#32025"
-msgid "Default player for episodes"
-msgstr "Standaardspeler voor afleveringen"
-
-#: /resources/settings.xml
-msgctxt "#32026"
-msgid "Choose default players"
-msgstr "Kies standaard spelers"
 
 #: /resources/settings.xml
 msgctxt "#32027"

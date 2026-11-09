@@ -2,6 +2,8 @@
 <!--Titan-->
 <window>
 	<defaultcontrol always="true">9000</defaultcontrol>
+	<onload>SetProperty(pvrinfo,106002)</onload>
+	<onunload>ClearProperty(pvrinfo)</onunload>
 	<controls>
 		<!--Dialog Overlay-->
 		<control type="group">
@@ -50,8 +52,7 @@
 				<height>180</height>
 				<left></left>
 				<right>60</right>
-				<top>40</top>
-				<font></font>
+				<top>30</top>
 				<texture background="true">$VAR[PVRInfoThumb]</texture>
 				<aspectratio align="right" aligny="top">keep</aspectratio>
 				<visible>!Skin.HasSetting(EnableTouchSupport)</visible>
@@ -69,7 +70,7 @@
 				<description>Heading</description>
 				<left>700</left>
 				<top>10</top>
-				<width>1200</width>
+				<width>900</width>
 				<font>Bold45</font>
 				<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
 				<label>$LOCALIZE[19047]</label>
@@ -79,156 +80,533 @@
 			<!-- program title -->
 			<control type="label">
 				<left>700</left>
-				<top>150</top>
-				<width>800</width>
+				<top>80</top>
+				<width>900</width>
 				<font>Reg36</font>
 				<align>left</align>
 				<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
 				<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
-				<label>$INFO[ListItem.Title]</label>
+				<label>[B]$INFO[ListItem.Title] $INFO[ListItem.Year,(,)][/B]</label>
 			</control>
+			<control type="label">
+				<left>700</left>
+				<top>130</top>
+				<width>900</width>
+				<font>Reg32</font>
+				<align>left</align>
+				<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+				<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
+				<label>$VAR[FlagDashLabel]$VAR[SeasonEpisodeAndNameLabel]</label>
+				<scroll>true</scroll>
+			</control>			
+
 			<control type="group">
-				<left>680</left>
-				<top>220</top>
+				<visible>String.IsEqual(Window(10600).Property(pvrinfo),106001) | String.IsEqual(Window(10601).Property(pvrinfo),106001)</visible>
+				<control type="group">
+					<left>680</left>
+					<top>220</top>
+					<control type="grouplist">
+						<left>0</left>
+						<top>0</top>
+						<width>600</width>
+						<height>320</height>
+						<!-- <bottom>245</bottom> -->
+						<itemgap>0</itemgap>
+						<orientation>vertical</orientation>
+						<align>right</align>				
+						<control type="button">
+							<description>Time</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>575</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[142]</label>
+							<!-- <label2>$INFO[ListItem.StartTime]$INFO[ListItem.EndTime, - ] ($INFO[ListItem.StartDate])</label2> -->
+							<label2>$INFO[ListItem.StartTime]$INFO[ListItem.EndTime, - ]</label2>
+							<visible>!String.IsEmpty(ListItem.StartTime) + !String.IsEmpty(ListItem.EndTime)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Duration</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>575</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[552]:</label>
+							<label2>$INFO[ListItem.Date(dd.mm.yyyy)]</label2>
+							<visible>!String.IsEmpty(ListItem.StartDate)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Channel</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>540</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[20416]:</label>
+							<label2>$INFO[ListItem.Premiered]</label2>
+							<visible>!String.IsEmpty(ListItem.Premiered)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Genre</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>540</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[563]:</label>
+							<label2>$INFO[ListItem.Rating]</label2>
+							<visible>!String.IsEmpty(ListItem.Rating)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Episode</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>540</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[31347]:</label>
+							<label2>$INFO[ListItem.ParentalRatingCode]</label2>
+							<visible>!String.IsEmpty(ListItem.ParentalRatingCode)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Episode</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>540</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[19334]:</label>
+							<label2>$INFO[ListItem.MediaProviders]</label2>
+							<visible>!String.IsEmpty(ListItem.MediaProviders)</visible>
+							<enable>false</enable>
+						</control>					
+					</control>
+
+					<control type="grouplist">
+						<left>600</left>
+						<top>0</top>
+						<width>600</width>
+						<height>320</height>
+						<!-- <bottom>245</bottom> -->
+						<itemgap>0</itemgap>
+						<orientation>vertical</orientation>
+						<align>right</align>
+						<control type="button">
+							<description>Duration</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>540</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[180]:</label>
+							<label2>$VAR[ListItemDuration]</label2>
+							<visible>!String.IsEmpty(ListItem.Duration)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Channel</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>540</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[19148]:</label>
+							<label2>$INFO[ListItem.ChannelName]</label2>
+							<visible>!String.IsEmpty(ListItem.ChannelName)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Genre</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>540</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[22031]:</label>
+							<label2>$INFO[ListItem.Size]</label2>
+							<visible>!String.IsEmpty(ListItem.Size) + !String.IsEqual(ListItem.Size,0.00 B)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Episode</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>540</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[568]:</label>
+							<label2>$INFO[ListItem.LastPlayed]</label2>
+							<visible>!String.IsEmpty(ListItem.LastPlayed)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Episode</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>540</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[576]:</label>
+							<label2>$INFO[ListItem.PlayCount]</label2>
+							<visible>!String.IsEmpty(ListItem.PlayCount)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Episode</description>
+							<width>580</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>540</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[19299]:</label>
+							<label2>$INFO[ListItem.ExpirationDate] $INFO[ListItem.ExpirationTime]</label2>
+							<visible>!String.IsEmpty(ListItem.ExpirationDate) + !String.IsEmpty(ListItem.ExpirationTime)</visible>
+							<enable>false</enable>
+						</control>
+					</control>
+					
+					<control type="grouplist">
+						<left>0</left>
+						<top>340</top>
+						<width>1180</width>
+						<height>260</height>
+						<!-- <bottom>110</bottom> -->
+						<itemgap>0</itemgap>
+						<orientation>vertical</orientation>
+						<align>left</align>
+						<control type="button">
+							<description>Header</description>
+							<width>1180</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>1100</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[31346]:</label>
+							<label2>$INFO[ListItem.PVRClientName] $INFO[ListItem.PVRInstanceName, (,)]</label2>
+							<visible>!String.IsEmpty(ListItem.PVRClientName)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Header</description>
+							<width>1180</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>1100</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[515]:</label>
+							<label2>$INFO[ListItem.Genre]</label2>
+							<visible>!String.IsEmpty(ListItem.Genre)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Header</description>
+							<width>1180</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>1100</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[206]:</label>
+							<label2>$INFO[ListItem.Cast(comma)]</label2>
+							<visible>!String.IsEmpty(ListItem.Cast(comma))</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Header</description>
+							<width>1180</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>1100</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[20339]:</label>
+							<label2>$INFO[ListItem.Director(comma)]</label2>
+							<visible>!String.IsEmpty(ListItem.Director(comma))</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Header</description>
+							<width>1180</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>1100</textwidth>
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[20417]:</label>
+							<label2>$INFO[ListItem.Writer(comma)]</label2>
+							<visible>!String.IsEmpty(ListItem.Writer(comma))</visible>
+							<enable>false</enable>
+						</control>
+					</control>	
+				</control>
+			</control>
+			<!-- End of group 1 -->
+			
+			<control type="group">
+				<visible>String.IsEqual(Window(10600).Property(pvrinfo),106002) | String.IsEqual(Window(10601).Property(pvrinfo),106002)</visible>
+				<control type="group">
+					<left>680</left>
+					<top>220</top>
+					<control type="grouplist">
+						<left>0</left>
+						<top>0</top>
+						<width>1200</width>
+						<height>220</height>
+						<!-- <bottom>245</bottom> -->
+						<itemgap>0</itemgap>
+						<orientation>vertical</orientation>
+						<align>left</align>				
+						<control type="button">
+							<description>Time</description>
+							<width>1200</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>1160</textwidth>
+							<!-- <font>Light26</font> -->
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[142]</label>
+							<!-- <label2>$INFO[ListItem.StartTime]$INFO[ListItem.EndTime, - ] ($INFO[ListItem.StartDate])</label2> -->
+							<label2>$INFO[ListItem.StartTime]$INFO[ListItem.EndTime, - ]</label2>
+							<visible>!String.IsEmpty(ListItem.StartTime) + !String.IsEmpty(ListItem.EndTime)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Duration</description>
+							<width>1200</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>1160</textwidth>
+							<!-- <font>Light26</font> -->
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[180]:</label>
+							<label2>$VAR[ListItemDuration]</label2>
+							<visible>!String.IsEmpty(ListItem.Duration)</visible>
+							<enable>false</enable>
+						</control>
+						<control type="button">
+							<description>Channel</description>
+							<width>1200</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>1160</textwidth>
+							<!-- <font>Light26</font> -->
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[19148]:</label>
+							<label2>$INFO[ListItem.ChannelName]</label2>
+							<visible>!String.IsEmpty(ListItem.ChannelName)</visible>
+							<enable>false</enable>
+						</control>					
+						<control type="button">
+							<description>Header</description>
+							<width>1200</width>
+							<height>50</height>
+							<align>left</align>
+							<textoffsetx>20</textoffsetx>
+							<textwidth>1160</textwidth>
+							<!-- <font>Light26</font> -->
+							<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+							<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+							<texturenofocus border="5">dialogs/default/inner2.png</texturenofocus>
+							<label>$LOCALIZE[515]:</label>
+							<label2>$INFO[ListItem.Genre]</label2>
+							<visible>!String.IsEmpty(ListItem.Genre)</visible>
+							<!-- <scroll>true</scroll> -->
+							<enable>false</enable>
+						</control>					
+					</control>
+				</control>
 				<control type="image">
-					<left>0</left>
-					<top>0</top>
+					<left>680</left>
+					<top>445</top>
 					<width>1200</width>
-					<height>300</height>
+					<height>475</height>
 					<texture border="5">dialogs/default/inner.png</texture>
 				</control>
-				<control type="button">
-					<description>Time</description>
-					<left>0</left>
-					<top>0</top>
-					<width>1200</width>
-					<height>60</height>
-					<align>left</align>
-					<textoffsetx>20</textoffsetx>
-					<textwidth>540</textwidth>
-					<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+				<control type="textbox" id="400">
+					<description>Plot value with no poster present</description>
+					<left>700</left>
+					<top>465</top>
+					<width>1160</width>
+					<height>475</height>
+					<align>justify</align>
 					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
-					<texturenofocus>dialogs/default/separator.png</texturenofocus>
-					<label>$LOCALIZE[142]</label>
-					<label2>$INFO[ListItem.StartTime]$INFO[ListItem.EndTime, - ] ($INFO[ListItem.StartDate])</label2>
-					<enable>false</enable>
+					<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
+					<pagecontrol>60</pagecontrol>
+					<label fallback="161">$VAR[Plots]</label>
+					<visible>String.IsEmpty(ListItem.Art(thumb)) + String.IsEmpty(ListItem.EpgEventIcon)</visible>
 				</control>
-				<control type="button">
-					<description>Duration</description>
-					<left>0</left>
-					<top>59</top>
-					<width>1200</width>
-					<height>60</height>
-					<align>left</align>
-					<textoffsetx>20</textoffsetx>
-					<textwidth>540</textwidth>
-					<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
+				<control type="textbox" id="400">
+					<description>Plot value with poster present</description>
+					<left>700</left>
+					<top>465</top>
+					<width>670</width>
+					<height>475</height>
+					<align>justify</align>
 					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
-					<texturenofocus>dialogs/default/separator.png</texturenofocus>
-					<label>$LOCALIZE[180]:</label>
-					<label2>$VAR[ListItemDuration]</label2>
-					<enable>false</enable>
+					<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
+					<pagecontrol>60</pagecontrol>
+					<label fallback="161">$VAR[Plots]</label>
+					<visible>!String.IsEmpty(ListItem.Art(thumb)) | !String.IsEmpty(ListItem.EpgEventIcon)</visible>
 				</control>
-				<control type="button">
-					<description>Channel</description>
-					<left>0</left>
-					<top>118</top>
-					<width>1200</width>
-					<height>60</height>
-					<align>left</align>
-					<textoffsetx>20</textoffsetx>
-					<textwidth>540</textwidth>
-					<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
-					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
-					<texturenofocus>dialogs/default/separator.png</texturenofocus>
-					<label>$LOCALIZE[19148]:</label>
-					<label2>$INFO[ListItem.ChannelName]</label2>
-					<enable>false</enable>
+				<control type="image">
+					<left></left>
+					<right>50</right>
+					<top>465</top>
+					<width>450</width>
+					<height>525</height>
+					<texture background="true">$INFO[ListItem.EpgEventIcon]</texture>
+					<aspectratio align="right" aligny="top">keep</aspectratio>
+					<visible>String.IsEmpty(ListItem.Art(thumb)) + !String.IsEmpty(ListItem.EpgEventIcon)</visible>
 				</control>
-				<control type="button">
-					<description>Genre</description>
-					<left>0</left>
-					<top>177</top>
-					<width>1200</width>
-					<height>60</height>
-					<align>left</align>
-					<textoffsetx>20</textoffsetx>
-					<textwidth>540</textwidth>
-					<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
-					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
-					<texturenofocus>dialogs/default/separator.png</texturenofocus>
-					<label>$LOCALIZE[135]:</label>
-					<label2 fallback="161">$INFO[Window(Home).Property(SkinHelper.ListItem.Genre)]</label2>
-					<enable>false</enable>
-				</control>
-				<control type="button">
-					<description>Episode</description>
-					<left>0</left>
-					<top>236</top>
-					<width>1200</width>
-					<height>60</height>
-					<align>left</align>
-					<textoffsetx>20</textoffsetx>
-					<textwidth>540</textwidth>
-					<disabledcolor>$INFO[Skin.String(GeneralTextColor)]</disabledcolor>
-					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
-					<texturenofocus></texturenofocus>
-					<label>$LOCALIZE[20359]</label>
-					<label2>$INFO[ListItem.Season,S,]$INFO[ListItem.Episode,E, - ]$INFO[ListItem.EpisodeName]</label2>
-					<enable>false</enable>
+				<control type="image">
+					<left></left>
+					<right>50</right>
+					<top>465</top>
+					<width>450</width>
+					<height>525</height>
+					<texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+					<aspectratio align="right" aligny="top">keep</aspectratio>
+					<visible>!String.IsEmpty(ListItem.Art(thumb)) + String.IsEmpty(ListItem.EpgEventIcon)</visible>
 				</control>
 			</control>
-			<control type="image">
-				<left>680</left>
-				<top>545</top>
-				<width>1200</width>
-				<height>371</height>
-				<texture border="5">dialogs/default/inner.png</texture>
+			
+						<!-- End of group 2 -->
+
+
+			<control type="group">
+				<visible>String.IsEqual(Window(10600).Property(pvrinfo),106003) | String.IsEqual(Window(10601).Property(pvrinfo),106003)</visible>
+				<control type="image">
+					<left>680</left>
+					<top>220</top>
+					<width>1200</width>
+					<height>700</height>
+					<texture border="5">dialogs/default/inner.png</texture>
+				</control>
+				<control type="textbox" id="403">
+					<description>Plot value with no poster present</description>
+					<left>700</left>
+					<top>240</top>
+					<width>1160</width>
+					<height>650</height>
+					<align>justify</align>
+					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+					<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
+					<pagecontrol>60</pagecontrol>
+					<label fallback="161">$VAR[Plots]</label>
+					<visible>String.IsEmpty(ListItem.Art(thumb)) + String.IsEmpty(ListItem.EpgEventIcon)</visible>
+				</control>
+				<control type="textbox" id="403">
+					<description>Plot value with poster present</description>
+					<left>700</left>
+					<top>240</top>
+					<width>670</width>
+					<height>650</height>
+					<align>justify</align>
+					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
+					<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
+					<pagecontrol>60</pagecontrol>
+					<label fallback="161">$VAR[Plots]</label>
+					<visible>!String.IsEmpty(ListItem.Art(thumb)) | !String.IsEmpty(ListItem.EpgEventIcon)</visible>
+				</control>
+				<control type="image">
+					<left></left>
+					<right>50</right>
+					<top>240</top>
+					<width>450</width>
+					<height>525</height>
+					<texture background="true">$INFO[ListItem.EpgEventIcon]</texture>
+					<aspectratio align="right" aligny="top">keep</aspectratio>
+					<visible>String.IsEmpty(ListItem.Art(thumb)) + !String.IsEmpty(ListItem.EpgEventIcon)</visible>
+				</control>
+				<control type="image">
+					<left></left>
+					<right>50</right>
+					<top>240</top>
+					<width>450</width>
+					<height>525</height>
+					<texture background="true">$INFO[ListItem.Art(thumb)]</texture>
+					<aspectratio align="right" aligny="top">keep</aspectratio>
+					<visible>!String.IsEmpty(ListItem.Art(thumb)) + String.IsEmpty(ListItem.EpgEventIcon)</visible>
+				</control>
 			</control>
-			<control type="textbox" id="400">
-				<description>Plot value with no poster present</description>
-				<left>700</left>
-				<top>565</top>
-				<width>1160</width>
-				<height>321</height>
-				<align>justify</align>
-				<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
-				<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
-				<pagecontrol>60</pagecontrol>
-				<label fallback="161">$VAR[Plots]</label>
-				<visible>String.IsEmpty(Window(Home).Property(SkinHelper.ListItem.Art.Poster))</visible>
-			</control>
-			<control type="textbox" id="400">
-				<description>Plot value with poster present</description>
-				<left>700</left>
-				<top>565</top>
-				<width>820</width>
-				<height>321</height>
-				<align>justify</align>
-				<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
-				<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
-				<pagecontrol>60</pagecontrol>
-				<label fallback="161">$VAR[Plots]</label>
-				<visible>!String.IsEmpty(Window(Home).Property(SkinHelper.ListItem.Art.Poster))</visible>
-			</control>
-			<control type="image">
-				<left></left>
-				<right>50</right>
-				<top>555</top>
-				<width>300</width>
-				<height>351</height>
-				<texture background="true">$INFO[Window(Home).Property(SkinHelper.ListItem.Art.Poster)]</texture>
-				<aspectratio align="right" aligny="top">keep</aspectratio>
-			</control>
+
+
+			
 			<!--Button Group-->
 			<control type="grouplist" id="9000">
 				<left>675</left>
-				<top>940</top>
-				<!-- <onleft>back</onleft> -->
+				<top>950</top>
+				<onback>back</onback>
 				<orientation>horizontal</orientation>
 				<itemgap>5</itemgap>
-				<onup>60</onup>
-				<ondown>60</ondown>
+				<ondown condition="String.IsEqual(Window(10600).Property(pvrinfo),106001) | String.IsEqual(Window(10601).Property(pvrinfo),106001)">SetProperty(pvrinfo,106002)</ondown>
+				<onup condition="String.IsEqual(Window(10600).Property(pvrinfo),106002) | String.IsEqual(Window(10601).Property(pvrinfo),106002)">SetProperty(pvrinfo,106001)</onup>
+				<ondown condition="String.IsEqual(Window(10600).Property(pvrinfo),106002) | String.IsEqual(Window(10601).Property(pvrinfo),106002)">SetProperty(pvrinfo,106003)</ondown>
+				<onup condition="String.IsEqual(Window(10600).Property(pvrinfo),106003) | String.IsEqual(Window(10601).Property(pvrinfo),106003)">SetProperty(pvrinfo,106002)</onup>
 				<width>1210</width>
 				<defaultcontrol>7</defaultcontrol>
 				<control type="button" id="7">
@@ -247,6 +625,14 @@
 					<label>$LOCALIZE[19165]</label>
 					<font>Reg26</font>
 					<visible>Window.IsActive(PVRGuideInfo)</visible> 
+				</control>
+				<control type="button" id="10">
+					<width>290</width>
+					<textwidth>260</textwidth>
+					<description>play programme</description>
+					<label>$LOCALIZE[19190]</label>
+					<include>DialogButtonOther</include>
+					<visible>Window.IsActive(PVRGuideInfo)</visible>
 				</control>
 				<control type="button" id="6">
 					<!--Record-->
@@ -270,7 +656,7 @@
 					<textwidth>260</textwidth>
 					<label>$LOCALIZE[19687]</label>
 					<include>DialogButtonOther</include>
-					<visible>Window.IsActive(PVRRecordingInfo)</visible> 
+					<visible>Window.IsActive(PVRGuideInfo) | Window.IsActive(PVRRecordingInfo)</visible> 
 				</control>
 				<control type="button" id="444">
 					<width>290</width>
@@ -311,16 +697,6 @@
 					<label>$LOCALIZE[19003]</label>
 					<visible>Window.IsActive(PVRGuideInfo) | Window.IsActive(PVRRecordingInfo)</visible> 
 				</control>
-				<control type="button" id="445">
-					<width>290</width>
-					<textwidth>260</textwidth>
-					<description>Youtube</description>
-					<include>DialogButtonOther</include>
-					<label>$LOCALIZE[31797]</label>
-					<onclick condition="System.HasAddon(plugin.video.youtube)">RunScript(script.skin.helper.service,action=searchyoutube,title=$INFO[ListItem.Title] $INFO[ListItem.Year],header=$LOCALIZE[31797])</onclick>
-					<onclick condition="!System.HasAddon(plugin.video.youtube)">ActivateWindow(Videos,plugin://plugin.video.youtube)</onclick>
-					<visible>Skin.HasSetting(videoinfo_button_youtubevideos)</visible>
-				</control>		
 				<control type="button" id="119">
 					<!--Wikipedia Button-->
 					<label>Wikipedia</label>
@@ -328,7 +704,7 @@
 					<textwidth>260</textwidth>
 					<include>DialogButtonOther</include>
 					<visible>Skin.HasSetting(videoinfo_button_wikipedia)</visible>
-					<onclick>Dialog.Close(10600)</onclick>
+					<onclick>Dialog.Close(pvrguideinfo)</onclick>
 					<onclick>RunScript(script.wikipedia,wikipedia=$INFO[ListItem.Title],language=$VAR[language_iso639-1])</onclick>
 					<visible>System.AddonIsEnabled(script.wikipedia)</visible>
 				</control>		
@@ -339,11 +715,12 @@
 				<left></left>
 				<right>10</right>
 				<!-- <bottom>72</bottom> -->
-				<top>950</top>
+				<top>960</top>
 				<width>20</width>
 				<height>60</height>
 				<aspectratio>keep</aspectratio>
 				<texture>dialogs/videoinfo/arrow.png</texture>
+				<!-- malvinas2: what the heck is Control-Id 51 ???? --> 
 				<visible>!Control.HasFocus(51)</visible>
 				<colordiffuse>white</colordiffuse>
 				<visible>Container(9000).HasNext</visible>
@@ -353,7 +730,7 @@
 				<left></left>
 				<right>1250</right>
 				<!-- <bottom>72</bottom> -->
-				<top>950</top>
+				<top>960</top>
 				<width>20</width>
 				<height>60</height>
 				<aspectratio>keep</aspectratio>
@@ -362,6 +739,37 @@
 				<colordiffuse>white</colordiffuse>
 				<visible>Container(9000).HasPrevious</visible>
 			</control>
+			<control type="image">
+				<animation effect="fade" start="100" end="50" tween="sine" easing="inout" time="800" pulse="true" reversible="false" condition="true">Conditional</animation>
+				<left>1300</left>
+				<right></right>
+				<!-- <bottom>72</bottom> -->
+				<top>910</top>
+				<width>20</width>
+				<height>60</height>
+				<aspectratio>keep</aspectratio>
+				<texture>dialogs/videoinfo/arrow.png</texture>
+				<animation effect="rotate" start="0" end="90" center="auto" condition="true">Conditional</animation>
+				<visible>!Control.HasFocus(51)</visible>
+				<colordiffuse>white</colordiffuse>
+				<visible>String.IsEqual(Window(10600).Property(pvrinfo),106002) | String.IsEqual(Window(10601).Property(pvrinfo),106002) | String.IsEqual(Window(10600).Property(pvrinfo),106003) | String.IsEqual(Window(10601).Property(pvrinfo),106003)</visible>
+			</control>
+			<control type="image">
+				<animation effect="fade" start="100" end="50" tween="sine" easing="inout" time="800" pulse="true" reversible="false" condition="true">Conditional</animation>
+				<left>1300</left>
+				<right></right>
+				<!-- <bottom>72</bottom> -->
+				<top>1010</top>
+				<width>20</width>
+				<height>60</height>
+				<aspectratio>keep</aspectratio>
+				<texture>dialogs/videoinfo/arrow.png</texture>
+				<animation effect="rotate" start="0" end="270" center="auto" condition="true">Conditional</animation>
+				<visible>!Control.HasFocus(51)</visible>
+				<colordiffuse>white</colordiffuse>
+				<visible>String.IsEqual(Window(10600).Property(pvrinfo),106002) | String.IsEqual(Window(10601).Property(pvrinfo),106002) | String.IsEqual(Window(10600).Property(pvrinfo),106001) | String.IsEqual(Window(10601).Property(pvrinfo),106001)</visible>
+			</control>
+			
 		</control>
 	</controls>
 </window>

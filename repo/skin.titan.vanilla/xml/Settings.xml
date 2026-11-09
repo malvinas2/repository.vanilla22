@@ -181,8 +181,8 @@
 					</item>
 					<item id="15">
 						<description>Coreelec</description>
-						<label>$LOCALIZE[70009] CoreELEC</label>
-						<label2>$LOCALIZE[70009] CoreELEC</label2>
+						<label>$LOCALIZE[31895] CoreELEC</label>
+						<label2>$LOCALIZE[31895] CoreELEC</label2>
 						<onclick condition="System.hasAddon(service.coreelec.settings)">RunAddon(service.coreelec.settings)</onclick>
 						<visible>System.hasAddon(service.coreelec.settings)</visible>
 						<icon>resource://resource.images.skinbackgrounds.titanium/settings.jpg</icon>
@@ -190,8 +190,8 @@
 					</item>
 					<item id="16">
 						<description>Libreelec</description>
-						<label>$LOCALIZE[70009] LibreELEC</label>
-						<label2>$LOCALIZE[70009] LibreELEC</label2>
+						<label>$LOCALIZE[31895] LibreELEC</label>
+						<label2>$LOCALIZE[31895] LibreELEC</label2>
 						<onclick condition="System.hasAddon(service.libreelec.settings)">RunAddon(service.libreelec.settings)</onclick>
 						<visible>System.hasAddon(service.libreelec.settings)</visible>
 						<icon>resource://resource.images.skinbackgrounds.titanium/settings.jpg</icon>

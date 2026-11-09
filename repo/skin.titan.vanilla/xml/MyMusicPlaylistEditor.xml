@@ -9,6 +9,8 @@
 	<controls>
 		<!--Music Background-->
 		<include>GlobalBackground</include>
+		<!--NowPlaying-->
+		<include>NowPlayingModern</include>
 		 <!--Header-->
 		<include>Header</include>
 		 <!-- footer -->
@@ -26,9 +28,9 @@
 		<!--Panel-->
 		<control type="image">
 			<left>60</left>
-			<top>240</top>
+			<top>220</top>
 			<width>1800</width>
-			<height>660</height>
+			<height>730</height>
 			<texture border="5">diffuse/panel.png</texture>
 			<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
 		</control>
@@ -39,43 +41,69 @@
 			<top>300</top>
 			<control type="image">
 				<left>80</left>
-				<top>-20</top>
+				<top>-60</top>
 				<width>850</width>
-				<height>600</height>
+				<height>690</height>
 				<texture border="5">diffuse/panel.png</texture>
 				<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
 			</control>
-				 <control type="label">
-				<!--Header-->
+			<control type="label">
+				<!--Header   Music and files -->
 				<left>150</left>
+				<top>-30</top>
 				<width>700</width>
 				<align>left</align>
-				<label>$LOCALIZE[1217]</label>
+				<label>[B]$LOCALIZE[1217][/B]</label>
 				<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 				<font>Reg30</font>
 			</control>
+
+			<control type="scrollbar" id="60">
+				<left>40</left>
+				<top>50</top>
+				<height>575</height>
+				<onup>60</onup>
+				<ondown>60</ondown>
+				<onleft>noop</onleft>
+				<onright>50</onright>
+				<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container(50).Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
+				<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container(50).Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
+			</control>
+
 			<control type="list" id="50">
 				<!--List 50-->
 				<left>0</left>
-				<top>100</top>
+				<top>40</top>
 				<width>950</width>
-				<height>420</height>
-				<onleft></onleft>
-				<onright>100</onright>
+				<height>580</height>
+				<onleft>60</onleft>
+				<onright condition="Integer.IsGreater(Container(100).NumItems,0)">100</onright>
+				<onright condition="Integer.IsEqual(Container(100).NumItems,0)">8000</onright>
 				<onup>50</onup>
 				<ondown>50</ondown>
-				<itemlayout height="69" width="900">
+				<pagecontrol>60</pagecontrol>
+				<itemlayout height="50" width="900">
 					<control type="image">
 						<left>130</left>
 						<top>7</top>
-						<width>64</width>
-						<height>53</height>
+						<width>40</width>
+						<height>40</height>
 						<texture>common/folder.png</texture>
-						<colordiffuse>FFffffff</colordiffuse>
+						<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
+						<visible>ListItem.IsFolder</visible>
+					</control>
+					<control type="image">
+						<left>140</left>
+						<top>7</top>
+						<width>40</width>
+						<height>40</height>
+						<texture>common/file.png</texture>
+						<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
+						<visible>!ListItem.IsFolder</visible>
 					</control>
 					<control type="label">
 						<left>210</left>
-						<width>480</width>
+						<width>530</width>
 						<align>left</align>
 						<font>Reg30</font>
 						<info>ListItem.Label</info>
@@ -83,55 +111,76 @@
 					</control>
 					<control type="label">
 						<left>890</left>
-						<width>200</width>
+						<width>150</width>
 						<align>right</align>
-						<font>Reg30</font>
+						<font>Reg24</font>
 						<info>ListItem.Label2</info>
 						<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 					</control>
 				</itemlayout>
-				<focusedlayout height="69" width="900">
+				<focusedlayout height="50" width="900">
 					<control type="image">
 						<visible>Control.HasFocus(50)</visible>
 						<left>100</left>
-						<top>7</top>
-						<width>850</width>
+						<top></top>
+						<width>810</width>
 						<height>50</height>
 						<colordiffuse>$INFO[Skin.String(ButtonFocusColor)]</colordiffuse>
-						<texture>diffuse/slider_big.png</texture>
+						<texture border="5">diffuse/panel.png</texture>
+					</control>
+					<control type="image">
+						<visible>!Control.HasFocus(50)</visible>
+						<left>100</left>
+						<top></top>
+						<width>810</width>
+						<height>50</height>
+						<colordiffuse>$INFO[Skin.String(ButtonFocusColor)]</colordiffuse>
+						<texture border="5">diffuse/panel_trans.png</texture>
 					</control>
 					<control type="image">
 						<left>130</left>
 						<top>7</top>
-						<width>64</width>
-						<height>53</height>
+						<width>40</width>
+						<height>40</height>
 						<texture>common/folder.png</texture>
-						<colordiffuse>FFffffff</colordiffuse>
+						<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
+						<visible>ListItem.IsFolder</visible>
+					</control>
+					<control type="image">
+						<left>140</left>
+						<top>7</top>
+						<width>40</width>
+						<height>40</height>
+						<texture>common/file.png</texture>
+						<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
+						<visible>!ListItem.IsFolder</visible>
 					</control>
 					<control type="label">
 						<left>210</left>
-						<width>480</width>
+						<width>530</width>
 						<align>left</align>
 						<font>Reg30</font>
 						<info>ListItem.Label</info>
 						<scrollspeed>30</scrollspeed>
-						<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+						<scroll>true</scroll>
+						<textcolor>$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
 					</control>
 					<control type="label">
 						<left>890</left>
-						<width>200</width>
+						<width>150</width>
 						<align>right</align>
-						<font>Reg30</font>
+						<font>Reg24</font>
 						<info>ListItem.Label2</info>
 						<scrollspeed>30</scrollspeed>
-						<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+						<scroll>true</scroll>
+						<textcolor>$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
 					</control>
 				</focusedlayout>
 			</control>
 			<control type="label">
 				<!--Object Info RSS-->
 				<description>Header Label</description>
-				<left>150</left>
+				<left>100</left>
 				<top>680</top>
 				<width>480</width>
 				<align>left</align>
@@ -141,13 +190,14 @@
 			</control>
 			<control type="label">
 				<!--Page Info RSS-->
-				<left>870</left>
+				<left></left>
+				<right>1000</right>
 				<top>680</top>
 				<width>250</width>
 				<align>right</align>
 				<font>Reg30</font>
 				<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-				<label>$INFO[Container(50).CurrentPage]/$INFO[Container(50).NumPages]</label>
+				<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(50).NumItems][/COLOR] $LOCALIZE[31954] - [COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(50).CurrentPage]/$INFO[Container(50).NumPages][/COLOR]</label>
 			</control>
 		</control>
 		<control type="group">
@@ -157,43 +207,55 @@
 			<top>300</top>
 			<control type="image">
 				<left>80</left>
-				<top>-20</top>
+				<top>-60</top>
 				<width>850</width>
-				<height>600</height>
+				<height>690</height>
 				<texture border="5">diffuse/panel.png</texture>
 				<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
 			</control>
 			<control type="label">
 				<!--Header-->
 				<left>150</left>
+				<top>-30</top>
 				<width>700</width>
 				<align>left</align>
-				<label>$LOCALIZE[525]</label>
+				<label>[B]$LOCALIZE[525][/B]</label>
 				<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 				<font>Reg30</font>
 			</control>
 			<control type="list" id="100">
 				<!--List 100-->
 				<left>0</left>
-				<top>100</top>
+				<top>40</top>
 				<width>950</width>
-				<height>420</height>
+				<height>580</height>
 				<onleft>50</onleft>
-				<onright></onright>
-				<onup>100</onup>
+				<onright>70</onright>
+				<onup>8000</onup>
 				<ondown>100</ondown>
-				<itemlayout height="69" width="900">
+				<pagecontrol>70</pagecontrol>
+				<itemlayout height="50" width="900">
 					<control type="image">
 						<left>130</left>
 						<top>7</top>
-						<width>64</width>
-						<height>53</height>
+						<width>40</width>
+						<height>40</height>
 						<texture>common/folder.png</texture>
-						<colordiffuse>FFffffff</colordiffuse>
+						<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
+						<visible>ListItem.IsFolder</visible>
+					</control>
+					<control type="image">
+						<left>140</left>
+						<top>7</top>
+						<width>40</width>
+						<height>40</height>
+						<texture>common/file.png</texture>
+						<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
+						<visible>!ListItem.IsFolder</visible>
 					</control>
 					<control type="label">
 						<left>210</left>
-						<width>480</width>
+						<width>530</width>
 						<align>left</align>
 						<font>Reg30</font>
 						<info>ListItem.Label</info>
@@ -201,48 +263,69 @@
 					</control>
 					<control type="label">
 						<left>890</left>
-						<width>200</width>
+						<width>150</width>
 						<align>right</align>
-						<font>Reg30</font>
+						<font>Reg24</font>
 						<info>ListItem.Label2</info>
 						<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 					</control>
 				</itemlayout>
-				<focusedlayout height="69" width="900">
+				<focusedlayout height="50" width="900">
 					<control type="image">
 						<visible>Control.HasFocus(100)</visible>
 						<left>100</left>
-						<top>7</top>
-						<width>850</width>
+						<top></top>
+						<width>810</width>
 						<height>50</height>
 						<colordiffuse>$INFO[Skin.String(ButtonFocusColor)]</colordiffuse>
-						<texture>diffuse/slider_big.png</texture>
+						<texture border="5">diffuse/panel.png</texture>
+					</control>
+					<control type="image">
+						<visible>!Control.HasFocus(100)</visible>
+						<left>100</left>
+						<top></top>
+						<width>810</width>
+						<height>50</height>
+						<colordiffuse>$INFO[Skin.String(ButtonFocusColor)]</colordiffuse>
+						<texture border="5">diffuse/panel_trans.png</texture>
 					</control>
 					<control type="image">
 						<left>130</left>
 						<top>7</top>
-						<width>64</width>
-						<height>53</height>
+						<width>40</width>
+						<height>40</height>
 						<texture>common/folder.png</texture>
-						<colordiffuse>FFffffff</colordiffuse>
+						<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
+						<visible>ListItem.IsFolder</visible>
+					</control>
+					<control type="image">
+						<left>140</left>
+						<top>7</top>
+						<width>40</width>
+						<height>40</height>
+						<texture>common/file.png</texture>
+						<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
+						<visible>!ListItem.IsFolder</visible>
 					</control>
 					<control type="label">
 						<left>210</left>
-						<width>480</width>
+						<width>530</width>
 						<align>left</align>
 						<font>Reg30</font>
 						<info>ListItem.Label</info>
 						<scrollspeed>30</scrollspeed>
-						<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+						<scroll>true</scroll>
+						<textcolor>$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
 					</control>
 					<control type="label">
 						<left>890</left>
-						<width>200</width>
+						<width>150</width>
 						<align>right</align>
-						<font>Reg30</font>
+						<font>Reg24</font>
 						<info>ListItem.Label2</info>
 						<scrollspeed>30</scrollspeed>
-						<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+						<scroll>true</scroll>
+						<textcolor>$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
 					</control>
 				</focusedlayout>
 			</control>
@@ -257,17 +340,67 @@
 				<font>Reg30</font>
 				<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 			</control>
+			<control type="scrollbar" id="70">
+				<left></left>
+				<right>60</right>
+				<top>50</top>
+				<height>575</height>
+				<onup>70</onup>
+				<ondown>70</ondown>
+				<onleft>100</onleft>
+				<onright>noop</onright>
+				<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(70) | Skin.HasSetting(EnableTouchSupport) | Container(100).Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
+				<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(70) | Skin.HasSetting(EnableTouchSupport) | Container(100).Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
+			</control>
 			<control type="label">
 				<!--Page Info RSS-->
-				<left>870</left>
+				<left></left>
+				<right>100</right>
 				<top>680</top>
 				<width>250</width>
 				<align>right</align>
 				<font>Reg30</font>
 				<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-				<label>$INFO[Container(100).CurrentPage]/$INFO[Container(100).NumPages]</label>
+				<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(100).NumItems][/COLOR] $LOCALIZE[31954] - [COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(100).CurrentPage]/$INFO[Container(100).NumPages][/COLOR]</label>
 			</control>
 		</control>
+		
+		<control type="grouplist" id="8000">
+			<left>980</left>
+			<top>136</top>
+			<ondown condition="Integer.IsGreater(Container(100).NumItems,0)">100</ondown>
+			<ondown condition="Integer.IsEqual(Container(100).NumItems,0)">50</ondown>
+			<orientation>horizontal</orientation>
+			<itemgap>8</itemgap>
+			<control type="button" id="6">
+				<description>Open button</description>
+				<width>290</width>
+				<height>80</height>
+				<label>$LOCALIZE[502]</label>
+				<font>Reg36</font>
+				<include>DialogButtonOther</include>
+				<textwidth>280</textwidth>
+			</control>
+			<control type="button" id="7">
+				<description>Save button</description>
+				<width>290</width>
+				<height>80</height>
+				<font>Reg36</font>
+				<label>$LOCALIZE[190]</label>
+				<include>DialogButtonOther</include>
+				<textwidth>280</textwidth>
+			</control>
+			<control type="button" id="8">
+				<description>Clear button</description>
+				<width>290</width>
+				<height>80</height>
+				<font>Reg36</font>
+				<label>$LOCALIZE[192]</label>
+				<include>DialogButtonOther</include>
+				<textwidth>280</textwidth>
+			</control>
+		</control>
+		
 		<include condition="Skin.HasSetting(DebugGrid) | Skin.HasSetting(DebugInfo)">DebugInfo</include>
 	</controls>
 </window>

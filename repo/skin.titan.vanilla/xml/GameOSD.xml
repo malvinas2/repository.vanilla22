@@ -6,7 +6,19 @@
 		<include>DialogOverlayExtra</include>
 		<control type="group" id="1">
 			<!-- <include>animation_window_open_close</include> -->
-			<visible>!Window.IsActive(1121) + !Window.IsActive(GameVideoFilter) + !Window.IsActive(GameStretchMode) + !Window.IsActive(GameControllers) + !Window.IsActive(GameVideoRotation) + !Window.IsActive(InGameSaves) + !Window.IsActive(GameAgents) + !Window.IsActive(GamePorts)</visible>
+			<visible>
+				!Window.IsActive(1121) + 
+				!Window.IsActive(GameVideoFilter) + 
+				!Window.IsActive(GameStretchMode) + 
+				!Window.IsActive(GameControllers) + 
+				!Window.IsActive(GameVideoRotation) + 
+				!Window.IsActive(InGameSaves) + 
+				!Window.IsActive(GameAgents)+ 
+				!Window.IsActive(GameDiscManager) + 
+				!Window.IsActive(GamePorts) +
+				!Window.IsActive(GameAchievements) +
+				!Window.IsActive(GameCheats)
+			</visible>
 			<control type="group" id="10">
 				<include>animation_window_open_close</include>
 				<visible>System.GetBool(gamesgeneral.showosdhelp)</visible>
@@ -58,6 +70,7 @@
 							<left>30</left>
 							<width>640</width>
 							<height>640</height>
+							<controllerid>game.controller.snes</controllerid>
 						</control>
 						<control type="textbox">
 							<description>Additional help text. This will be removed in future versions.</description>
@@ -131,22 +144,19 @@
 					<top>230</top>
 					<width>1200</width>
 					<height>660</height>
-					<orientation>vertical</orientation>
-					<itemgap>0</itemgap>
-					<scrolltime tween="cubic" easing="out">500</scrolltime>
 					<top>230</top>
 					<control type="panel" id="1103">
 					<!-- it must be 'panel' not 'list' to loose the focus -->
 					<!-- https://forum.kodi.tv/showthread.php?tid=161703 -->
 						<scrolltime tween="quadratic">300</scrolltime>
-						<defaultcontrol always="false">2101</defaultcontrol>
-						<height max="550">auto</height>
+						<!-- <defaultcontrol always="false">2101</defaultcontrol> -->
+						<height>650</height>
 						<orientation>vertical</orientation>
 						<onup>1103</onup>
 						<ondown>1103</ondown>
 						<onleft>30</onleft>
 						<onright>30</onright>
-						<itemlayout  width="1200" height="64">
+						<itemlayout width="1200" height="64">
 							<control type="image">
 								<left>8</left>
 								<top>4</top>
@@ -181,7 +191,7 @@
 							<control type="image">
 								<left>8</left>
 								<top></top>
-								<bottom>4</bottom>
+								<bottom>0</bottom>
 								<width>1200</width>
 								<texture>dialogs/default/separator.png</texture>
 							</control>
@@ -189,7 +199,7 @@
 						<focusedlayout width="1200" height="64">
 							<control type="image">
 								<width>1200</width>
-								<height>60</height>
+								<height>64</height>
 								<colordiffuse>$VAR[ViewDetailsFocusColor]</colordiffuse>
 								<texture border="5">diffuse/panel.png</texture>
 								<!-- <visible>!Control.HasFocus(30)</visible> -->
@@ -226,7 +236,7 @@
 							<control type="image">
 								<left>8</left>
 								<top></top>
-								<bottom>4</bottom>
+								<bottom>0</bottom>
 								<width>1200</width>
 								<texture>dialogs/default/separator.png</texture>
 							</control>
@@ -237,7 +247,7 @@
 								<textoffsetx>20</textoffsetx>
 								<include>DialogButtonOther</include>
 								<label>$LOCALIZE[35224]</label>
-								<label2>Select + X</label2>
+								<label2>$FEATURE[select,game.controller.snes] + $FEATURE[x,game.controller.default]</label2>
 								<icon>osd/fullscreen/buttons/play.png</icon>
 								<onclick>Play</onclick>
 							</item>
@@ -249,6 +259,14 @@
 								<icon>osd/fullscreen/buttons/saves.png</icon>
 								<onclick>ActivateWindow(InGameSaves)</onclick>
 							</item>
+							<item id="2107">
+								<description>Disc Manager button</description>
+								<textoffsetx>20</textoffsetx>
+								<label>$LOCALIZE[35272]</label>
+								<icon>diffuse/cdmask_medium.png</icon>
+								<onclick>ActivateWindow(GameDiscManager)</onclick>
+								<visible>RetroPlayer.SupportsEject</visible>
+							</item>								
 							<item id="2106">
 								<description>Players button</description>
 								<textoffsetx>20</textoffsetx>
@@ -257,16 +275,24 @@
 								<icon>osd/fullscreen/buttons/agent.png</icon>
 								<onclick>ActivateWindow(GameAgents)</onclick>							
 							</item>
-							<item id="2105">
-								<description>Settings button</description>
+							<item id="2108">
+								<description>Always show Achievements; its dialog explains sign-in requirements and missing achievement sets.</description>
 								<textoffsetx>20</textoffsetx>
 								<include>DialogButtonOther</include>
-								<label>$LOCALIZE[5]</label>
-								<icon>osd/fullscreen/buttons/settings.png</icon>
-								<onclick>SetProperty(settingslist_content,games,home)</onclick>
-								<onclick>SetProperty(settingslist_header,$LOCALIZE[5],home)</onclick>
-								<onclick>ActivateWindow(1121)</onclick>
-							</item>							
+								<label>$LOCALIZE[35172]</label>
+								<label2>$INFO[RetroPlayer.AchievementsProgress]</label2>
+								<icon>osd/fullscreen/buttons/rating.png</icon>
+								<onclick>ActivateWindow(GameAchievements)</onclick>							
+							</item>
+							<item id="2109">
+								<description>Cheats</description>
+								<textoffsetx>20</textoffsetx>
+								<include>DialogButtonOther</include>
+								<label>$LOCALIZE[35320]</label>
+								<icon>osd/fullscreen/buttons/cheats.png</icon>
+								<visible>RetroPlayer.SupportsCheats</visible>
+								<onclick>ActivateWindow(GameCheats)</onclick>							
+							</item>
 							<item id="2103">
 								<description>Reset button</description>
 								<textoffsetx>20</textoffsetx>
@@ -280,10 +306,20 @@
 								<textoffsetx>20</textoffsetx>
 								<include>DialogButtonOther</include>
 								<label>$LOCALIZE[35222]</label>
-								<label2>Select + Start</label2>
+								<label2>$FEATURE[select,game.controller.snes] + $FEATURE[start,game.controller.default]</label2>
 								<icon>osd/fullscreen/buttons/stop.png</icon>
 								<onclick>Stop</onclick>
 							</item>
+							<item id="2105">
+								<description>Settings button</description>
+								<textoffsetx>20</textoffsetx>
+								<include>DialogButtonOther</include>
+								<label>$LOCALIZE[5]</label>
+								<icon>osd/fullscreen/buttons/settings.png</icon>
+								<onclick>SetProperty(settingslist_content,games,home)</onclick>
+								<onclick>SetProperty(settingslist_header,$LOCALIZE[5],home)</onclick>
+								<onclick>ActivateWindow(1121)</onclick>
+							</item>		
 						</content>
 					</control>
 				</control>
@@ -297,7 +333,7 @@
 					<onup>11000</onup>
 					<ondown>11000</ondown>
 					<onleft>11000</onleft>
-				<onright>11000</onright>
+					<onright>11000</onright>
 					<defaultcontrol always="true">30</defaultcontrol>
 				<!--	<control type="button" id="28">
 						<description>OK</description>

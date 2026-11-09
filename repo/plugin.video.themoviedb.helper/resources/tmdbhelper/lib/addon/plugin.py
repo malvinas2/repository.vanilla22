@@ -22,9 +22,9 @@ encode_url = jurialmunkey.parser.EncodeURL(u'plugin://plugin.video.themoviedb.he
 executebuiltin = xbmc.executebuiltin
 get_condvisibility = xbmc.getCondVisibility
 get_infolabel = xbmc.getInfoLabel
+get_skindir = xbmc.getSkinDir
 format_name = jurialmunkey.plugin.format_name
 format_folderpath = jurialmunkey.plugin.format_folderpath
-set_kwargattr = jurialmunkey.plugin.set_kwargattr
 
 
 def get_plugin_category(info_model, plural=''):
@@ -35,16 +35,22 @@ def get_plugin_category(info_model, plural=''):
     return plugin_category.format(localized=localized, plural=plural)
 
 
+def get_version():
+    return ADDON.getAddonInfo('version')
+
+
 def get_language():
-    if ADDON.getSettingInt('language'):
-        return LANGUAGES[ADDON.getSettingInt('language')]
-    return 'en-US'
+    x = KODIPLUGIN.get_setting('language', 'int')
+    return LANGUAGES[x] if x else 'en-US'
 
 
 def get_mpaa_prefix():
-    if ADDON.getSettingString('mpaa_prefix'):
-        return f'{ADDON.getSettingString("mpaa_prefix")} '
-    return ''
+    x = KODIPLUGIN.get_setting('mpaa_prefix', 'str')
+    return f'{x} ' if x else ''
+
+
+def get_flatseasons_info_param():
+    return 'flatseasons' if get_setting('flatten_seasons') else 'seasons'
 
 
 CONVERSION_TABLE = {
@@ -53,6 +59,8 @@ CONVERSION_TABLE = {
         'tvshow': {'tmdb': 'tv', 'trakt': 'show', 'ftv': 'tv'},
         'season': {'tmdb': 'season', 'trakt': 'season', 'ftv': 'tv'},
         'episode': {'tmdb': 'episode', 'trakt': 'episode', 'ftv': 'tv'},
+        'episode_group': {'tmdb': 'episode_group'},
+        'episode_group_season': {'tmdb': 'episode_group_season'},
         'actor': {'tmdb': 'person'},
         'director': {'tmdb': 'person'},
         'set': {'tmdb': 'collection'}
@@ -67,7 +75,7 @@ CONVERSION_TABLE = {
     'tmdb': {
         'movie': {'plural': lambda: get_localized(342), 'container': 'movies', 'trakt': 'movie', 'dbtype': 'movie'},
         'tv': {'plural': lambda: get_localized(20343), 'container': 'tvshows', 'trakt': 'show', 'dbtype': 'tvshow'},
-        'person': {'plural': lambda: get_localized(32172), 'container': 'actors', 'dbtype': 'video'},  # Actors needs video type for info dialog
+        'person': {'plural': lambda: get_localized(32172), 'container': 'actors', 'dbtype': 'person'},
         'collection': {'plural': lambda: get_localized(32187), 'container': 'sets', 'dbtype': 'set'},
         'review': {'plural': lambda: get_localized(32188)},
         'keyword': {'plural': lambda: get_localized(21861), 'dbtype': 'keyword'},
@@ -78,6 +86,8 @@ CONVERSION_TABLE = {
         'genre': {'plural': lambda: get_localized(135), 'container': 'genres', 'dbtype': 'genre'},
         'season': {'plural': lambda: get_localized(33054), 'container': 'seasons', 'trakt': 'season', 'dbtype': 'season'},
         'episode': {'plural': lambda: get_localized(20360), 'container': 'episodes', 'trakt': 'episode', 'dbtype': 'episode'},
+        'episode_group': {'plural': lambda: get_localized(32541), 'container': 'tvshows', 'dbtype': 'episode_group'},
+        'episode_group_season': {'plural': lambda: get_localized(33054), 'container': 'seasons', 'dbtype': 'episode_group_season'},
         'video': {'plural': lambda: get_localized(10025), 'container': 'videos', 'dbtype': 'video'}
     }
 }
@@ -132,3 +142,31 @@ def convert_type(tmdb_type, output, season=None, episode=None, items=None):
     if tmdb_type == 'tv' and season is not None:
         tmdb_type = 'episode' if episode is not None else 'season'
     return _convert_types('tmdb', tmdb_type, output)
+
+
+class GlobalSettingsDict(dict):
+
+    def __init__(self):
+        self.route = {}
+
+    def __missing__(self, key):
+        if key in self.route:
+            func = self.route[key][0]
+            args = self.route[key][1] or tuple()
+        else:
+            func = get_setting
+            args = (key, )
+        self[key] = func(*args)
+        return self[key]
+
+
+class KeyGetter:
+
+    def __init__(self, dictionary):
+        self.dictionary = dictionary
+
+    def get_key(self, key):
+        try:
+            return self.dictionary[key]
+        except (KeyError, TypeError, IndexError):
+            return

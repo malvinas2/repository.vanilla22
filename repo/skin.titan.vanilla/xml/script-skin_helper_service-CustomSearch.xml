@@ -88,7 +88,7 @@
 						<control type="button" id="3020">
 							<include>ExtraSmallKey</include>
 							<label>A</label>
-							<onleft></onleft>
+							<onleft>noop</onleft>
 							<onright>3021</onright>
 							<onup>3010</onup>
 							<ondown>3026</ondown>
@@ -149,7 +149,7 @@
 						<control type="button" id="3026">
 							<include>ExtraSmallKey</include>
 							<label>G</label>
-							<onleft></onleft>
+							<onleft>noop</onleft>
 							<onright>3027</onright>
 							<onup>3020</onup>
 							<ondown>3032</ondown>
@@ -209,7 +209,7 @@
 						<control type="button" id="3032">
 							<include>ExtraSmallKey</include>
 							<label>M</label>
-							<onleft></onleft>
+							<onleft>noop</onleft>
 							<onright>3033</onright>
 							<onup>3026</onup>
 							<ondown>3038</ondown>
@@ -270,7 +270,7 @@
 						<control type="button" id="3038">
 							<include>ExtraSmallKey</include>
 							<label>S</label>
-							<onleft></onleft>
+							<onleft>noop</onleft>
 							<onright>3039</onright>
 							<onup>3032</onup>
 							<ondown>3044</ondown>
@@ -330,7 +330,7 @@
 						<control type="button" id="3044">
 							<include>ExtraSmallKey</include>
 							<label>Y</label>
-							<onleft></onleft>
+							<onleft>noop</onleft>
 							<onright>3045</onright>
 							<onup>3038</onup>
 							<ondown>3050</ondown>
@@ -390,7 +390,7 @@
 						<control type="button" id="3050">
 						   <include>ExtraSmallKey</include>
 							<label>$NUMBER[4]</label>
-							<onleft></onleft>
+							<onleft>noop</onleft>
 							<onright>3051</onright>
 							<onup>3044</onup>
 							<ondown>3056</ondown>
@@ -452,10 +452,10 @@
 							<font>Reg24</font>
 							<include>ExtraSmallKey</include>
 							<label>$LOCALIZE[20181]</label>
-							<onleft></onleft>
+							<onleft>noop</onleft>
 							<onright>3057</onright>
 							<onup>3050</onup>
-							<ondown></ondown>
+							<ondown>noop</ondown>
 						</control>
 						<control type="button" id="3057">
 							<width>170</width>
@@ -465,7 +465,7 @@
 							<onleft>3056</onleft>
 							<onright>3058</onright>
 							<onup>3052</onup>
-							<ondown></ondown>
+							<ondown>noop</ondown>
 						</control>   
 
 						<control type="button" id="3058">
@@ -476,7 +476,7 @@
 							<onleft>3057</onleft>
 							<onright>2900</onright>
 							<onup>3054</onup>
-							<ondown></ondown>
+							<ondown>noop</ondown>
 						</control>
 					</control>
 				</control>
@@ -517,8 +517,8 @@
 					<width>1080</width>
 					<height>245</height>
 					<onleft>3025</onleft>
-					<onright></onright>
-					<onup></onup>
+					<onright>noop</onright>
+					<onup>noop</onup>
 					<ondown>3111</ondown>
 					<pagecontrol></pagecontrol>
 					<scrolltime>200</scrolltime>
@@ -555,7 +555,7 @@
 					<width>1080</width>
 					<height>245</height>
 					<onleft>3025</onleft>
-					<onright></onright>
+					<onright>noop</onright>
 					<onup>3110</onup>
 					<ondown>3112</ondown>
 					<pagecontrol></pagecontrol>
@@ -595,9 +595,9 @@
 					<width>1080</width>
 					<height>300</height>
 					<onleft>3025</onleft>
-					<onright></onright>
+					<onright>noop</onright>
 					<onup>3111</onup>
-					<ondown></ondown>
+					<ondown>noop</ondown>
 					<pagecontrol></pagecontrol>
 					<scrolltime>200</scrolltime>
 					<orientation>horizontal</orientation>

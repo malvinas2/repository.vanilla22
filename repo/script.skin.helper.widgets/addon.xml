@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <addon id="script.skin.helper.widgets" name="Skin Helper Service Widgets" version="1.20.1" provider-name="marcelveldt and others">
+    <addon id="script.skin.helper.widgets" name="Skin Helper Service Widgets" version="1.30.0" provider-name="marcelveldt, matke and others">
     <requires>
 		<import addon="xbmc.python" version="3.0.0"/>
         <import addon="xbmc.addon" version="12.0.0"/>
-        <import addon="script.module.metadatautils" version="1.20.1"/>
+        <import addon="script.module.metadatautils" version="1.30.0"/>
         <import addon="script.module.simplecache" version="2.0.2"/>
     </requires>
 
@@ -16,7 +16,9 @@
         <summary lang="en">Ready to use widgets for all kind of media types</summary>
         <description></description>
 	<news>
-	</news>
+Version 1.30.0
+* Nexus version
+</news>
 		<assets>
             <icon>icon.png</icon>
             <fanart>fanart.jpg</fanart>
@@ -26,6 +28,6 @@
         <license>GPL v2.0</license>
         <forum>http://forum.kodi.tv/showthread.php?tid=235676</forum>
         <website></website>
-        <source>https://github.com/kodi-community-addons/script.skin.helper.widgets</source>
+        <source>https://github.com/matke-84/script.skin.helper.widgets</source>
     </extension>
 </addon>

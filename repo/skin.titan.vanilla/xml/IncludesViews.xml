@@ -8,10 +8,6 @@
 		<onunload condition="Skin.HasSetting(DetailsAutoTrailer) + !String.IsEmpty(Window(Home).Property(TrailerPlaying)) + !String.IsEqual(Window(Home).Property(TrailerPlaying),fullscreen)">PlayerControl(Stop)</onunload>
 	</include>
 
-	<include name="playlistViewId">
-		<views>5000</views>
-	</include>
-
 	<include name="hor_view">
 		<orientation>horizontal</orientation>
 		<onleft>10</onleft>
@@ -459,11 +455,6 @@
    
 	<include name="EpgProgressIndicatorAlt">
 		<progresstexture>pvr/guide_diffuse.png</progresstexture>
-	</include>
-
-	<include name="panelPosModern">
-		<left>-80</left>
-		<width>2137</width>
 	</include>
 	
 	<include name="MovieDetailsTop">
@@ -1738,7 +1729,7 @@
 			<aligny>center</aligny>
 			<textoffsetx>55</textoffsetx>
 			<textcolor>$INFO[Skin.String(PVRGuideItemTextColorUnfocus)]</textcolor>
-			<label>$INFO[ListItem.Label]</label>
+			<label>$INFO[ListItem.EpgEventTitle]</label>
 		</control>
 		
 		<control type="label" id="1">
@@ -1756,7 +1747,7 @@
 			<!-- <textoffsety>-60</textoffsety> -->
 			<textoffsetx>10</textoffsetx>
 			<textcolor>$INFO[Skin.String(PVRGuideItemTextColorUnfocus)]</textcolor>
-			<label>$INFO[ListItem.Label]</label>
+			<label>$INFO[ListItem.EpgEventTitle]</label>
 		</control>
 
 			<!-- added to control label entry < 20 minutes in vertical view -->
@@ -1764,7 +1755,8 @@
 		<control type="label" id="1">
 			<!--Channel Now Playing (with recording or timer active)-->
 			<!-- <visible>[ListItem.IsRecording | ListItem.HasTimer | ListItem.IsPlaying | ListItem.HasReminder] + Skin.String(GuideRows,5) + Integer.IsLess(ListItem.Duration(mins),20)</visible> -->
-			<visible>[ListItem.IsRecording | ListItem.HasTimer | [String.IsEqual(VideoPlayer.Title,ListItem.Title) + String.IsEqual(VideoPlayer.EndTime,ListItem.EndTime)] | ListItem.HasReminder] + Skin.String(GuideRows,5) + Integer.IsLess(ListItem.Duration(mins),20)</visible>			<left>0</left>
+			<visible>[ListItem.IsRecording | ListItem.HasTimer | [String.IsEqual(VideoPlayer.Title,ListItem.Title) + String.IsEqual(VideoPlayer.EndTime,ListItem.EndTime)] | ListItem.HasReminder] + Skin.String(GuideRows,5) + Integer.IsLess(ListItem.Duration(mins),20)</visible>
+			<left>0</left>
 			<top>0</top>
 			<right>-35</right>
 			<width></width>
@@ -1775,13 +1767,14 @@
 			<textoffsety>-2</textoffsety>
 			<textoffsetx>55</textoffsetx>
 			<textcolor>$INFO[Skin.String(PVRGuideItemTextColorUnfocus)]</textcolor>
-			<label>$INFO[ListItem.Label]</label>
+			<label>$INFO[ListItem.EpgEventTitle]</label>
 		</control>
 				
 		<control type="label" id="1">
 			<!--Channel Not Playing-->
 			<!-- <visible>![ListItem.IsRecording | ListItem.HasTimer | ListItem.IsPlaying | ListItem.HasReminder] + Skin.String(GuideRows,5) + Integer.IsLess(ListItem.Duration(mins),20)</visible> -->
-			<visible>![ListItem.IsRecording | ListItem.HasTimer | [String.IsEqual(VideoPlayer.Title,ListItem.Title) + String.IsEqual(VideoPlayer.EndTime,ListItem.EndTime)] | ListItem.HasReminder] + Skin.String(GuideRows,5) + Integer.IsLess(ListItem.Duration(mins),20)</visible>			<left>0</left>
+			<visible>![ListItem.IsRecording | ListItem.HasTimer | [String.IsEqual(VideoPlayer.Title,ListItem.Title) + String.IsEqual(VideoPlayer.EndTime,ListItem.EndTime)] | ListItem.HasReminder] + Skin.String(GuideRows,5) + Integer.IsLess(ListItem.Duration(mins),20)</visible>
+			<left>0</left>
 			<top>0</top>
 			<right>10</right>
 			<width></width>
@@ -1792,7 +1785,7 @@
 			<textoffsety>-2</textoffsety>
 			<textoffsetx>10</textoffsetx>
 			<textcolor>$INFO[Skin.String(PVRGuideItemTextColorUnfocus)]</textcolor>
-			<label>$INFO[ListItem.Label]</label>
+			<label>$INFO[ListItem.EpgEventTitle]</label>
 		</control>	
 	</include>
 	
@@ -1823,7 +1816,7 @@
 			<aligny>center</aligny>
 			<textoffsetx>55</textoffsetx>
 			<textcolor>$INFO[Skin.String(PVRGuideItemTextColorFocus)]</textcolor>
-			<label>$INFO[ListItem.Label]</label>
+			<label>$INFO[ListItem.EpgEventTitle]</label>
 			<scroll>true</scroll>
 		</control>
 		
@@ -1841,7 +1834,7 @@
 			<aligny>center</aligny>
 			<textoffsetx>10</textoffsetx>
 			<textcolor>$INFO[Skin.String(PVRGuideItemTextColorFocus)]</textcolor>
-			<label>$INFO[ListItem.Label]</label>
+			<label>$INFO[ListItem.EpgEventTitle]</label>
 			<scroll>true</scroll>
 		</control>
 
@@ -1860,7 +1853,7 @@
 			<textoffsety>-2</textoffsety>
 			<textoffsetx>55</textoffsetx>
 			<textcolor>$INFO[Skin.String(PVRGuideItemTextColorFocus)]</textcolor>
-			<label>$INFO[ListItem.Label]</label>
+			<label>$INFO[ListItem.EpgEventTitle]</label>
 			<scroll>true</scroll>
 		</control>	
 		
@@ -1879,7 +1872,7 @@
 			<textoffsety>-2</textoffsety>
 			<textoffsetx>10</textoffsetx>
 			<textcolor>$INFO[Skin.String(PVRGuideItemTextColorFocus)]</textcolor>
-			<label>$INFO[ListItem.Label]</label>
+			<label>$INFO[ListItem.EpgEventTitle]</label>
 			<scroll>true</scroll>
 		</control>
 	</include>
@@ -1905,7 +1898,7 @@
 				<left>2%</left>
 				<width>20%</width>
 				<height>100%</height>
-				<texture background="true">$INFO[ListItem.Icon]</texture>
+				<texture background="true">$INFO[ListItem.ChannelLogo]</texture>
 				<aspectratio align="center" aligny="center">keep</aspectratio>
 				<visible>!Skin.HasSetting(HideChannelLogosInGuide)</visible>
 				<visible>[!Skin.HasSetting(HideChannelNamesInGuide) + !Skin.HasSetting(HideChannelNumbersInGuide)] | [!Skin.HasSetting(HideChannelNamesInGuide) + Skin.HasSetting(HideChannelNumbersInGuide)]</visible>
@@ -1915,7 +1908,7 @@
 				<left>2%</left>
 				<width>98%</width>
 				<height>100%</height>
-				<texture background="true">$INFO[ListItem.Icon]</texture>
+				<texture background="true">$INFO[ListItem.ChannelLogo]</texture>
 				<aspectratio align="center" aligny="center">keep</aspectratio>
 				<visible>!Skin.HasSetting(HideChannelLogosInGuide)</visible>
 				<visible>Skin.HasSetting(HideChannelNamesInGuide) + Skin.HasSetting(HideChannelNumbersInGuide)</visible>
@@ -1925,7 +1918,7 @@
 				<left>2%</left>
 				<width>46%</width>
 				<height>100%</height>
-				<texture background="true">$INFO[ListItem.Icon]</texture>
+				<texture background="true">$INFO[ListItem.ChannelLogo]</texture>
 				<aspectratio align="center" aligny="center">keep</aspectratio>
 				<visible>!Skin.HasSetting(HideChannelLogosInGuide)</visible>
 				<visible>Skin.HasSetting(HideChannelNamesInGuide) + !Skin.HasSetting(HideChannelNumbersInGuide)</visible>

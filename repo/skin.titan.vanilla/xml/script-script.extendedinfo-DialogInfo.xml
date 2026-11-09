@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--Titan-->
 <window>
-	<defaultcontrol always="true">113</defaultcontrol>
-	<onunload>ClearProperty(AdditionalInfo)</onunload>
+	<defaultcontrol always="true">9000</defaultcontrol>
+	<onunload>ClearProperty(AdditionalInfo,Home)</onunload>
+	<onunload>SetProperty(AdditionalInfo,cast,Home)</onunload>
 	
 	<controls>
 		<control type="group">
@@ -58,9 +59,9 @@
 				<font>Bold45</font>
 				<align>right</align>
 				<textcolor>$INFO[Skin.String(HeaderTextColor)]</textcolor>
-				<label>$INFO[Window.Property(subtitle)]</label>
+				<label>$INFO[Window(Home).Property(subtitle)]</label>
 				<shadowcolor>$INFO[Skin.String(HeaderTextShadowColor)]</shadowcolor>
-				<visible>!String.IsEmpty(Window.Property(AdditionalInfo))</visible>
+				<visible>!String.IsEmpty(Window(Home).Property(AdditionalInfo))</visible>
 			</control>
 				
 			<control type="group">
@@ -95,23 +96,25 @@
 						<width>100%</width>
 						<top></top>
 						<bottom>0</bottom>
-						<height>80</height>
-						<onup>502</onup>
+						<height>20</height>
+						<onup>9000</onup>
 						<onleft>60</onleft>
 						<onright>60</onright>
 						<orientation>horizontal</orientation>
-						<animation effect="fade" start="100" end="0" time="10" condition="true">Conditional</animation>
+						<showonepage>false</showonepage>
+						<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container(9000).Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
+						<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container(9000).Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
 					</control>
 
 					<!--Butons 9000-->			
 					<control type="grouplist" id="9000">
 						<left>60</left>
 						<top></top>
-						<bottom>15</bottom>
+						<bottom>30</bottom>
 						<width>1800</width>
 						<height>60</height>
 						<itemgap>15</itemgap>
-						<ondown></ondown>
+						<ondown>60</ondown>
 						<onup condition="Control.IsVisible(140)">SetFocus(140)</onup>
 						<onup condition="Control.IsVisible(150)">SetFocus(150)</onup>
 						<onup condition="Control.IsVisible(250)">SetFocus(250)</onup>
@@ -134,9 +137,9 @@
 							<height>60</height>
 							<align>center</align>
 							<textoffsetx>0</textoffsetx>
-							<onclick>ClearProperty(AdditionalInfo)</onclick>
-							<onclick>ClearProperty(subtitle)</onclick>
-							<visible>!String.IsEmpty(Window.Property(AdditionalInfo))</visible>
+							<onclick>ClearProperty(AdditionalInfo,Home)</onclick>
+							<onclick>ClearProperty(subtitle,Home)</onclick>
+							<visible>!String.IsEmpty(Window(Home).Property(AdditionalInfo))</visible>
 						</control>
 						<control type="button" id="113">
 							<!--local media-->
@@ -145,13 +148,13 @@
 							<height>60</height>
 							<align>center</align>
 							<textoffsetx>0</textoffsetx>
-							<onclick>SetProperty(AdditionalInfo, localmedia)</onclick>
-							<onclick>SetProperty(subtitle, Local Media)</onclick>
+							<onclick>SetProperty(AdditionalInfo,localmedia,Home)</onclick>
+							<onclick>SetProperty(subtitle,Local Media,Home)</onclick>
 							<onclick>SetFocus(140)</onclick>
-							<visible>!String.IsEqual(Window.Property(AdditionalInfo),localmedia)</visible>
-							<visible allowhiddenfocus="String.IsEmpty(Window.Property(AdditionalInfo))">Integer.IsGreater(Container(140).NumItems,0)</visible>
+							<visible>!String.IsEqual(Window(Home).Property(AdditionalInfo),localmedia)</visible>
+							<visible>Integer.IsGreater(Container(140).NumItems,0)</visible>
+							<!-- <visible allowhiddenfocus="String.IsEmpty(Window(Home).Property(AdditionalInfo))">Integer.IsGreater(Container(140).NumItems,0)</visible> -->
 						</control>
-						
 						<control type="button" id="114">
 							<!--actor movies-->
 							<label>$ADDON[script.extendedinfo 32120]</label>
@@ -159,10 +162,10 @@
 							<height>60</height>
 							<align>center</align>
 							<textoffsetx>0</textoffsetx>
-							<onclick>SetProperty(AdditionalInfo, actormovies)</onclick>
-							<onclick>SetProperty(subtitle, $ADDON[script.extendedinfo 32120])</onclick>
+							<onclick>SetProperty(AdditionalInfo,actormovies,Home)</onclick>
+							<onclick>SetProperty(subtitle,$ADDON[script.extendedinfo 32120],Home)</onclick>
 							<onclick>SetFocus(150)</onclick>
-							<visible>!String.IsEqual(Window.Property(AdditionalInfo),actormovies)</visible>
+							<visible>!String.IsEqual(Window(Home).Property(AdditionalInfo),actormovies)</visible>
 							<visible>Integer.IsGreater(Container(150).NumItems,0)</visible>
 						</control>
 						<control type="button" id="115">
@@ -172,10 +175,10 @@
 							<height>60</height>
 							<align>center</align>
 							<textoffsetx>0</textoffsetx>
-							<onclick>SetProperty(AdditionalInfo, actorshows)</onclick>
-							<onclick>SetProperty(subtitle, $ADDON[script.extendedinfo 32121])</onclick>
+							<onclick>SetProperty(AdditionalInfo,actorshows,Home)</onclick>
+							<onclick>SetProperty(subtitle,$ADDON[script.extendedinfo 32121],Home)</onclick>
 							<onclick>SetFocus(250)</onclick>
-							<visible>!String.IsEqual(Window.Property(AdditionalInfo),actorshows)</visible>
+							<visible>!String.IsEqual(Window(Home).Property(AdditionalInfo),actorshows)</visible>
 							<visible>Integer.IsGreater(Container(250).NumItems,0)</visible>
 						</control>
 						<control type="button" id="116">
@@ -185,10 +188,10 @@
 							<height>60</height>
 							<align>center</align>
 							<textoffsetx>0</textoffsetx>
-							<onclick>SetProperty(AdditionalInfo, actorcrew)</onclick>
-							<onclick>SetProperty(subtitle, $ADDON[script.extendedinfo 32122])</onclick>
+							<onclick>SetProperty(AdditionalInfo,actorcrew,Home)</onclick>
+							<onclick>SetProperty(subtitle,$ADDON[script.extendedinfo 32122],Home)</onclick>
 							<onclick>SetFocus(550)</onclick>
-							<visible>!String.IsEqual(Window.Property(AdditionalInfo),actorcrew)</visible>
+							<visible>!String.IsEqual(Window(Home).Property(AdditionalInfo),actorcrew)</visible>
 							<visible>Integer.IsGreater(Container(550).NumItems,0)</visible>
 						</control>
 						<control type="button" id="117">
@@ -198,10 +201,10 @@
 							<height>60</height>
 							<align>center</align>
 							<textoffsetx>0</textoffsetx>
-							<onclick>SetProperty(AdditionalInfo, actortvcrew)</onclick>
-							<onclick>SetProperty(subtitle, $ADDON[script.extendedinfo 32123])</onclick>
+							<onclick>SetProperty(AdditionalInfo,actortvcrew,Home)</onclick>
+							<onclick>SetProperty(subtitle,$ADDON[script.extendedinfo 32123],Home)</onclick>
 							<onclick>SetFocus(650)</onclick>
-							<visible>!String.IsEqual(Window.Property(AdditionalInfo),actortvcrew)</visible>
+							<visible>!String.IsEqual(Window(Home).Property(AdditionalInfo),actortvcrew)</visible>
 							<visible>Integer.IsGreater(Container(650).NumItems,0)</visible>
 						</control>
 						<control type="button" id="118">
@@ -211,10 +214,10 @@
 							<height>60</height>
 							<align>center</align>
 							<textoffsetx>0</textoffsetx>
-							<onclick>SetProperty(AdditionalInfo, youtube)</onclick>
-							<onclick>SetProperty(subtitle, $ADDON[script.extendedinfo 32118])</onclick>
+							<onclick>SetProperty(AdditionalInfo,youtube,Home)</onclick>
+							<onclick>SetProperty(subtitle,$ADDON[script.extendedinfo 32118],Home)</onclick>
 							<onclick>SetFocus(350)</onclick>
-							<visible>!String.IsEqual(Window.Property(AdditionalInfo),youtube)</visible>
+							<visible>!String.IsEqual(Window(Home).Property(AdditionalInfo),youtube)</visible>
 							<visible>Integer.IsGreater(Container(350).NumItems,0)</visible>
 						</control>
 						<control type="button" id="119">
@@ -224,10 +227,10 @@
 							<height>60</height>
 							<align>center</align>
 							<textoffsetx>0</textoffsetx>
-							<onclick>SetProperty(AdditionalInfo, fanart)</onclick>
-							<onclick>SetProperty(subtitle, $LOCALIZE[20445])</onclick>
+							<onclick>SetProperty(AdditionalInfo,fanart,Home)</onclick>
+							<onclick>SetProperty(subtitle,$LOCALIZE[20445],Home)</onclick>
 							<onclick>SetFocus(750)</onclick>
-							<visible>!String.IsEqual(Window.Property(AdditionalInfo),fanart)</visible>
+							<visible>!String.IsEqual(Window(Home).Property(AdditionalInfo),fanart)</visible>
 							<visible>Integer.IsGreater(Container(750).NumItems,0)</visible>
 						</control>
 						<control type="button" id="120">
@@ -237,10 +240,10 @@
 							<height>60</height>
 							<align>center</align>
 							<textoffsetx>0</textoffsetx>
-							<onclick>SetProperty(AdditionalInfo, posters)</onclick>
+							<onclick>SetProperty(AdditionalInfo,posters,Home)</onclick>
 							<onclick>SetFocus(450)</onclick>
-							<visible>!String.IsEqual(Window.Property(AdditionalInfo),posters)</visible>
-							<onclick>SetProperty(subtitle, $ADDON[script.extendedinfo 32119])</onclick>
+							<visible>!String.IsEqual(Window(Home).Property(AdditionalInfo),posters)</visible>
+							<onclick>SetProperty(subtitle,$ADDON[script.extendedinfo 32119],Home)</onclick>
 							<visible>Integer.IsGreater(Container(450).NumItems,0)</visible>
 						</control>
 						
@@ -295,7 +298,7 @@
 							<width>1200</width>
 							<height>700</height>
 							<orientation>vertical</orientation>
-							<visible>String.IsEmpty(Window.Property(AdditionalInfo))</visible>
+							<visible>String.IsEmpty(Window(Home).Property(AdditionalInfo))</visible>
 							<control type="textbox">
 								<left>0</left>
 								<top>0</top>
@@ -424,6 +427,7 @@
 						</control>
 						<control type="image">
 							<!--poster-->
+							<left></left>
 							<right>50</right>
 							<top>210</top>
 							<width>530</width>
@@ -442,16 +446,15 @@
 							<top>220</top>
 							<width>1200</width>
 							<height>714</height>
-							<onup></onup>
+							<onup>noop</onup>
 							<ondown>9000</ondown>
-							<onleft>ClearProperty(AdditionalInfo)</onleft>
-							<onback>ClearProperty(AdditionalInfo)</onback>
+							<onleft>ClearProperty(AdditionalInfo,Home)</onleft>
+							<onback>ClearProperty(AdditionalInfo,Home)</onback>
 							<onleft>SetFocus(9000)</onleft>
 							<scrolltime>200</scrolltime>
 							<orientation>vertical</orientation>
-							<focusposition>0</focusposition>
 							<viewtype label="actor list">list</viewtype>
-							<visible allowhiddenfocus="true">String.IsEqual(Window.Property(AdditionalInfo),localmedia)</visible>
+							<visible allowhiddenfocus="true">String.IsEqual(Window(Home).Property(AdditionalInfo),localmedia)</visible>
 							<itemlayout height="357" width="240">
 								<control type="group">
 									<width>233</width>
@@ -474,16 +477,15 @@
 							<top>220</top>
 							<width>1200</width>
 							<height>714</height>
-							<onup></onup>
+							<onup>noop</onup>
 							<ondown>9000</ondown>
-							<onleft>ClearProperty(AdditionalInfo)</onleft>
-							<onback>ClearProperty(AdditionalInfo)</onback>
+							<onleft>ClearProperty(AdditionalInfo,Home)</onleft>
+							<onback>ClearProperty(AdditionalInfo,Home)</onback>
 							<onleft>SetFocus(9000)</onleft>
 							<scrolltime>200</scrolltime>
 							<orientation>vertical</orientation>
-							<focusposition>0</focusposition>
 							<viewtype label="actor list">list</viewtype>
-							<visible allowhiddenfocus="true">String.IsEqual(Window.Property(AdditionalInfo),actormovies)</visible>
+							<visible allowhiddenfocus="true">String.IsEqual(Window(Home).Property(AdditionalInfo),actormovies)</visible>
 							<itemlayout height="357" width="240">
 								<control type="group">
 									<width>233</width>
@@ -505,16 +507,15 @@
 							<top>220</top>
 							<width>1200</width>
 							<height>714</height>
-							<onup></onup>
+							<onup>noop</onup>
 							<ondown>9000</ondown>
-							<onleft>ClearProperty(AdditionalInfo)</onleft>
-							<onback>ClearProperty(AdditionalInfo)</onback>
+							<onleft>ClearProperty(AdditionalInfo,Home)</onleft>
+							<onback>ClearProperty(AdditionalInfo,Home)</onback>
 							<onleft>SetFocus(9000)</onleft>
 							<scrolltime>200</scrolltime>
 							<orientation>vertical</orientation>
-							<focusposition>0</focusposition>
 							<viewtype label="actor list">list</viewtype>
-							<visible allowhiddenfocus="true">String.IsEqual(Window.Property(AdditionalInfo),actorshows)</visible>
+							<visible allowhiddenfocus="true">String.IsEqual(Window(Home).Property(AdditionalInfo),actorshows)</visible>
 							<itemlayout height="357" width="240">
 								<control type="group">
 									<width>233</width>
@@ -536,16 +537,15 @@
 							<top>220</top>
 							<width>1200</width>
 							<height>714</height>
-							<onup></onup>
+							<onup>noop</onup>
 							<ondown>9000</ondown>
-							<onleft>ClearProperty(AdditionalInfo)</onleft>
-							<onback>ClearProperty(AdditionalInfo)</onback>
+							<onleft>ClearProperty(AdditionalInfo,Home)</onleft>
+							<onback>ClearProperty(AdditionalInfo,Home)</onback>
 							<onleft>SetFocus(9000)</onleft>
 							<scrolltime>200</scrolltime>
 							<orientation>vertical</orientation>
-							<focusposition>0</focusposition>
 							<viewtype label="actor list">list</viewtype>
-							<visible allowhiddenfocus="true">String.IsEqual(Window.Property(AdditionalInfo),actorcrew)</visible>
+							<visible allowhiddenfocus="true">String.IsEqual(Window(Home).Property(AdditionalInfo),actorcrew)</visible>
 							<itemlayout height="357" width="240">
 								<control type="group">
 									<width>233</width>
@@ -567,16 +567,15 @@
 							<top>220</top>
 							<width>1200</width>
 							<height>714</height>
-							<onup></onup>
+							<onup>noop</onup>
 							<ondown>9000</ondown>
-							<onleft>ClearProperty(AdditionalInfo)</onleft>
-							<onback>ClearProperty(AdditionalInfo)</onback>
+							<onleft>ClearProperty(AdditionalInfo,Home)</onleft>
+							<onback>ClearProperty(AdditionalInfo,Home)</onback>
 							<onleft>SetFocus(9000)</onleft>
 							<scrolltime>200</scrolltime>
 							<orientation>vertical</orientation>
-							<focusposition>0</focusposition>
 							<viewtype label="actor list">list</viewtype>
-							<visible allowhiddenfocus="true">String.IsEqual(Window.Property(AdditionalInfo),actortvcrew)</visible>
+							<visible allowhiddenfocus="true">String.IsEqual(Window(Home).Property(AdditionalInfo),actortvcrew)</visible>
 							<itemlayout height="357" width="240">
 								<control type="group">
 									<width>233</width>
@@ -598,16 +597,15 @@
 							<top>220</top>
 							<width>1200</width>
 							<height>714</height>
-							<onup></onup>
+							<onup>noop</onup>
 							<ondown>9000</ondown>
-							<onleft>ClearProperty(AdditionalInfo)</onleft>
-							<onback>ClearProperty(AdditionalInfo)</onback>
+							<onleft>ClearProperty(AdditionalInfo,Home)</onleft>
+							<onback>ClearProperty(AdditionalInfo,Home)</onback>
 							<onleft>SetFocus(9000)</onleft>
 							<scrolltime>200</scrolltime>
 							<orientation>vertical</orientation>
-							<focusposition>0</focusposition>
 							<viewtype label="actor list">list</viewtype>
-							<visible allowhiddenfocus="true">String.IsEqual(Window.Property(AdditionalInfo),youtube)</visible>
+							<visible allowhiddenfocus="true">String.IsEqual(Window(Home).Property(AdditionalInfo),youtube)</visible>
 							<itemlayout width="400" height="238">
 								<control type="group">
 									<width>95%</width>
@@ -629,16 +627,15 @@
 							<top>220</top>
 							<width>1200</width>
 							<height>714</height>
-							<onup></onup>
+							<onup>noop</onup>
 							<ondown>9000</ondown>
-							<onleft>ClearProperty(AdditionalInfo)</onleft>
-							<onback>ClearProperty(AdditionalInfo)</onback>
+							<onleft>ClearProperty(AdditionalInfo,Home)</onleft>
+							<onback>ClearProperty(AdditionalInfo,Home)</onback>
 							<onleft>SetFocus(9000)</onleft>
 							<scrolltime>200</scrolltime>
 							<orientation>vertical</orientation>
-							<focusposition>0</focusposition>
 							<viewtype label="actor list">list</viewtype>
-							<visible allowhiddenfocus="true">String.IsEqual(Window.Property(AdditionalInfo),fanart)</visible>
+							<visible allowhiddenfocus="true">String.IsEqual(Window(Home).Property(AdditionalInfo),fanart)</visible>
 							<itemlayout width="400" height="238">
 								<control type="group">
 									<width>95%</width>
@@ -660,16 +657,15 @@
 							<top>220</top>
 							<width>1200</width>
 							<height>714</height>
-							<onup></onup>
+							<onup>noop</onup>
 							<ondown>9000</ondown>
-							<onleft>ClearProperty(AdditionalInfo)</onleft>
-							<onback>ClearProperty(AdditionalInfo)</onback>
+							<onleft>ClearProperty(AdditionalInfo,Home)</onleft>
+							<onback>ClearProperty(AdditionalInfo,Home)</onback>
 							<onleft>SetFocus(9000)</onleft>
 							<scrolltime>200</scrolltime>
 							<orientation>vertical</orientation>
-							<focusposition>0</focusposition>
 							<viewtype label="actor list">list</viewtype>
-							<visible allowhiddenfocus="true">String.IsEqual(Window.Property(AdditionalInfo),posters)</visible>
+							<visible allowhiddenfocus="true">String.IsEqual(Window(Home).Property(AdditionalInfo),posters)</visible>
 							<itemlayout height="357" width="240">
 								<control type="group">
 									<width>233</width>

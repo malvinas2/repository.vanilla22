@@ -1,71 +1,121 @@
-# FOR SKINNERS
+# 🎬 Skin Info Service
 
-Start the script with RunScript(script.skin.info.service) in startup.xml.  
-Properties will be available in the corresponding media windows.
+Window properties, plugin paths, and utilities for Kodi skins.
 
-## Window(home).Property(...)
-### For Artists
--   'SkinInfo.Artist.Album.%d.Title' % i
--   'SkinInfo.Artist.Album.%d.Label' % i
--   'SkinInfo.Artist.Album.%d.Plot' % i
--   'SkinInfo.Artist.Album.%d.PlotOutline' % i
--   'SkinInfo.Artist.Album.%d.Year' % i
--   'SkinInfo.Artist.Album.%d.Duration' % i
--   'SkinInfo.Artist.Album.%d.Art(discart)' % i
--   'SkinInfo.Artist.Album.%d.Art(thumb)' % i
--   'SkinInfo.Artist.Album.%d.DBID' % i
--   'SkinInfo.Artist.Albums.Newest'
--   'SkinInfo.Artist.Albums.Oldest'
--   'SkinInfo.Artist.Albums.Count'
--   'SkinInfo.Artist.Albums.Playcount'
+If you find this useful, [buy me a coffee](https://ko-fi.com/mikesilvo) ☕
 
-### For Albums
--   'SkinInfo.Album.Song.%d.Title' % i
--   'SkinInfo.Album.Song.%d.FileExtension' % i
--   'SkinInfo.Album.Songs.TrackList'
--   'SkinInfo.Album.Songs.Discs'
--   'SkinInfo.Album.Songs.Duration'
--   'SkinInfo.Album.Songs.Count'
+[![Code checks](https://github.com/MikeSiLVO/script.skin.info.service/actions/workflows/checks.yml/badge.svg)](https://github.com/MikeSiLVO/script.skin.info.service/actions/workflows/checks.yml)
+![Kodi Version](https://img.shields.io/badge/Kodi-Omega%2B-blue?logo=kodi)
+![Python](https://img.shields.io/badge/Python-3.0%2B-blue?logo=python)
 
-### For Movie Sets
--   'SkinInfo.Set.Movies.Title'
--   'SkinInfo.Set.Movie.%d.DBID' % i
--   'SkinInfo.Set.Movie.%d.Path' % i
--   'SkinInfo.Set.Movie.%d.Year' % i
--   'SkinInfo.Set.Movie.%d.Duration' % i
--   'SkinInfo.Set.Movie.%d.VideoResolution' % i
--   'SkinInfo.Set.Movie.%d.Art(clearlogo)' % i
--   'SkinInfo.Set.Movie.%d.Art(fanart)' % i
--   'SkinInfo.Set.Movie.%d.Art(poster)' % i
--   'SkinInfo.Set.Movie.%d.Art(discart)' % i
--   'SkinInfo.Set.Movie.%d.MPAA' % i
--   'SkinInfo.Set.Movies.List'
--   'SkinInfo.Set.Movies.Plot'
--   'SkinInfo.Set.Movies.PlotOutline'
--   'SkinInfo.Set.Movies.ExtendedPlot'
--   'SkinInfo.Set.Movies.Runtime'
--   'SkinInfo.Set.Movies.Writer'
--   'SkinInfo.Set.Movies.Director'
--   'SkinInfo.Set.Movies.Genre'
--   'SkinInfo.Set.Movies.Years'
--   'SkinInfo.Set.Movies.Count'
--   'SkinInfo.Set.Movies.Studio'
--   'SkinInfo.Set.Movies.Single.Studio'
--   'SkinInfo.Set.Movies.Country'
+---
 
-### For Movie Years, Directors, Actors, Genres, Studios, Countries and Tags
--   'SkinInfo.Detail.Movie.%d.Path' % i
--   'SkinInfo.Detail.Movie.%d.Art(fanart)' % i
--   'SkinInfo.Detail.Movie.%d.Art(poster)' % i
--   'SkinInfo.Detail.Movie.%d.Art(fanart)' % i
--   'SkinInfo.Detail.Movie.%d.Path' % i
+## 📖 Overview
 
-## Window(movieinformation).Property(...)
-### For Movies
--   'SkinInfo.AudioLanguage.%d' % i
--   'SkinInfo.AudioCodec.%d' % i
--   'SkinInfo.AudioChannels.%d' % i
--   'SkinInfo.SubtitleLanguage.%d' % i
+Skin Info Service provides:
 
-## Enable JSON Debugging in Script Settings for Logging JSON Output
-![JSONDebugExample](https://i.imgur.com/V5fEYVt.png)
+- **Service Properties** - Window properties updated on focus changes
+- **Online Properties** - Ratings and metadata from external APIs
+- **Plugin Paths** - Widgets, cast lists, DBID queries, person info
+- **Info Dialogs** - Full-screen Actor Info, Video Info, and Image Viewer dialogs
+- **Tools** - Blur generator, color picker, artwork reviewer, slideshow, ratings update, IMDb Top 250
+
+---
+
+## 🚀 Quick Start
+
+To enable the Library and Online service monitors, opt in from your skin's Home.xml or startup window:
+
+```xml
+<onload>Skin.SetBool(SkinInfo.Service)</onload>
+```
+
+Access properties via `Window(Home).Property(...)`:
+
+```xml
+<label>$INFO[Window(Home).Property(SkinInfo.Movie.Title)]</label>
+<texture>$INFO[Window(Home).Property(SkinInfo.Movie.Art(poster))]</texture>
+```
+
+See [Getting Started](DOCS/getting-started.md) for setup details.
+
+---
+
+## 📚 Documentation
+
+### 🔧 Service Properties
+
+| Document                                       | Description                         |
+|------------------------------------------------|-------------------------------------|
+| [Library Properties](DOCS/service/library.md)  | Focused item metadata and artwork   |
+| [Online Properties](DOCS/service/online.md)    | TMDb, Trakt, MDBList, OMDb data     |
+| [Stinger Notifications](DOCS/service/stinger.md) | Mid/post-credits scene detection  |
+
+### 🔌 Plugin Paths
+
+| Document                                    | Description                            |
+|---------------------------------------------|----------------------------------------|
+| [Library Widgets](DOCS/plugin/widgets-library.md) | Next Up, Similar, Recommended, Music |
+| [Discovery Widgets](DOCS/plugin/widgets-discovery.md) | Trending, Popular, Upcoming from TMDB/Trakt |
+| [Navigation](DOCS/plugin/navigation.md)     | Letter jump for containers             |
+| [Cast](DOCS/plugin/cast.md)                 | Cast lists for movies, shows, sets     |
+| [DBID Queries](DOCS/plugin/dbid.md)         | Fetch full metadata by database ID     |
+| [Online Data](DOCS/plugin/online.md)        | Ratings via plugin container           |
+| [Path Statistics](DOCS/plugin/stats.md)     | Counts and totals for library paths    |
+| [Person Info](DOCS/plugin/person.md)        | Actor/director biography, filmography  |
+
+### 🎭 Info Dialogs
+
+| Document                                          | Description                                       |
+|---------------------------------------------------|---------------------------------------------------|
+| [Actor Info](DOCS/dialogs/actor-info.md)          | TMDB person info with filmography and images     |
+| [Video Info](DOCS/dialogs/video-info.md)          | TMDB movie/TV info with cast, recommendations    |
+| [Image Viewer](DOCS/dialogs/image-viewer.md)      | Full-screen image gallery for any plugin URL     |
+
+### 🛠️ Tools
+
+| Document                                        | Description                        |
+|-------------------------------------------------|------------------------------------|
+| [Artwork Review](DOCS/tools/artwork-review.md)  | Browse and manage library artwork  |
+| [Blur](DOCS/tools/blur.md)                      | Generate blurred background images |
+| [Color Picker](DOCS/tools/color-picker.md)      | RGBA color picker dialog           |
+| [Download Artwork](DOCS/tools/download-artwork.md) | Download artwork and actor images to filesystem |
+| [Fix Library IDs](DOCS/tools/fix-library-ids.md) | Resolve missing IMDb/TMDB/TVDB uniqueids |
+| [GIF Scanner](DOCS/tools/gif-scanner.md)        | Find animated artwork in library   |
+| [Metadata Editor](DOCS/tools/metadata-editor.md)| Edit library item metadata         |
+| [Ratings Update](DOCS/tools/ratings-update.md)  | Refresh IMDb/TMDB/Trakt ratings in bulk |
+| [Slideshow](DOCS/tools/slideshow.md)            | Rotating fanart backgrounds        |
+| [Texture Cache](DOCS/tools/texture-cache.md)    | Texture database utilities         |
+| [IMDb Top 250 Update](DOCS/tools/top250-update.md) | Set Top 250 rank on library items |
+
+### 📋 Reference
+
+| Document                                    | Description                           |
+|---------------------------------------------|---------------------------------------|
+| [Skin Utilities](DOCS/skin-utilities.md)    | RunScript actions for skin operations |
+| [Kodi Settings](DOCS/kodi-settings.md)      | Expose Kodi settings to skins         |
+
+---
+
+## 🧰 Tools Menu
+
+Access user tools via:
+
+```xml
+<onclick>RunScript(script.skin.info.service,action=tools)</onclick>
+```
+
+Available tools:
+
+- Artwork Reviewer
+- Ratings Updater
+- Animated Art Scanner
+- Texture Cache Manager
+- Download Artwork to Filesystem
+- Fix Library IDs
+- IMDb Top 250 Update
+
+---
+
+[📖 Documentation](DOCS/index.md) ·
+[🐛 Report Issues](https://github.com/MikeSiLVO/script.skin.info.service/issues)

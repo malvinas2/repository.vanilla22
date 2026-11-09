@@ -118,7 +118,7 @@
 				<height>35</height>
 				<align>right</align>
 				<include>DialogLabel</include>
-				<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(10).NumItems][/COLOR] $LOCALIZE[91830] - [COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(10).CurrentPage]/$INFO[Container(10).NumPages][/COLOR]</label>
+				<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(10).NumItems][/COLOR] $LOCALIZE[31954] - [COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(10).CurrentPage]/$INFO[Container(10).NumPages][/COLOR]</label>
 			</control>
 			<control type="grouplist" id="9001">
 				<left>700</left>

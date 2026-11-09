@@ -1,306 +1,347 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
-	<defaultcontrol always="true">9000</defaultcontrol>
-	<!-- <onunload>ClearProperty(ShowViewSubMenu,home)</onunload> -->
-	<controls>
-		<control type="group">
-			<animation effect="fade" start="0" end="100" time="100">WindowOpen</animation>
-			<animation effect="fade" start="100" end="0" time="100">WindowClose</animation>
-			<animation effect="fade" start="100" end="75" time="0" condition="true">Conditional</animation>
-			<!--Dialog Overlay-->
-			<include>DialogOverlayExtra</include>
+<!--Titan-->
+	
+    <defaultcontrol always="true">109</defaultcontrol>
+    <controls>
+        <!--Dialog Overlay-->
+		<control type="button" id="109">
+			<description>background close area</description>
+			<!-- <bottom>300</bottom> -->
+			<width>100%</width>
+			<height>650</height>
+			<texturefocus />
+			<texturenofocus />
+			<onclick>Action(close)</onclick>
+			<onleft>Action(close)</onleft>
+			<onright>Action(close)</onright>
+			<onup>Action(close)</onup>
+			<ondown>Action(close)</ondown>
 		</control>
-		<control type="group">
-			<centertop>50%</centertop>
-			<height>1000</height>
-			<centerleft>50%</centerleft>
-			<width>1280</width>
+
+        <control type="group">
+			<animation effect="fade" end="0" time="0" reversible="false" condition="Window.IsVisible(yesnodialog) | Window.IsVisible(addonsettings)">Conditional</animation>
+            <visible>!Window.IsActive(sliderdialog) + !Window.IsActive(subtitlesearch) + !Window.IsActive(script.pseudotv.TVOverlay.xml)</visible>
+			<visible>!Window.IsActive(DialogSettings.xml) + !Window.IsActive(DialogSlider.xml) + !Window.IsActive(PlayerProcessInfo) + !Window.IsActive(GameVideoFilter) + !Window.IsActive(GameStretchMode) + !Window.IsActive(GameControllers) + !Window.IsActive(GamePorts) + !Window.IsActive(GameVideoRotation) + !Window.IsActive(GameDiscManager)</visible>
+			<animation type="WindowOpen">
+				<effect type="slide" start="0,-1000" end="0,0" time="600" tween="cubic" easing="inout" />
+			</animation>
+			<animation type="WindowClose">
+				<effect type="slide" start="0,0" end="0,-1000" time="600" tween="cubic" easing="inout" />
+			</animation>
+			<!--OSD Info Panel-->
+			<!--Info Stuff-->
 			<control type="group">
-				<control type="image">
-					<texture border="15">diffuse/bgpanel.png</texture>
-					<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
-				</control>
-				<control type="image">
-					<texture border="15">diffuse/bgpanel.png</texture>
-					<bordersize>10</bordersize>
-					<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
-				</control>
-			</control>
-			<!-- close dialog -->
-			<control type="group">
-				<include>animation_fade_visible_hidden</include>
-				<right>50</right>
-				<width>50</width>
-				<top>40</top>
-				<include condition="Skin.HasSetting(EnableTouchSupport)">close_button</include>
-			</control>
-			<control type="image">
-				<left>30</left>
-				<top>120</top>
-				<width>600</width>
-				<height>350</height>
-				<texture border="15">diffuse/bgpanel.png</texture>
-				<colordiffuse>$INFO[Skin.String(ButtonColor)]</colordiffuse>
-			</control>
-			<control type="label">
-				<left>40</left>
-				<top>130</top>
-				<width>600</width>
-				<height>35</height>
-				<align>center</align>
-				<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
-				<font>font24_title</font>
-				<label>$LOCALIZE[179]</label>
-			</control>
-			<control type="grouplist">
-				<left>40</left>
-				<top>170</top>
-				<width>580</width>
-				<height>300</height>
-				<orientation>vertical</orientation>
-				<itemgap>5</itemgap>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29901]"/>
-					<param name="value" value="RDS.Band" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[557]"/>
-					<param name="value" value="RDS.Artist" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[556]"/>
-					<param name="value" value="RDS.Title" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29903]"/>
-					<param name="value" value="RDS.Composer" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29905]"/>
-					<param name="value" value="RDS.Conductor" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[558]"/>
-					<param name="value" value="RDS.Album" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[569]"/>
-					<param name="value" value="RDS.Comment" />
-				</include>
-			</control>
-			<control type="image">
-				<left>30</left>
-				<top>490</top>
-				<width>600</width>
-				<height>180</height>
-				<texture border="15">diffuse/bgpanel.png</texture>
-				<colordiffuse>$INFO[Skin.String(ButtonColor)]</colordiffuse>
-			</control>
-			<control type="label">
-				<left>40</left>
-				<top>500</top>
-				<width>600</width>
-				<height>35</height>
-				<align>center</align>
-				<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
-				<font>font24_title</font>
-				<label>$LOCALIZE[29909]</label>
-			</control>
-			<control type="grouplist">
-				<left>40</left>
-				<top>540</top>
-				<width>580</width>
-				<height>130</height>
-				<orientation>vertical</orientation>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29910]"/>
-					<param name="value" value="RDS.PhoneStudio" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29911]"/>
-					<param name="value" value="RDS.EmailStudio" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29912]"/>
-					<param name="value" value="RDS.SMSStudio" />
-				</include>
-			</control>
-			<control type="image">
-				<left>650</left>
-				<top>120</top>
-				<width>600</width>
-				<height>350</height>
-				<texture border="15">diffuse/bgpanel.png</texture>
-				<colordiffuse>$INFO[Skin.String(ButtonColor)]</colordiffuse>
-			</control>
-			<control type="label">
-				<left>660</left>
-				<top>130</top>
-				<width>600</width>
-				<height>35</height>
-				<align>center</align>
-				<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
-				<font>font24_title</font>
-				<label>$LOCALIZE[29908]</label>
-			</control>
-			<control type="grouplist">
-				<left>660</left>
-				<top>170</top>
-				<width>580</width>
-				<height>300</height>
-				<itemgap>5</itemgap>
-				<orientation>vertical</orientation>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[19030]"/>
-					<param name="value" value="RDS.ProgNow" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[19031]"/>
-					<param name="value" value="RDS.ProgNext" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29902]"/>
-					<param name="value" value="RDS.ProgStyle" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[19148]"/>
-					<param name="value" value="RDS.ProgStation" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29906]"/>
-					<param name="value" value="RDS.ProgHost" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29907]"/>
-					<param name="value" value="RDS.ProgEditStaff" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29914]"/>
-					<param name="value" value="RDS.ProgHomepage" />
-				</include>
-			</control>
-			<control type="image">
-				<left>650</left>
-				<top>490</top>
-				<width>600</width>
-				<height>180</height>
-				<texture border="15">diffuse/bgpanel.png</texture>
-				<colordiffuse>$INFO[Skin.String(ButtonColor)]</colordiffuse>
-			</control>
-			<control type="label">
-				<left>660</left>
-				<top>500</top>
-				<width>600</width>
-				<height>35</height>
-				<align>center</align>
-				<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
-				<font>font24_title</font>
-				<label>$LOCALIZE[29913]</label>
-			</control>
-			<control type="grouplist">
-				<left>660</left>
-				<top>540</top>
-				<width>580</width>
-				<height>130</height>
-				<orientation>vertical</orientation>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29910]"/>
-					<param name="value" value="RDS.PhoneHotline" />
-				</include>
-				<include content="RDSInfoLine">
-					<param name="label" value="$LOCALIZE[29911]"/>
-					<param name="value" value="RDS.EmailHotline" />
-				</include>
-			</control>
-			<control type="image">
-				<left>30</left>
-				<top>690</top>
-				<width>600</width>
-				<height>260</height>
-				<texture border="15">diffuse/bgpanel.png</texture>
-				<colordiffuse>$INFO[Skin.String(ButtonColor)]</colordiffuse>
-			</control>
-			<control type="group">
-				<left>40</left>
-				<top>700</top>
+				 <width>100%</width>
+				 <height>550</height>
+				 <!-- background -->
+				 <control type="image">
+					 <texture border="5">diffuse/panel.png</texture>
+					 <colordiffuse>$INFO[Skin.String(OSDPanelColor)]</colordiffuse>
+				 </control>
 				<control type="label">
-					<width>600</width>
-					<height>35</height>
+					<width>100%</width>
+					<top>10</top>
+					<label>$INFO[MusicPlayer.ChannelName,, - ]$INFO[Player.Title]</label>
+					<font>font30_title</font>
+					<textcolor>$INFO[Skin.String(HeaderTextColor)]</textcolor>
+					<shadowcolor>$INFO[Skin.String(HeaderTextShadowColor)]</shadowcolor>
+					<height>65</height>
 					<align>center</align>
-					<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
-					<font>font24_title</font>
-					<label>$LOCALIZE[29915]</label>
-				</control>
-				<control type="textbox">
-					<top>740</top>
-					<width>580</width>
-					<height>170</height>
-					<align>justify</align>
-					<label>$INFO[RDS.InfoNews,[COLOR white]$LOCALIZE[29916]:[/COLOR] ,[CR]]$INFO[RDS.InfoNewsLocal,[COLOR white]$LOCALIZE[29917]:[/COLOR] ,[CR]]$INFO[RDS.InfoStock,[COLOR white]$LOCALIZE[29920]:[/COLOR] ,[CR]]$INFO[RDS.InfoSport,[COLOR white]$LOCALIZE[29918]:[/COLOR] ,[CR]]$INFO[RDS.Infolottery,[COLOR white]$LOCALIZE[29919]:[/COLOR] ,[CR]]$INFO[RDS.InfoWeather,[COLOR white]$LOCALIZE[400]:[/COLOR] ,[CR]]$INFO[RDS.InfoCinema,$[COLOR white]LOCALIZE[19602]:[/COLOR] ,[CR]]$INFO[RDS.InfoHoroscope,[COLOR white]$LOCALIZE[29922]:[/COLOR] ,[CR]]$INFO[RDS.InfoOther,[COLOR white]$LOCALIZE[29921]:[/COLOR] ,[CR]]</label>
-					<autoscroll delay="5000" time="3000" repeat="10000">true</autoscroll>
-				</control>
-			</control>
-			<control type="image">
-				<left>650</left>
-				<top>690</top>
-				<width>600</width>
-				<height>260</height>
-				<texture border="15">diffuse/bgpanel.png</texture>
-				<colordiffuse>$INFO[Skin.String(ButtonColor)]</colordiffuse>
-			</control>
-			<control type="group">
-				<left>660</left>
-				<top>700</top>
-				<control type="label">
-					<width>580</width>
-					<height>35</height>
-					<align>center</align>
-					<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
-					<font>font24_title</font>
-					<label>$LOCALIZE[14304]</label>
-				</control>
-				<control type="label">
-					<top>50</top>
-					<width>580</width>
-					<height>40</height>
-					<aligny>center</aligny>
-					<label>$INFO[RDS.GetLine(3)]</label>
 					<scroll>true</scroll>
-					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 				</control>
-				<control type="label">
-					<top>90</top>
-					<width>580</width>
-					<height>40</height>
-					<aligny>center</aligny>
-					<label>$INFO[RDS.GetLine(2)]</label>
-					<scroll>true</scroll>
-					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-				</control>
-				<control type="label">
-					<top>130</top>
-					<width>580</width>
-					<height>40</height>
-					<aligny>center</aligny>
-					<label>$INFO[RDS.GetLine(1)]</label>
-					<scroll>true</scroll>
-					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-				</control>
-				<control type="label">
-					<top>170</top>
-					<width>580</width>
-					<height>40</height>
-					<aligny>center</aligny>
-					<label>$INFO[RDS.GetLine(0)]</label>
-					<scroll>true</scroll>
-					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-				</control>
-			</control>
-			<include content="InfoDialogTopBarInfo">
-				<param name="main_label" value="$LOCALIZE[29900]" />
-				<param name="sub_label" value="$VAR[RDSInfoSubTitle]" />
-				<param name="posy" value="-20" />
-			</include>
+
+					<!-- Plot -->
+				 <control type="group">
+					<left>38</left>
+					<top>75</top>
+					<control type="grouplist">
+						<left>0</left>
+						<top>0</top>
+						<width>600</width>
+						<height>450</height>
+						<!-- <bottom>245</bottom> -->
+						<itemgap>2</itemgap>
+						<orientation>vertical</orientation>
+						<align>left</align>
+						<description>Titel</description>
+						<control type="label">
+							<width>600</width>
+							<height>35</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+							<font>font24_title</font>
+							<label>$LOCALIZE[179]</label>
+						</control>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29901]"/>
+							<param name="value" value="$INFO[RDS.Band]" />
+							<param name="visible" value="!String.IsEmpty(RDS.Band)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[557]"/>
+							<param name="value" value="$INFO[RDS.Artist]" />
+							<param name="visible" value="!String.IsEmpty(RDS.Artist)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[556]"/>
+							<param name="value" value="$INFO[RDS.Title]" />
+							<param name="visible" value="!String.IsEmpty(RDS.Title)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29903]"/>
+							<param name="value" value="$INFO[RDS.Composer]" />
+							<param name="visible" value="!String.IsEmpty(RDS.Composer)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29905]"/>
+							<param name="value" value="$INFO[RDS.Conductor]" />
+							<param name="visible" value="!String.IsEmpty(RDS.Conductor)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[558]"/>
+							<param name="value" value="$INFO[RDS.Album]" />
+							<param name="visible" value="!String.IsEmpty(RDS.Album)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[569]"/>
+							<param name="value" value="$INFO[RDS.Comment]" />
+							<param name="visible" value="!String.IsEmpty(RDS.Comment)"/>
+						</include>
+						<control type="label">
+							<aligny>center</aligny>
+							<width>600</width>
+							<height>30</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+							<font>Light26</font>
+							<label>$LOCALIZE[31348]</label>
+							<visible>String.IsEmpty(RDS.Band) + String.IsEmpty(RDS.Artist) + String.IsEmpty(RDS.Title) + String.IsEmpty(RDS.Composer) + String.IsEmpty(RDS.Conductor) + String.IsEmpty(RDS.Album) + String.IsEmpty(RDS.Comment)</visible>
+						</control>						
+						<description>Studio</description>
+						<control type="label">
+							<width>600</width>
+							<height>35</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+							<font>font24_title</font>
+							<label>$LOCALIZE[29909]</label>
+						</control>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29910]"/>
+							<param name="value" value="$INFO[RDS.PhoneStudio]" />
+							<param name="visible" value="!String.IsEmpty(RDS.PhoneStudio)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29911]"/>
+							<param name="value" value="$INFO[RDS.EmailStudio]" />
+							<param name="visible" value="!String.IsEmpty(RDS.EmailStudio)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29912]"/>
+							<param name="value" value="$INFO[RDS.SMSStudio]" />
+							<param name="visible" value="!String.IsEmpty(RDS.SMSStudio)"/>
+						</include>
+						<control type="label">
+							<aligny>center</aligny>
+							<width>600</width>
+							<height>30</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+							<font>Light26</font>
+							<label>$LOCALIZE[31348]</label>
+							<visible>String.IsEmpty(RDS.PhoneStudio) + String.IsEmpty(RDS.EmailStudio) + String.IsEmpty(RDS.SMSStudio)</visible>
+						</control>
+					</control>	
+	
+					<control type="grouplist">
+						<left>650</left>
+						<top>0</top>
+						<width>600</width>
+						<height>450</height>
+						<!-- <bottom>245</bottom> -->
+						<itemgap>2</itemgap>
+						<orientation>vertical</orientation>
+						<align>left</align>
+						<description>Programm</description>
+						<control type="label">
+							<width>600</width>
+							<height>35</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+							<font>font24_title</font>
+							<label>$LOCALIZE[29908]</label>
+						</control>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[19030]"/>
+							<param name="value" value="$INFO[RDS.ProgNow]" />
+							<param name="visible" value="!String.IsEmpty(RDS.ProgNow)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[19031]"/>
+							<param name="value" value="$INFO[RDS.ProgNext]" />
+							<param name="visible" value="!String.IsEmpty(RDS.ProgNext)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29902]"/>
+							<param name="value" value="$INFO[RDS.ProgStyle]" />
+							<param name="visible" value="!String.IsEmpty(RDS.ProgStyle)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[19148]"/>
+							<param name="value" value="$INFO[RDS.ProgStation]" />
+							<param name="visible" value="!String.IsEmpty(RDS.ProgStation)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29906]"/>
+							<param name="value" value="$INFO[RDS.ProgHost]" />
+							<param name="visible" value="!String.IsEmpty(RDS.ProgHost)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29907]"/>
+							<param name="value" value="$INFO[RDS.ProgEditStaff]" />
+							<param name="visible" value="!String.IsEmpty(RDS.ProgEditStaff)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29914]"/>
+							<param name="value" value="$INFO[RDS.ProgHomepage]" />
+							<param name="visible" value="!String.IsEmpty(RDS.ProgHomepage)"/>
+						</include>
+						<control type="label">
+							<aligny>center</aligny>
+							<width>600</width>
+							<height>30</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+							<font>Light26</font>
+							<label>$LOCALIZE[31348]</label>
+							<visible>String.IsEmpty(RDS.ProgNow) + String.IsEmpty(RDS.ProgNext) + String.IsEmpty(RDS.ProgStyle) + String.IsEmpty(RDS.ProgStation) + String.IsEmpty(RDS.ProgHost) + String.IsEmpty(RDS.ProgEditStaff) + String.IsEmpty(RDS.ProgHomepage)</visible>
+						</control>
+						<description>Hotline</description>
+						<control type="label">
+							<width>600</width>
+							<height>35</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+							<font>font24_title</font>
+							<label>$LOCALIZE[29913]</label>
+						</control>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29910]"/>
+							<param name="value" value="$INFO[RDS.PhoneHotline]" />
+							<param name="visible" value="!String.IsEmpty(RDS.PhoneHotline)"/>
+						</include>
+						<include content="RDSInfoLine">
+							<param name="label" value="$LOCALIZE[29911]"/>
+							<param name="value" value="$INFO[RDS.EmailHotline]" />
+							<param name="visible" value="!String.IsEmpty(RDS.EmailHotline)"/>
+						</include>
+						<control type="label">
+							<aligny>center</aligny>
+							<width>600</width>
+							<height>30</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+							<font>Light26</font>
+							<label>$LOCALIZE[31348]</label>
+							<visible>String.IsEmpty(RDS.PhoneHotline) + String.IsEmpty(RDS.EmailHotline)</visible>
+						</control>
+					</control>	
+
+					<control type="grouplist">
+						<left>1260</left>
+						<top>0</top>
+						<width>600</width>
+						<height>450</height>
+						<!-- <bottom>245</bottom> -->
+						<itemgap>2</itemgap>
+						<orientation>vertical</orientation>
+						<align>left</align>
+						<description>Programm</description>
+						<control type="label">
+							<width>600</width>
+							<height>35</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+							<font>font24_title</font>
+							<label>$LOCALIZE[14304]</label>
+						</control>
+						<control type="label">
+							<width>600</width>
+							<height>35</height>
+							<aligny>center</aligny>
+							<font>Light26</font>
+							<label>$INFO[RDS.GetLine(3)]</label>
+							<scroll>true</scroll>
+							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+						</control>
+						<control type="label">
+							<width>600</width>
+							<height>35</height>
+							<aligny>center</aligny>
+							<font>Light26</font>
+							<label>$INFO[RDS.GetLine(2)]</label>
+							<scroll>true</scroll>
+							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+						</control>
+						<control type="label">
+							<width>600</width>
+							<height>35</height>
+							<aligny>center</aligny>
+							<font>Light26</font>
+							<label>$INFO[RDS.GetLine(1)]</label>
+							<scroll>true</scroll>
+							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+						</control>
+						<control type="label">
+							<width>600</width>
+							<height>35</height>
+							<aligny>center</aligny>
+							<font>Light26</font>
+							<label>$INFO[RDS.GetLine(0)]</label>
+							<scroll>true</scroll>
+							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+						</control>
+						<control type="label">
+							<aligny>center</aligny>
+							<width>600</width>
+							<height>30</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+							<font>Light26</font>
+							<label>$LOCALIZE[31348]</label>
+							<visible>String.IsEmpty(RDS.GetLine(0)) + String.IsEmpty(RDS.GetLine(1)) + String.IsEmpty(RDS.GetLine(2)) + String.IsEmpty(RDS.GetLine(3))</visible>
+						</control>
+						<description>Informationen</description>
+						<control type="label">
+							<width>600</width>
+							<height>35</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+							<font>font24_title</font>
+							<label>$LOCALIZE[29915]</label>
+						</control>
+						<control type="textbox">
+							<width>600</width>
+							<height>240</height>
+							<align>justify</align>
+							<label>$INFO[RDS.InfoNews,[COLOR white]$LOCALIZE[29916]:[/COLOR] ,[CR]]$INFO[RDS.InfoNewsLocal,[COLOR white]$LOCALIZE[29917]:[/COLOR] ,[CR]]$INFO[RDS.InfoStock,[COLOR white]$LOCALIZE[29920]:[/COLOR] ,[CR]]$INFO[RDS.InfoSport,[COLOR white]$LOCALIZE[29918]:[/COLOR] ,[CR]]$INFO[RDS.Infolottery,[COLOR white]$LOCALIZE[29919]:[/COLOR] ,[CR]]$INFO[RDS.InfoWeather,[COLOR white]$LOCALIZE[400]:[/COLOR] ,[CR]]$INFO[RDS.InfoCinema,$[COLOR white]LOCALIZE[19602]:[/COLOR] ,[CR]]$INFO[RDS.InfoHoroscope,[COLOR white]$LOCALIZE[29922]:[/COLOR] ,[CR]]$INFO[RDS.InfoOther,[COLOR white]$LOCALIZE[29921]:[/COLOR] ,[CR]]</label>
+							<visible>![String.IsEmpty(RDS.InfoNews) | String.IsEmpty(RDS.InfoNewsLocal) | String.IsEmpty(RDS.InfoStock) | String.IsEmpty(RDS.InfoSport) | String.IsEmpty(RDS.Infolottery) | String.IsEmpty(RDS.InfoWeather) | String.IsEmpty(RDS.InfoCinema) | String.IsEmpty(RDS.InfoHoroscope) | String.IsEmpty(RDS.InfoOther)]</visible>
+							<autoscroll delay="5000" time="3000" repeat="10000">true</autoscroll>
+						</control>
+						<control type="label">
+							<aligny>center</aligny>
+							<width>600</width>
+							<height>30</height>
+							<align>center</align>
+							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+							<font>Light26</font>
+							<label>$LOCALIZE[31348]</label>
+							<visible>String.IsEmpty(RDS.InfoNews) + String.IsEmpty(RDS.InfoNewsLocal) + String.IsEmpty(RDS.InfoStock) + String.IsEmpty(RDS.InfoSport) + String.IsEmpty(RDS.Infolottery) + String.IsEmpty(RDS.InfoWeather) + String.IsEmpty(RDS.InfoCinema) + String.IsEmpty(RDS.InfoHoroscope) + String.IsEmpty(RDS.InfoOther)</visible>
+						</control>
+					</control>						
+				 </control>
+			 </control>			 
 		</control>
-	</controls>
+    </controls>
 </window>

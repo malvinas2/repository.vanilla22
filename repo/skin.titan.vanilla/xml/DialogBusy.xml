@@ -5,6 +5,9 @@
 	<controls>
 		<include condition="Skin.HasSetting(SpinnerDimScreen)">DialogOverlayExtra</include>
 		<control type="group">
+			<!-- ### copied from Estuary ### -->
+			<visible>!Window.IsActive(startup) + !Player.Caching</visible>
+			<!-- ########################### --> 
 			<left>960</left>
 			<!--Center-->
 			<top>540</top>

@@ -50,7 +50,7 @@
 		<onload condition="!Skin.HasSetting(HomeMenuDefaults46)">Skin.SetBool(DisableLandscapeThumbs)</onload>
 		<onload condition="!Skin.String(mediaflagsstyle)">Skin.SetString(mediaflagsstyle, textbased - full info)</onload>
 		<onload condition="!Skin.HasSetting(HomeMenuDefaults46)">Skin.SetBool(IMDBRatingInFooter)</onload>
-		<onload condition="!Skin.String(actorthumbslookup,true)">Skin.SetString(actorthumbslookup,true)</onload>
+		<onload condition="Skin.String(actorthumbslookup,true)">Skin.SetString(actorthumbslookup,false)</onload>
 		<onload condition="!Skin.HasSetting(HomeMenuDefaults46)">Skin.SetBool(DialogVideoInfo_HideFileName)</onload>
 		<onload condition="!Skin.String(WatchedIndicator.Watched.Color)">Skin.SetBool(WatchedIndicator.Watched)</onload>
 		<onload condition="!Skin.String(WatchedIndicator.Progress.Color)">Skin.SetBool(WatchedIndicator.Progress)</onload>
@@ -306,6 +306,8 @@
 		<onload condition="!Skin.String(SceneMarkerColor.name)">Skin.SetString(SceneMarkerColor.name,White)</onload>
 		<onload condition="!Skin.String(CutMarkerColor)">Skin.SetString(CutMarkerColor,FFFFFFFF)</onload>
 		<onload condition="!Skin.String(CutMarkerColor.name)">Skin.SetString(CutMarkerColor.name,White)</onload>
+		<onload condition="!Skin.String(BookmarkMarkerColor)">Skin.SetString(BookmarkMarkerColor,FFFFFFFF)</onload>
+		<onload condition="!Skin.String(BookmarkMarkerColor.name)">Skin.SetString(BookmarkMarkerColor.name,White)</onload>
 		
 		<onload condition="!Skin.String(defaultcolorpalette.label)">Skin.SetString(defaultcolorpalette.label,basic)</onload>
 		<onload condition="!Skin.String(defaultcolorpalette)">Skin.SetString(defaultcolorpalette,basic)</onload>

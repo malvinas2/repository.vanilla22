@@ -1,0 +1,479 @@
+# Artwork Review
+
+Scan library for missing artwork and fetch from TMDB and fanart.tv.
+
+[← Back to Index](../index.md)
+
+---
+
+## Table of Contents
+
+- [Requirements](#requirements)
+  - [API Keys](#api-keys)
+  - [Getting API Keys](#getting-api-keys)
+- [Usage](#usage)
+  - [Bulk Review (Tools Menu)](#bulk-review-tools-menu)
+  - [Single Item Review (Context Menu)](#single-item-review-context-menu)
+- [Review Process](#review-process)
+  - [Visual Dialog](#visual-dialog)
+  - [User Actions](#user-actions)
+  - [Multi-Art Dialog](#multi-art-dialog)
+- [Processing Modes](#processing-modes)
+- [Session Reports](#session-reports)
+- [Configuration](#configuration)
+- [Dialog Skinning](#dialog-skinning)
+  - [Artwork Selection Dialog](#artwork-selection-dialog)
+  - [Multi-Art Dialog Skinning](#multi-art-dialog-skinning)
+  - [Testing Your Dialog XML](#testing-your-dialog-xml)
+- [Troubleshooting](#troubleshooting)
+
+## Requirements
+
+### API Keys
+
+A built-in fanart.tv project key is included. Adding your own personal key gives faster access to newly uploaded artwork (2 days vs 7 days). VIP members get immediate access.
+
+#### Why Both APIs?
+
+**TMDB provides:**
+
+- poster
+- fanart (backdrops)
+- clearlogo
+
+**fanart.tv provides:**
+
+- poster
+- fanart (backgrounds)
+- clearlogo
+- clearart
+- banner
+- discart (disc art)
+- landscape
+- characterart (TV shows only)
+
+TMDB is required for basic artwork. fanart.tv provides additional artwork types including clearart, banners, disc art, and landscape images.
+
+#### Getting API Keys
+
+**TMDB API Key** - Free & Optional
+
+A built-in TMDB key is included. To use your own key:
+
+1. Sign up at [themoviedb.org](https://www.themoviedb.org/)
+2. Go to Settings → API → Request API Key
+3. Select "Developer" as the type of use
+4. Fill out the required information
+5. Copy your API key
+6. Add to addon settings: Settings → Advanced → Enable "Use Custom TMDB Key", then click "Enter/Edit Key"
+
+**fanart.tv API Key** - Free & Optional
+
+1. Sign up at [fanart.tv](https://fanart.tv/)
+2. Get your personal API key from [fanart.tv/get-an-api-key](https://fanart.tv/get-an-api-key/)
+3. Copy your personal API key
+4. Add to addon settings: Settings → API Keys → fanart.tv API Key
+
+## Usage
+
+### Bulk Review (Tools Menu)
+
+Launch the artwork tools workflow from your skin:
+
+```text
+RunScript(script.skin.info.service,action=tools)
+```
+
+#### Scope Selection
+
+Choose which media types to review:
+
+- **Movies** - Review movie artwork only
+- **TV Shows** - Review TV show, season and episode artwork
+- **Music Videos** - Review music video artwork only
+- **Music** - Review artist and album artwork
+- **All** - Review all media types
+
+#### Action Menu
+
+After choosing a scope, select an action:
+
+- **Manual Review** - Scan, then visually pick artwork for each empty slot
+- **Auto-Apply Missing Artwork** - Scan and automatically fill language-compliant empty slots (foreground or background)
+- **View Reports** - View statistics from your last review session (when available)
+
+When starting **Manual Review**, choose what to scan for:
+
+- **Missing + upgrades** - Find missing artwork AND better quality replacements (default)
+- **Missing artwork only** - Only find missing artwork slots
+
+---
+
+### Single Item Review (Context Menu)
+
+Review artwork for a specific library item using RunScript:
+
+```xml
+RunScript(script.skin.info.service,action=review_artwork,dbid=$INFO[ListItem.DBID],dbtype=$INFO[ListItem.DBType])
+```
+
+**Parameters:**
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `dbid` | Yes | Database ID of the item |
+| `dbtype` | Yes | Database type: `movie`, `tvshow`, `season`, `episode`, `musicvideo`, `set`, `artist`, `album` |
+| `art_type` | No | Limit the art types offered, pipe-separated (`poster`, `poster\|fanart`) |
+
+**Example - Context Menu:**
+
+```xml
+<control type="button" id="1">
+    <label>Review Artwork</label>
+    <onclick>RunScript(script.skin.info.service,action=review_artwork,dbid=$INFO[ListItem.DBID],dbtype=$INFO[ListItem.DBType])</onclick>
+</control>
+```
+
+This launches the artwork review dialog for the focused item, showing all available artwork from TMDB and fanart.tv.
+
+**Example - Straight to one art type:**
+
+```xml
+<onclick>RunScript(script.skin.info.service,action=review_artwork,dbid=$INFO[ListItem.DBID],dbtype=season,art_type=poster)</onclick>
+```
+
+With `art_type` set, the art type menu is skipped when a single type is left, and the dialog closes on cancel instead of returning to that menu. If nothing is available for the requested types, a notification says so and nothing opens. Art types that the media type does not support are ignored.
+
+Art types accepted per media type:
+
+| Media type | Art types |
+|------------|-----------|
+| `movie`, `set` | `poster`, `fanart`, `clearlogo`, `clearart`, `banner`, `landscape`, `discart`, `keyart` |
+| `tvshow` | `poster`, `fanart`, `clearlogo`, `clearart`, `banner`, `landscape`, `characterart`, `keyart` |
+| `season` | `poster`, `fanart`, `banner`, `landscape`, `keyart` |
+| `episode` | `thumb` |
+| `musicvideo` | `thumb`, `fanart` |
+| `artist` | `thumb`, `fanart`, `clearlogo`, `clearart`, `banner`, `landscape`, `cutout` |
+| `album` | `thumb`, `discart`, `back`, `spine`, `3dcase`, `3dflat`, `3dface`, `3dthumb` |
+
+Season `fanart` offers the show's fanart. It is left out of the missing-art scan and auto-fill.
+
+---
+
+## Review Process
+
+### Visual Dialog
+
+For each art type, a visual dialog shows:
+
+- Thumbnail previews of all available options
+- Resolution (width × height)
+- Language (if applicable)
+
+### User Actions
+
+- **Select**: Click the image or Select button to apply that artwork
+- **Info**: View the focused image full size; Info again or Back returns. Right-click and
+  long-press do the same. Works in the Multi-Art dialog too
+- **Skip**: Skip this art type and leave it unchanged
+- **Cancel**: Exit the review process (progress is saved)
+
+### Multi-Art Dialog
+
+For fanart and other multi-image types, a special dialog allows:
+
+- View current extra art slots (fanart1, fanart2, etc.)
+- Select multiple new images from available options
+- Remove existing images
+- Reorder by selection sequence
+- Apply changes in one batch
+
+## Processing Modes
+
+### Auto-Process
+
+- Always applies the highest quality/resolution artwork
+- No user interaction required
+- Runs in the foreground or background (your choice)
+- Triggered via **Auto-Apply Missing Artwork** action
+
+### Manual Review
+
+- Shows visual dialog for each art type
+- User selects preferred artwork
+- Can skip individual art types
+- Can cancel to exit
+- Triggered via **Manual Review** action
+
+## Session Reports
+
+Manual-review session details:
+
+- Manual selections (title, art type, source, URL)
+- Manual skips and auto-skipped entries (with reasons)
+- Items that changed during review
+- Auto-fetch runs: counts, applied URLs, skipped titles, remaining queue size
+
+Reports are accessible from:
+
+- **View Reports** option in the action menu
+
+## Configuration
+
+Configure the Artwork Reviewer in addon settings under **Artwork**:
+
+### Missing Artwork Types
+
+Settings > Artwork > Missing Artwork Types
+
+Toggle which art types to scan for:
+
+| Type | Description |
+|------|-------------|
+| Poster | Movie/show posters |
+| Fanart | Background artwork |
+| Clearlogo | Transparent logo |
+| Clearart | Transparent artwork |
+| Thumb | Episode, music video, artist and album thumbs |
+| Discart | Disc artwork |
+| Banner | Wide banner artwork |
+| Landscape | Landscape/thumb |
+| Keyart | Key art/poster variant |
+| Characterart | Character artwork |
+
+Each scan checks only the types a media type can hold, so enabling Poster has no effect on
+episodes and enabling Characterart has no effect on movies.
+
+TheAudioDB art is offered in single item review only. The art types only TheAudioDB carries are
+not scanned for and not auto-applied:
+
+| Media type | Single item review only |
+|------------|-------------------------|
+| `artist` | `clearart`, `landscape`, `cutout` |
+| `album` | `back`, `spine`, `3dcase`, `3dflat`, `3dface`, `3dthumb` |
+| `musicvideo` | `thumb` |
+
+### Music video thumb source
+
+Settings > Artwork > Missing Artwork Types
+
+Music videos have no single correct thumb, the same way TV episodes don't. This setting picks
+what automatic fetching puts in an empty music video thumb slot:
+
+| Option | Source | Notes |
+|--------|--------|-------|
+| Video screenshots | TheAudioDB | Default. Matches Kodi's music video scraper |
+| Album cover | Fanart.tv | |
+| Artist thumb | Fanart.tv | |
+
+It applies to automatic fetching only. Single item review always offers every image it can find,
+whatever this is set to, so you can pick something else for an individual video.
+
+Not all art types are available for all items - availability depends on scraper sources.
+
+## Dialog Skinning
+
+### Artwork Selection Dialog
+
+To replace this dialog in a skin, see [Dialog Skinning](../index.md#dialog-skinning).
+
+**Required control IDs:**
+
+- **100**: Panel/List for artwork options (click to select)
+- **201**: Skip button
+- **202**: Cancel button
+- **203**: Multi-Art button (visibility controlled by show_multiart property)
+- **204**: Change Language button (visibility controlled by show_change_language property)
+- **205**: Sort button (visibility controlled by show_sort_button property)
+- **206**: Source filter button (visibility controlled by show_source_button property)
+
+Info and the context menu on a list item open that one image full size in the
+[Image Viewer](../dialogs/image-viewer.md). The included dialogs show a hint for it; to show the
+same text in your own XML:
+
+```xml
+<label>$ADDON[script.skin.info.service 32078]</label>
+```
+
+**Window Properties:**
+
+- **Window.Property(arttype)**: Artwork type being selected (poster, fanart, clearlogo, etc.)
+- **Window.Property(artlayout)**: Layout category for art types that share a shape - `poster`, `fanart`, `landscape`, or `square`. Empty for types with a unique shape (banner, clearlogo, characterart, spine, 3dcase, 3dflat, 3dface). Lets one layout serve several art types.
+- **Window.Property(heading)**: Media item title
+- **Window.Property(count)**: Formatted count (e.g., "15 available" or "24 of 58 available (English)")
+- **Window.Property(count_total)**: Total number of artwork options (numeric string)
+- **Window.Property(count_filtered)**: Number of filtered artwork options (numeric string)
+- **Window.Property(mediatype)**: Media type (movie, tvshow, episode, musicvideo, artist, album)
+- **Window.Property(year)**: Release year (e.g., "1999")
+- **Window.Property(hascurrentart)**: "true" or "false"
+- **Window.Property(currentarturl)**: URL of existing artwork (empty if none exists)
+- **Window.Property(language)**: Display name for current language filter (e.g., "English")
+- **Window.Property(language_short)**: Language code (e.g., "en")
+- **Window.Property(show_multiart)**: "true" or "false"
+- **Window.Property(show_change_language)**: "true" or "false"
+- **Window.Property(show_sort_button)**: "true" or "false"
+- **Window.Property(show_source_button)**: "true" or "false"
+- **Window.Property(sort_mode)**: `popularity` or `resolution`
+- **Window.Property(sort_label)**: Translated label for the sort mode (e.g., "Sort: Popularity")
+- **Window.Property(source_pref)**: `all`, `tmdb` or `fanart`
+- **Window.Property(source_label)**: Translated label for the source filter (e.g., "Source: TMDB")
+- **Window.Property(multiart_queued)**: "true" once a multi-art selection has been queued via the Multi-Art button (otherwise empty)
+
+**ListItem Properties (List 100 - artwork options):**
+
+- `ListItem.Label`: Option number ("Option 1", "Option 2", ...)
+- `ListItem.Art(thumb)`: Preview image
+- `ListItem.Property(fullurl)`: Full resolution image URL
+- `ListItem.Property(is_current)`: "true" when this option is the currently assigned artwork (set only on the matching item)
+- `ListItem.Property(is_inherited)`: "true" on the show's fanart in a season fanart list, the image Kodi shows while the season has none (set only on the matching item)
+- `ListItem.Property(dimensions)`: Width x Height (e.g., "1920x1080") when known
+- `ListItem.Property(width)`: Image width in pixels (when known)
+- `ListItem.Property(height)`: Image height in pixels (when known)
+- `ListItem.Property(source)`: Source name (e.g., "TMDB", "fanart.tv") when known
+- `ListItem.Property(language)`: Language display name (e.g., "English") when known
+- `ListItem.Property(language_short)`: Language code (e.g., "en") when known
+- `ListItem.Property(season)`: Season number (when known)
+
+**Example:**
+
+```xml
+<!-- One list layout per art shape -->
+<visible>String.IsEqual(Window.Property(artlayout),fanart)</visible>
+
+<!-- The artwork the item has now, beside the options -->
+<control type="image">
+    <texture>$INFO[Window.Property(currentarturl)]</texture>
+    <visible>String.IsEqual(Window.Property(hascurrentart),true)</visible>
+</control>
+
+<!-- Mark the option already in use -->
+<visible>String.IsEqual(ListItem.Property(is_current),true)</visible>
+```
+
+### Multi-Art Dialog Skinning
+
+To customize the multi-art selection dialog for your skin, create:
+`script.skin.info.service-MultiArtSelection.xml`
+
+This dialog uses a "working set" approach for managing extra art slots (fanart1+, poster1+, etc.):
+
+**Required control IDs:**
+
+- **100**: Current/Working art panel (shows working set, click to remove)
+- **200**: Available art panel (shows options NOT in working set, click to add)
+- **300**: Apply button (applies working set and closes)
+- **301**: Cancel button
+- **302**: Clear All button (resets to original state)
+- **303**: Sort button (visibility controlled by show_sort_button property)
+- **304**: Source filter button (visibility controlled by show_source_button property)
+
+**How it works:**
+
+- List 100 shows all items in the working set, labeled fanart1, fanart2, etc. based on position
+- List 200 shows available art that is NOT already in the working set
+- Clicking an item in list 200 appends it to the working set (list 100)
+- Clicking an item in list 100 removes it from the working set
+- Apply saves the working set as fanart1, fanart2, fanart3, etc. in order
+
+**ListItem Properties (List 100 - Working Set):**
+
+- `ListItem.Label`: Slot name (fanart1, fanart2, poster1, poster2, etc.)
+- `ListItem.Art(thumb)`: Preview image
+- `ListItem.Property(url)`: Full URL
+- `ListItem.Property(index)`: Position in working set (0-based)
+- `ListItem.Property(dimensions)`: Width x Height (e.g., "1920x1080") when known
+- `ListItem.Property(width)`: Image width in pixels (when known)
+- `ListItem.Property(height)`: Image height in pixels (when known)
+
+**ListItem Properties (List 200 - Available):**
+
+- `ListItem.Label`: Option number ("Option 1", "Option 2", ...)
+- `ListItem.Art(thumb)`: Preview image
+- `ListItem.Property(fullurl)`: Full resolution image URL
+- `ListItem.Property(is_current)`: "true" if this option matches the item's current main art, else "false"
+- `ListItem.Property(is_inherited)`: "true" if this option is the show's fanart in a season fanart list, else "false"
+- `ListItem.Property(dimensions)`: Width x Height (e.g., "1920x1080") when known
+- `ListItem.Property(width)`: Image width in pixels (when known)
+- `ListItem.Property(height)`: Image height in pixels (when known)
+- `ListItem.Property(source)`: Source name (e.g., "TMDB", "fanart.tv") when known
+- `ListItem.Property(language)`: Language display name (e.g., "English") when known
+- `ListItem.Property(language_short)`: Language code (e.g., "en") when known
+- `ListItem.Property(season)`: Season number (when known)
+
+**Window Properties:**
+
+- **Window.Property(multiart_dialog_active)**: "true" when dialog is open, cleared when closed
+- **Window.Property(heading)**: Media item title
+- **Window.Property(arttype)**: Art type label (e.g., "Multi-Art Fanart")
+- **Window.Property(mediatype)**: Media type (movie, tvshow, etc.)
+- **Window.Property(count)**: Formatted count (e.g., "3 images selected")
+- **Window.Property(count_total)**: Total available images (numeric string)
+- **Window.Property(count_selected)**: Number of selected images (numeric string)
+- **Window.Property(show_sort_button)**: "true" or "false"
+- **Window.Property(show_source_button)**: "true" or "false"
+- **Window.Property(sort_mode)**: `popularity` or `resolution`
+- **Window.Property(sort_label)**: Translated label for the sort mode (e.g., "Sort: Popularity")
+- **Window.Property(source_pref)**: `all`, `tmdb` or `fanart`
+- **Window.Property(source_label)**: Translated label for the source filter (e.g., "Source: TMDB")
+
+### Testing Your Dialog XML
+
+Use the test functions to preview your dialogs with dummy data (survives ReloadSkin):
+
+**Artwork Selection Dialog:**
+
+```xml
+RunScript(script.skin.info.service,action=arttest)
+RunScript(script.skin.info.service,action=arttest,art_type=fanart)
+RunScript(script.skin.info.service,action=arttest,art_type=clearlogo)
+RunScript(script.skin.info.service,action=arttest,art_type=banner)
+```
+
+**Multi-Art Selection Dialog:**
+
+```xml
+RunScript(script.skin.info.service,action=multiarttest)
+RunScript(script.skin.info.service,action=multiarttest,art_type=poster)
+RunScript(script.skin.info.service,action=multiarttest,art_type=characterart)
+```
+
+Available test types: `poster`, `fanart`, `clearlogo`, `clearart`, `banner`, `landscape`, `keyart`, `characterart`, `discart`
+
+**Artwork Selection Dialog Test Data:**
+
+- 20-30 dummy artwork options with realistic aspect ratios per art type
+- Different resolutions, ratings, likes, languages, and season numbers
+
+**Multi-Art Dialog Test Data:**
+
+- 2 existing extra art items (fanart1, fanart2)
+- 20 available art options with realistic dimensions
+- All items use type-specific test images from resources/media/artwork_test/
+
+Workflow: Edit XML → `ReloadSkin()` → Re-run test command → See changes
+
+## Troubleshooting
+
+### No Artwork Found
+
+**Problem**: Artwork Reviewer says "No missing artwork found" but you know some is missing.
+
+**Solutions**:
+
+1. Check "Missing Artwork Types" setting - make sure it includes the types you want
+2. Verify the artwork actually exists on scraper sources (TMDB, fanart.tv)
+3. Check that your scrapers are configured correctly in Kodi
+
+### API Keys Not Working
+
+**Problem**: Getting errors about API keys or no artwork being found.
+
+**Solutions**:
+
+1. Verify your TMDB API key is entered correctly in Settings → Advanced
+2. Verify your fanart.tv API key is entered correctly (if using fanart.tv)
+3. Check Kodi log for API error messages
+
+---
+
+[↑ Top](#artwork-review) · [Index](../index.md)

@@ -37,12 +37,12 @@
 				<width>450</width>
 				<height>96%</height>
 				<itemgap>5</itemgap>
-				<onleft></onleft>
+				<onleft>noop</onleft>
 				<onright>60</onright>
 				<onup>9000</onup>
 				<ondown>9000</ondown>
 				<include>animation_window_open_close</include>
-					<control type="button" id="95">
+				<control type="button" id="95">
 					<description>General</description>
 					<width>450</width>
 					<align>left</align>
@@ -108,18 +108,40 @@
 				</control>
 			</control>
 			<!--Grouplist Info-->
+			<control type="grouplist" id="1041">
+				<left>670</left>
+				<top>10</top>
+				<width>1150</width>
+				<height>50</height>
+				<itemgap>3</itemgap>
+				<include>animation_fade_visible_hidden</include>
+				<orientation>horizontal</orientation>
+				<control type="label" id="52">
+					<description>BUILD Version</description>
+					<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+					<width>800</width>
+				</control>
+				<control type="label">
+					<description>Compilation Date</description>
+					<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+					<label>$LOCALIZE[174]</label>
+					<width>auto</width>
+				</control>
+				<control type="label" id="53">
+					<description>Compilation Date</description>
+					<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
+					<width>200</width>
+				</control>
+			</control>
+
 			<control type="grouplist" id="104">
 				<left>670</left>
-				<top>20</top>
+				<top>50</top>
 				<width>1000</width>
 				<height>96%</height>
 				<itemgap>3</itemgap>
 				<include>animation_fade_visible_hidden</include>
-				<control type="label" id="52">
-					<description>XBMC XBE BUILD Version</description>
-					<textcolor>$INFO[Skin.String(GeneralHighlightTextColor)]</textcolor>
-					<width>1000</width>
-				</control>
+
 				<control type="label" id="21">
 					<description>CPU Text</description>
 					<width>1000</width>
@@ -252,11 +274,10 @@
 				<visible>Control.IsVisible(30)</visible>
 			</control>
 			
-			
 			<control type="group" id="102">
 				<description>System Info page that shows a QR code linking to https://kodi.tv/donate/</description>
 				<left>670</left>
-				<top>25</top>
+				<top>60</top>
 				<height>900</height>
 				<width>1100</width>
 				<control type="textbox">
@@ -264,17 +285,14 @@
 					<font>Reg30</font>
 					<label>$LOCALIZE[12397]</label>
 				</control>
-				<control type="multiimage" id="103">
-					<top>100</top>
-					<height>620</height>
-					<imagepath>special://xbmc/media/qr/kodilove/</imagepath>
+				<control type="image" id="1031">
+					<top>115</top>
+					<height>550</height>
+					<texture background="true">special://xbmc/media/qr/kodilove/qr-logo.png</texture>
 					<aspectratio>keep</aspectratio>
-					<timeperimage>10000</timeperimage>
-					<fadetime>1000</fadetime>
-					<randomize>false</randomize>
 				</control>
 				<control type="label">
-					<top>730</top>
+					<top>690</top>
 					<align>center</align>
 					<font>Reg30</font>
 					<label>$LOCALIZE[12398]</label>

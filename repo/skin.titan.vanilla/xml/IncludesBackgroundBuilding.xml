@@ -383,7 +383,6 @@
 		<value condition="Window.IsActive(script-skin_helper_service-CustomSearch.xml)">$VAR[fanartBackground_search]</value>
 
 		<!-- genre fanart -->
-		<value condition="Container.Content(Genres) + String.Contains(Skin.String(moviegenrefanart.path),script.skin.helper) + !String.IsEmpty(ListItem.label) + !String.IsEqual(ListItem.label,..)">http://localhost:52307/getmoviegenreimagesrandom&amp;title=$INFO[Listitem.Label]&amp;type=fanart.0</value>
 		<value condition="Container.Content(Genres) + Skin.String(moviegenrefanart.path) + !String.IsEmpty(ListItem.label) + !String.IsEqual(ListItem.label,..)">$INFO[Skin.String(moviegenrefanartpath)]/$INFO[ListItem.Label].jpg</value>
 
 		<!-- normal fanart backgrounds -->

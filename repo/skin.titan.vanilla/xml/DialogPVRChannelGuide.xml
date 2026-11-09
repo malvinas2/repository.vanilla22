@@ -45,8 +45,8 @@
 			<!--Channel Icon-->
 			<control type="image">
 				<top>5</top>
-				<width>150</width>
-				<height>150</height>
+				<width>135</width>
+				<height>135</height>
 				<texture background="true">$INFO[Player.Icon]</texture>
 				<aspectratio>keep</aspectratio>
 				<visible>!String.IsEmpty(Player.Icon)</visible>
@@ -115,8 +115,8 @@
 				<top>150</top>
 				<width>590</width>
 				<height>910</height>
-				<onleft></onleft>
-				<onright></onright>
+				<onleft>noop</onleft>
+				<onright>noop</onright>
 				<!-- <onright>dialog.close(all,true)</onright> -->
 				<onup>11</onup>
 				<ondown>11</ondown>

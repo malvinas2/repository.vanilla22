@@ -26,11 +26,11 @@
 			<include condition="Skin.HasSetting(smallContextMenu)">SideBladeClassic</include>
 			<include condition="![Skin.HasSetting(smallContextMenu)]">SideBladeModern</include>
 			<control type="button" id="3">
-				<description>Viewtype Toggle</description>
+				<description>Sort Method Toggle</description>
 				<include>HiddenButton</include>
 			</control>
 			<control type="togglebutton" id="4">
-				<description>Viewtype Toggle</description>
+				<description>Sortmode Toggle</description>
 				<include>HiddenButton</include>
 			</control>
 			<!--Grouplist 9000-->
@@ -55,7 +55,7 @@
 			   <control type="button" id="6053">
 					<description>Sort by button</description>
 					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[70030]</label>
+					<label>$LOCALIZE[31916]</label>
 					<label2>[B]$INFO[Container.SortMethod][/B]</label2>
 					<visible>Control.IsEnabled(3)</visible>
 					<onright>Container.NextSortMethod</onright>
@@ -65,7 +65,7 @@
 				<control type="button" id="6052">
 					<description>Sort asc</description>
 					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[70031]</label>
+					<label>$LOCALIZE[31917]</label>
 					<label2>[B]$INFO[Container.SortOrder][/B]</label2>
 					<visible>Control.IsEnabled(4)</visible>
 					<onright>SendClick(4)</onright>
@@ -82,26 +82,28 @@
 					<label>$LOCALIZE[587]</label>
 					<onclick>right</onclick>
 				</control>
-				<control type="button" id="98">
+				<control type="radiobutton" id="98">
 					<visible>Container.CanFilterAdvanced</visible>
 					<description>Filter</description>
 					<include>SideBladeMenuButton</include>
 					<label>$LOCALIZE[587]</label>
-					<!-- <selected>Container.Filtered</selected> -->
+					<selected>Container.Filtered</selected>
 					<onclick>right</onclick>
 					<onclick>Filter</onclick>
 				</control>
-				<!-- <control type="button" id="8"> -->
-					<!--Button Search-->
-					<!-- <include>SideBladeMenuButton</include> -->
-					<!-- <label>$LOCALIZE[137]</label> -->
-				<!-- </control> -->
-				<control type="button" id="388">
+
+				<control type="button" id="8">
 					<!--Button Search-->
 					<include>SideBladeMenuButton</include>
 					<label>$LOCALIZE[137]</label>
+					<visible>Window.IsVisible(Videos) | Window.IsVisible(Music)</visible>
+				</control>
+				<control type="button" id="388">
+					<!--Button Search-->
+					<include>SideBladeMenuButton</include>
+					<label>GlobalSearch</label>
 					<!-- <onclick>RunScript(script.skin.helper.service,action=VIDEOSEARCH)</onclick> -->
-					<!-- <label>$LOCALIZE[70001]</label> -->
+					<!-- <label>$LOCALIZE[31837]</label> -->
 					<onclick condition="System.HasAddon(script.globalsearch)">RunScript(script.globalsearch)</onclick>
 					<onclick condition="!System.HasAddon(script.globalsearch)">InstallAddon(script.globalsearch)</onclick>
 					<visible>String.Contains(Container.FolderPath,musicdb)</visible>
@@ -111,7 +113,7 @@
 					<include>SideBladeMenuButton</include>
 					<label>$LOCALIZE[13350]</label>
 					<onclick>ActivateWindow(musicplaylist)</onclick>
-					<visible>!String.IsEqual(Playlist.Length(music),0)</visible>
+					<visible>Integer.IsGreater(Playlist.Length(music),0)</visible>
 				</control>
 				<control type="radiobutton" id="16">
 					<!--Button Party Mode-->
@@ -135,6 +137,29 @@
 					<alttexturenofocus></alttexturenofocus>
 					<usealttexture>library.isscanningmusic</usealttexture>
 				</control>
+
+				<control type="image" id="6201">
+					<!--Seperator-->
+					<width>458</width>
+					<height>10</height>
+					<align>left</align>
+					<texture>common/menu-separator.png</texture>
+				</control>
+
+				<control type="button" id="621">
+					<description>Get more</description>
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[21452]</label>
+					<onclick>ActivateWindow(addonbrowser,addons://more/audio/,return)</onclick>
+					<visible>Container.Content(addons)</visible>
+				</control>
+				<control type="button" id="624">
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[10140]</label>
+					<onclick>Addon.OpenSettings($INFO[Container.PluginName])</onclick>
+					<visible>!String.IsEmpty(Container.PluginName)</visible>
+				</control>
+
 				<include>SideBladeViewCommands</include>
 			</control>
 		</control>

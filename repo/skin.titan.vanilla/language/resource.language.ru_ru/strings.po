@@ -332,14 +332,6 @@ msgctxt "#31088"
 msgid "Live-TV"
 msgstr "Live TV"
 
-msgctxt "#31089"
-msgid "XBMB3C add-on"
-msgstr "Дополнения XBMB3C"
-
-msgctxt "#31090"
-msgid "XBMB3C settings"
-msgstr "Настройки XBMB3C"
-
 msgctxt "#31091"
 msgid "Mediabrowser"
 msgstr "MediaBrowser"
@@ -2108,14 +2100,14 @@ msgctxt "#31823"
 msgid "Use fixed focus"
 msgstr "Постоянный фокус"
 
-msgctxt "#30035"
+msgctxt "#31956"
 msgid "Continue watching in $INFO[Window.Property(remaining)] seconds"
 msgstr "Продолжить просмотр через $INFO[Window.Property(remaining)] секунд"
 
-msgctxt "#30036"
+msgctxt "#31957"
 msgid "Up next in $INFO[Window.Property(remaining)] seconds"
 msgstr "Продолжение через $INFO[Window.Property(remaining)] секунд"
 
-msgctxt "#30037"
+msgctxt "#31958"
 msgid "Next episode in $INFO[Window.Property(remaining)] seconds"
 msgstr "Следующая серия через $INFO[Window.Property(remaining)] секунд"

@@ -1,0 +1,528 @@
+# Person Info
+
+TMDB person information including biography, filmography, images, and crew.
+
+[← Back to Index](../index.md)
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [RunScript Usage](#runscript-usage)
+- [Properties Set](#properties-set)
+- [Matching Strategy](#matching-strategy)
+- [Details Container](#details-container)
+- [Images Container](#images-container)
+- [Filmography Container](#filmography-container)
+- [Crew Container](#crew-container)
+- [Crew Lists](#crew-lists)
+- [Library Containers (LibraryMovies / LibraryTVShows)](#library-containers-librarymovies--librarytvshows)
+- [Example Implementation](#example-implementation)
+
+---
+
+## Overview
+
+Four plugin containers provide person data:
+
+- Details - Biography and metadata
+- Images - Profile images
+- Filmography - Acting credits
+- Crew - Director/writer/producer credits
+
+---
+
+## RunScript Usage
+
+### person_info
+
+Fetches person data and sets properties.
+
+```xml
+<onclick>RunScript(script.skin.info.service,
+  action=person_info,
+  name=$INFO[ListItem.Label],
+  role=$INFO[ListItem.Property(Role)],
+  dbid=DBID,
+  dbtype=DBTYPE)</onclick>
+```
+
+**Parameters:**
+
+| Parameter     | Required | Description                                |
+|---------------|----------|--------------------------------------------|
+| `action`      | Yes      | `person_info`                              |
+| `name`        | Yes*     | Person name, matched in the title's cast, then its crew |
+| `role`        | No       | Character role (improves matching)         |
+| `dbid`        | Yes*     | Kodi database ID                           |
+| `tmdb_id`     | *        | TMDB ID of a movie or TV show, in place of `dbid` for a title not in the library; needs `dbtype` movie or tvshow |
+| `dbtype`      | Yes      | movie, tvshow, episode, season, set        |
+| `sourceid`    | *        | Source DBID (required for set/season)      |
+| `crew`        | No       | Crew type: director, writer, creator; on a set, director or writer across its library movies |
+| `separator`   | No       | Name separator (default: " / "); a value with several names shows a picker of them |
+| `auto_search` | No       | Show search on failure (default: true); a search with one result is used without a picker |
+| `open_window` | No       | Window ID to open after search             |
+
+**Movie set usage:**
+
+```xml
+<onclick>RunScript(script.skin.info.service,
+  action=person_info,
+  name=$INFO[ListItem.Label],
+  role=$INFO[ListItem.Label2],
+  dbtype=set,
+  dbid=$INFO[ListItem.DBID],
+  sourceid=$INFO[ListItem.Property(source_id)])</onclick>
+```
+
+**Season usage:**
+
+```xml
+<onclick>RunScript(script.skin.info.service,
+  action=person_info,
+  name=$INFO[ListItem.Label],
+  role=$INFO[ListItem.Label2],
+  dbtype=season,
+  dbid=$INFO[ListItem.DBID],
+  sourceid=$INFO[ListItem.Property(source_id)])</onclick>
+```
+
+**Crew lookup (director):**
+
+```xml
+<onclick>RunScript(script.skin.info.service,
+  action=person_info,
+  crew=director,
+  dbid=$INFO[ListItem.DBID],
+  dbtype=movie)</onclick>
+```
+
+**Crew lookup (writer):**
+
+```xml
+<onclick>RunScript(script.skin.info.service,
+  action=person_info,
+  crew=writer,
+  dbid=$INFO[ListItem.DBID],
+  dbtype=movie)</onclick>
+```
+
+**Crew lookup on a movie set:**
+
+```xml
+<onclick>RunScript(script.skin.info.service,
+  action=person_info,
+  crew=director,
+  dbid=$INFO[ListItem.DBID],
+  dbtype=set)</onclick>
+```
+
+**TV creator:**
+
+```xml
+<onclick>RunScript(script.skin.info.service,
+  action=person_info,
+  crew=creator,
+  dbid=$INFO[ListItem.DBID],
+  dbtype=tvshow)</onclick>
+```
+
+### person_search
+
+Shows TMDB person search dialog.
+
+**With context:**
+
+```xml
+<onclick>RunScript(script.skin.info.service,
+  action=person_search,
+  name=Actor Name,
+  role=Role,
+  dbtype=movie,
+  dbid=123,
+  open_window=1109)</onclick>
+```
+
+**Standalone:**
+
+```xml
+<onclick>RunScript(script.skin.info.service,
+  action=person_search,
+  query=Actor Name)</onclick>
+```
+
+---
+
+## Properties Set
+
+Window properties on Home window:
+
+**On success:**
+
+| Property                         | Value                                                                                              |
+|----------------------------------|----------------------------------------------------------------------------------------------------|
+| `SkinInfo.person_id`             | `<TMDB person ID>`                                                                                 |
+| `SkinInfo.Person.Details`        | `plugin://script.skin.info.service/?action=person_info&info_type=details&person_id=N`              |
+| `SkinInfo.Person.Images`         | `plugin://script.skin.info.service/?action=person_info&info_type=images&person_id=N`               |
+| `SkinInfo.Person.Filmography`    | `plugin://script.skin.info.service/?action=person_info&info_type=filmography&person_id=N`          |
+| `SkinInfo.Person.Crew`           | `plugin://script.skin.info.service/?action=person_info&info_type=crew&person_id=N`                 |
+| `SkinInfo.Person.LibraryMovies`  | `plugin://script.skin.info.service/?action=person_library&info_type=movies&person_id=N&person_name=<encoded>`  |
+| `SkinInfo.Person.LibraryTVShows` | `plugin://script.skin.info.service/?action=person_library&info_type=tvshows&person_id=N&person_name=<encoded>` |
+| `SkinInfo.Person.BlurredImage`   | `<blurred profile image path>`                                                                     |
+| `SkinInfo.Person.BlurredImage.Original` | `<profile image the blur was made from>`                                                    |
+
+Skinners typically reference these via `$INFO[Window(Home).Property(SkinInfo.Person.Crew)]`
+in `<content>` tags, but the raw paths above can also be hand-built when you need to add
+filter params (e.g. `&sort=date_desc&job=Director` on the Crew URL, see [Crew Container](#crew-container)).
+
+**On failure (auto_search=false):**
+
+| Property                      | Value                                |
+|-------------------------------|--------------------------------------|
+| `SkinInfo.Person.SearchQuery` | `<RunScript command for manual search>` |
+
+---
+
+## Matching Strategy
+
+The person is matched despite scraper name differences.
+
+---
+
+## Details Container
+
+Single ListItem with biography and metadata.
+
+```xml
+<content>
+  $INFO[Window(Home).Property(SkinInfo.Person.Details)]
+</content>
+```
+
+### Details Properties
+
+| Property             | Description                 |
+|----------------------|-----------------------------|
+| `Name`               | Person name                 |
+| `Biography`          | Biography text              |
+| `Birthday`           | Birth date (YYYY-MM-DD)     |
+| `BirthdayFormatted`  | Formatted birth date        |
+| `Birthplace`         | Place of birth              |
+| `Age`                | Current age (or at death)   |
+| `Deathday`           | Death date                  |
+| `DeathdayFormatted`  | Formatted death date        |
+| `KnownFor`           | Department                  |
+| `TopMovies`          | Top 5 movies                |
+| `TopTVShows`         | Top 5 TV shows              |
+| `person_id`          | TMDB person ID              |
+| `imdb_id`            | IMDB ID                     |
+| `Gender`             | `Female` or `Male`          |
+| `Instagram`          | Instagram handle            |
+| `Twitter`            | Twitter handle              |
+| `Facebook`           | Facebook profile            |
+| `TikTok`             | TikTok handle               |
+| `YouTube`            | YouTube channel ID          |
+| `ProfileImage`       | Profile image URL           |
+
+### Details Artwork
+
+`thumb`, `icon` - Profile image
+
+---
+
+## Images Container
+
+Multiple ListItems for profile images.
+
+```xml
+<content target="pictures">
+  $INFO[Window(Home).Property(SkinInfo.Person.Images)]
+</content>
+```
+
+### Images Properties
+
+| Property      | Description                           |
+|---------------|---------------------------------------|
+| `Width`       | Image width in pixels                 |
+| `Height`      | Image height in pixels                |
+| `Dimensions`  | Pre-formatted `{width}x{height}`      |
+| `Rating`      | TMDB rating                           |
+| `Votes`       | Vote count                            |
+| `AspectRatio` | Aspect ratio                          |
+
+### Images Artwork
+
+`thumb` - Profile image URL
+
+---
+
+## Filmography Container
+
+Acting credits with filtering options.
+
+```xml
+<content target="videos">
+  $INFO[Window(Home).Property(SkinInfo.Person.Filmography)]
+</content>
+```
+
+**With filters:**
+
+```xml
+<content target="videos">plugin://script.skin.info.service/
+  ?action=person_info
+  &amp;info_type=filmography
+  &amp;person_id=$INFO[Window(Home).Property(SkinInfo.person_id)]
+  &amp;dbtype=movie
+  &amp;min_votes=100
+  &amp;exclude_unreleased=true
+  &amp;sort=popularity
+  &amp;limit=20</content>
+```
+
+### Filmography Filter Parameters
+
+| Parameter           | Values                           | Description       |
+|---------------------|----------------------------------|-------------------|
+| `dbtype`            | movie, tvshow, both              | Filter by type    |
+| `min_votes`         | 0-9999                           | Minimum votes     |
+| `exclude_unreleased`| true, false                      | Exclude unreleased|
+| `sort`              | popularity, date_desc, date_asc, | Sort order        |
+|                     | rating, title                    |                   |
+| `limit`             | 1-999                            | Maximum items     |
+
+**Note:** Also accepts `both` for mixed results.
+
+### Filmography Properties
+
+| Property      | Description                                                |
+|---------------|------------------------------------------------------------|
+| `Role`        | Character name (also set as `ListItem.Label2`)             |
+| `MediaType`   | "movie" or "tv"                                            |
+| `ReleaseDate` | Release date                                               |
+| `tmdb_id`     | TMDB ID of the movie or show                               |
+| `IsInLibrary` | `true` when the item is in the Kodi library (else not set) |
+| `dbid`        | Library ID, set only alongside `IsInLibrary`               |
+
+To mark titles the user owns:
+
+```xml
+<visible>String.IsEqual(ListItem.Property(IsInLibrary),true)</visible>
+```
+
+Title, year, TMDB rating and overview are in `ListItem.Title`, `ListItem.Year`,
+`ListItem.Rating` and `ListItem.Plot`.
+
+### Filmography Artwork
+
+`poster` - Poster, `fanart` - Backdrop
+
+---
+
+## Crew Container
+
+Crew credits with same filtering options as filmography. By default, items where the
+person held multiple roles (e.g. directed AND wrote the same movie) appear once with
+all roles aggregated into the `Job` property as a comma-separated string.
+
+```xml
+<content target="videos">
+  $INFO[Window(Home).Property(SkinInfo.Person.Crew)]
+</content>
+```
+
+**With filters:**
+
+```xml
+<content target="videos">plugin://script.skin.info.service/
+  ?action=person_info
+  &amp;info_type=crew
+  &amp;person_id=$INFO[Window(Home).Property(SkinInfo.person_id)]
+  &amp;dbtype=movie
+  &amp;sort=date_desc
+  &amp;limit=50</content>
+```
+
+### Crew Filter Parameters
+
+All filmography parameters apply (`dbtype`, `sort`, `min_votes`, `exclude_unreleased`,
+`limit`) plus:
+
+| Parameter | Values                                          | Description                                                |
+|-----------|-------------------------------------------------|------------------------------------------------------------|
+| `job`     | `Director`, `Writer`, `Producer`, `Creator`, ... | Show only items where the person held this exact job (case-insensitive). |
+
+Example, only items Ivan Reitman directed:
+```
+&amp;info_type=crew&amp;person_id=8858&amp;job=Director
+```
+
+### Crew Properties
+
+Same as filmography plus:
+
+| Property     | Description                                                              |
+|--------------|--------------------------------------------------------------------------|
+| `Job`        | Job title (or comma-separated list when an item has multiple roles)      |
+| `Department` | Department of the first credit (`Directing`, `Writing`, `Production`...) |
+
+---
+
+## Crew Lists
+
+Plugin paths for full crew or crew filtered by job (directors, writers, creators).
+
+### Crew List Usage
+
+```xml
+<!-- Full crew, sorted by job importance -->
+<content>plugin://script.skin.info.service/
+  ?action=crew
+  &amp;dbtype=movie
+  &amp;dbid=$INFO[ListItem.DBID]</content>
+
+<!-- Or with TMDB ID directly (no library entry required) -->
+<content>plugin://script.skin.info.service/
+  ?action=crew
+  &amp;dbtype=movie
+  &amp;tmdb_id=$INFO[ListItem.Property(tmdb_id)]</content>
+
+<!-- Directors only -->
+<content>plugin://script.skin.info.service/
+  ?action=directors
+  &amp;dbtype=movie
+  &amp;dbid=$INFO[ListItem.DBID]</content>
+
+<!-- Writers only -->
+<content>plugin://script.skin.info.service/
+  ?action=writers
+  &amp;dbtype=movie
+  &amp;dbid=$INFO[ListItem.DBID]</content>
+
+<!-- TV creators -->
+<content>plugin://script.skin.info.service/
+  ?action=creators
+  &amp;dbtype=tvshow
+  &amp;dbid=$INFO[ListItem.DBID]</content>
+```
+
+### Crew List Parameters
+
+| Parameter | Values                              | Description                              |
+|-----------|-------------------------------------|------------------------------------------|
+| `action`  | crew, directors, writers, creators  | `crew` = full crew; others filter by job |
+| `dbtype`  | movie, tvshow                       | Media type                               |
+| `dbid`    | integer                             | Library ID (provide this OR `tmdb_id`)   |
+| `tmdb_id` | integer                             | TMDB ID (alternative to `dbid`)          |
+
+### Crew List Properties
+
+| Property    | Description    |
+|-------------|----------------|
+| `Label`     | Person name    |
+| `Label2`    | Job title      |
+| `person_id` | TMDB person ID |
+| `Job`       | Job title      |
+
+### Crew List Artwork
+
+`thumb`, `icon` - Profile image
+
+### Crew List Notes
+
+- `creators` only works with `dbtype=tvshow`
+- Writers include: Writer, Screenplay, Story jobs
+- `crew` returns all jobs sorted by importance: Director → Writer → Producer → Editor → DP → Composer → Casting → Production Design → Costume → others
+- A person who held multiple jobs appears once at their highest-priority job; the `Job` property reads as `"Director, Producer"`
+- `tmdb_id` supersedes `dbid` if both are provided; useful for TMDB-only items (no library entry)
+
+---
+
+## Library Containers (LibraryMovies / LibraryTVShows)
+
+The `?action=person_library&info_type=movies` and `&info_type=tvshows`
+plugin paths return the library items the person appears in.
+Each ListItem additionally has:
+
+| Property      | Description                                          |
+|---------------|------------------------------------------------------|
+| `Title`       | Title                                                |
+| `Year`        | Release year                                         |
+| `Rating`      | Library rating, one decimal                          |
+| `Playcount`   | Times played, set only once played                   |
+| `Role`        | Character name (also `Label2`)                       |
+
+| Parameter     | Required | Description                                                     |
+|---------------|----------|-----------------------------------------------------------------|
+| `info_type`   | Yes      | `movies` or `tvshows`                                           |
+| `person_id`   | No       | TMDB person ID; matches the person's filmography to the library |
+| `person_name` | No       | Actor name; used when `person_id` is absent or matches nothing  |
+
+Pass at least one of `person_id` or `person_name`.
+
+With `person_id`, the person's TMDB filmography is matched against the library by TMDB ID,
+and `Role` comes from the TMDB credit. This finds every library item the person appears in,
+including TV shows they only guest in and items whose cast list Kodi never recorded.
+
+With `person_name` alone, Kodi's own cast links answer instead, and `Role` comes from the
+library item's cast. Kodi links only main cast at show level, so guest appearances are
+missing.
+
+---
+
+## Example Implementation
+
+```xml
+<control type="group">
+    <visible>!String.IsEmpty(Window(Home).Property(SkinInfo.person_id))</visible>
+
+    <!-- Details -->
+    <control type="list" id="9000">
+        <content>
+          $INFO[Window(Home).Property(SkinInfo.Person.Details)]
+        </content>
+        <itemlayout />
+    </control>
+
+    <!-- Biography -->
+    <control type="textbox">
+        <label>$INFO[Container(9000).ListItem.Property(Biography)]</label>
+    </control>
+
+    <!-- Profile Images -->
+    <control type="fixedlist" id="9001">
+        <content target="pictures">
+          $INFO[Window(Home).Property(SkinInfo.Person.Images)]
+        </content>
+        <itemlayout>
+            <control type="image">
+                <texture>$INFO[ListItem.Art(thumb)]</texture>
+            </control>
+        </itemlayout>
+    </control>
+
+    <!-- Filmography -->
+    <control type="list" id="9002">
+        <content target="videos">
+          plugin://script.skin.info.service/
+            ?action=person_info
+            &amp;info_type=filmography
+            &amp;person_id=$INFO[Window(Home).Property(SkinInfo.person_id)]
+            &amp;sort=popularity
+            &amp;limit=50
+        </content>
+        <itemlayout>
+            <control type="label">
+                <label>$INFO[ListItem.Title] ($INFO[ListItem.Year])
+                  - $INFO[ListItem.Property(Role)]</label>
+            </control>
+        </itemlayout>
+    </control>
+</control>
+```
+
+---
+
+[↑ Top](#person-info) · [Index](../index.md)

@@ -215,19 +215,19 @@
 					<control type="label">
 						<!--title-->
 						<left>0</left>
-						<top>0</top>
+						<top>-10</top>
 						<width>1460</width>
 						<height>20</height>
 						<font>Reg28</font>
 						<textcolor>$INFO[Skin.String(ViewDetailsHighlightTextColor)]</textcolor>
-						<label>[B]$INFO[ListItem.Label]$INFO[ListItem.EpisodeName, (,)][/B]</label>
+						<label>[B]$INFO[ListItem.EpgEventTitle]$INFO[ListItem.EpisodeName, (,)][/B]</label>
 						<aligny>top</aligny>
 						<wrapmultiline>false</wrapmultiline>
 					</control>
 					<control type="label">
 						<!--time,duration,genre-->
 						<left>0</left>
-						<top>45</top>
+						<top>35</top>
 						<width>1460</width>
 						<height>80</height>
 						<font>Reg26</font>
@@ -238,8 +238,8 @@
 					<control type="textbox">
 						<!--Info Plot-->
 						<left>0</left>
-						<top>85</top>
-						<height>125</height>
+						<top>75</top>
+						<height>135</height>
 						<width>1460</width>
 						<font>Reg28</font>
 						<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>

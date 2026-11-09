@@ -21,8 +21,7 @@
 				<onright condition="!Skin.HasSetting(EnableQuickJump)">60</onright>
 				<pagecontrol>60</pagecontrol>
 				<viewtype label="31424">bigwide</viewtype>
-				<scrolltime tween="Cubic" easing="inout">500</scrolltime>
-				<focusposition>0</focusposition>
+				<scrolltime tween="cubic" easing="inout">500</scrolltime>
 				<orientation>vertical</orientation>
 				<preloaditems>4</preloaditems>
 				<visible>String.IsEqual(Window(Home).Property(SkinHelper.ForcedView),55) | String.IsEmpty(Window(Home).Property(SkinHelper.ForcedView))</visible>

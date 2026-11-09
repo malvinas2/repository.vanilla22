@@ -344,14 +344,6 @@ msgctxt "#31088"
 msgid "Live-TV"
 msgstr "TV en direct"
 
-msgctxt "#31089"
-msgid "XBMB3C add-on"
-msgstr "Extension XBMB3C"
-
-msgctxt "#31090"
-msgid "XBMB3C settings"
-msgstr "Réglages XBMB3C"
-
 msgctxt "#31091"
 msgid "Mediabrowser"
 msgstr "MediaBrowser"
@@ -2004,14 +1996,14 @@ msgctxt "#31824"
 msgid "Default music background (as fallback if no artist fanart or fanart disabled)"
 msgstr "Musique d'arrière-plan par défaut (en cas d'absence ou désactivation du fanart de l'artiste)"
 
-msgctxt "#30035"
+msgctxt "#31956"
 msgid "Continue watching in $INFO[Window.Property(remaining)] seconds"
 msgstr "Continuer à regarder dans $INFO[Window.Property(remaining)] secondes"
 
-msgctxt "#30036"
+msgctxt "#31957"
 msgid "Up next in $INFO[Window.Property(remaining)] seconds"
 msgstr "À suivre dans $INFO[Window.Property(remaining)] secondes"
 
-msgctxt "#30037"
+msgctxt "#31958"
 msgid "Next episode in $INFO[Window.Property(remaining)] seconds"
 msgstr "Prochain épisode dans $INFO[Window.Property(remaining)] secondes"

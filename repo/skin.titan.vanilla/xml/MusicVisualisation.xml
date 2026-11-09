@@ -7,7 +7,7 @@
 		 <!--fallback background -->
 		<control type="group">
 			<include>GlobalBackground</include>
-			<visible>[!Control.IsVisible(3333) | String.IsEmpty(Control.GetLabel(3333))] + [!Control.IsVisible(3334) | String.IsEmpty(Control.GetLabel(3334))]</visible>
+			<visible>[!Control.IsVisible(3333) | String.IsEmpty(Control.GetLabel(3333))]</visible>
 		</control>
 
 		<include>NowPlayingBackground</include>
@@ -109,7 +109,6 @@
 				<label>$INFO[MusicPlayer.Artist,, • ]$INFO[MusicPlayer.Title,, • ]$INFO[MusicPlayer.Artist,, • ]$INFO[MusicPlayer.Title,, • ]$INFO[MusicPlayer.Artist,, • ]$INFO[MusicPlayer.Title,, • ]</label>
 				<scroll>true</scroll>
 				<font>Light200</font>
-				<pauseatend>0</pauseatend>
 				<textcolor>36ffffff</textcolor>
 				<align>left</align>
 			</control>

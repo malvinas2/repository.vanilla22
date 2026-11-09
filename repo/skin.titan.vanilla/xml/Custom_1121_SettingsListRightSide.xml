@@ -14,7 +14,7 @@
 		<control type="group">
 			<animation effect="fade" end="0" time="0" reversible="false" condition="Window.IsVisible(yesnodialog) | Window.IsVisible(addonsettings)">Conditional</animation>
 			<visible>!Window.IsActive(sliderdialog) + !Window.IsActive(subtitlesearch) + !Window.IsActive(script.pseudotv.TVOverlay.xml)</visible>
-			<visible>!Window.IsActive(DialogSettings.xml) + !Window.IsActive(DialogSlider.xml) + !Window.IsActive(PlayerProcessInfo) + !Window.IsActive(GameVideoFilter) + !Window.IsActive(GameStretchMode) + !Window.IsActive(GameControllers) + !Window.IsActive(GamePorts) + !Window.IsActive(GameVideoRotation) + !Window.IsActive(1109) + !Window.IsActive(1110)</visible>
+			<visible>!Window.IsActive(DialogSettings.xml) + !Window.IsActive(DialogSlider.xml) + !Window.IsActive(PlayerProcessInfo) + !Window.IsActive(GameVideoFilter) + !Window.IsActive(GameStretchMode) + !Window.IsActive(GameControllers) + !Window.IsActive(GamePorts) + !Window.IsActive(GameVideoRotation) + !Window.IsActive(GameDiscManager) + !Window.IsActive(1109) + !Window.IsActive(1110)</visible>
 			<animation type="WindowOpen">
 				<effect type="slide" start="1200" end="0" time="250" tween="cubic" easing="inout" />
 			</animation>
@@ -63,15 +63,15 @@
 				<top>230</top>
 				<width>1200</width>
 				<height>660</height>
-				<orientation>vertical</orientation>
-				<itemgap>0</itemgap>
 				<onup>11000</onup>
 				<ondown>11000</ondown>
 				<onleft>30</onleft>
 				<onright>30</onright>
-				<scrolltime tween="cubic" easing="out">500</scrolltime>
 				<control type="grouplist" id="11100">
 					<visible>String.IsEqual(window(home).Property(settingslist_content),osd)</visible>
+					<orientation>vertical</orientation>
+					<itemgap>0</itemgap>
+					<scrolltime tween="cubic" easing="out">500</scrolltime>
 					<control type="button" id="11111">
 						<description>button template</description>
 						<width>1200</width>
@@ -135,7 +135,7 @@
 						<include>DialogButton</include>
 						<onleft>8002</onleft>
 						<onright>8002</onright>
-						<label>$LOCALIZE[61112]</label>
+						<label>$LOCALIZE[31835]</label>
 						<label2>[B]$INFO[VideoPlayer.AudioLanguage][/B]</label2>
 						<onclick>AudioNextLanguage</onclick>
 						<visible>Integer.IsGreater(VideoPlayer.AudioStreamCount,1)</visible>
@@ -150,7 +150,7 @@
 						<include>DialogButton</include>
 						<onleft>8002</onleft>
 						<onright>8002</onright>
-						<label>$LOCALIZE[70033]</label>
+						<label>$LOCALIZE[31919]</label>
 						<label2>[B]$VAR[ActiveVideoPlayerSubtitleLanguage][/B]</label2>
 						<onclick>NextSubtitle</onclick>
 						<visible>VideoPlayer.HasSubtitles</visible>
@@ -163,7 +163,7 @@
 						<textoffsetx>20</textoffsetx>
 						<texturenofocus>dialogs/default/separator.png</texturenofocus>
 						<include>DialogButton</include>
-						<label>$LOCALIZE[70010]</label>
+						<label>$LOCALIZE[31896]</label>
 						<onleft>8002</onleft>
 						<onright>8002</onright>
 						<onclick>PlayerProgramSelect</onclick>
@@ -179,7 +179,7 @@
 						<include>DialogButton</include>
 						<onleft>8002</onleft>
 						<onright>8002</onright>
-						<label>$LOCALIZE[70011]</label>
+						<label>$LOCALIZE[31897]</label>
 						<onclick>PlayerResolutionSelect</onclick>
 						<visible>Player.HasResolutions</visible>
 					</control>
@@ -194,7 +194,7 @@
 						<include>DialogButton</include>
 						<onleft>8002</onleft>
 						<onright>8002</onright>
-						<label>$LOCALIZE[70053]</label>
+						<label>$LOCALIZE[31939]</label>
 						<!-- <onclick>Dialog.Close(1121)</onclick> -->
 						<onclick condition="!Skin.HasSetting(UseIncreasedMaxtempo)">ActivateWindow(1110)</onclick>
 						<onclick condition="Skin.HasSetting(UseIncreasedMaxtempo)">ActivateWindow(1109)</onclick>
@@ -217,6 +217,9 @@
 				</control>
 				<control type="grouplist" id="13100">
 					<visible>String.IsEqual(window(home).Property(settingslist_content),3d)</visible>
+					<orientation>vertical</orientation>
+					<itemgap>0</itemgap>
+					<scrolltime tween="cubic" easing="out">500</scrolltime>
 					<control type="radiobutton" id="13101">
 						<description>radiobutton template</description>
 						<width>1200</width>
@@ -255,7 +258,7 @@
 						<onleft>8002</onleft>
 						<onright>8002</onright>
 						<radioposx>1080</radioposx>
-						<label>$LOCALIZE[61005]</label>
+						<label>$LOCALIZE[31836]</label>
 						<onclick>StereoModeToMono</onclick>
 						<selected>Integer.IsEqual(System.StereoscopicMode,9)</selected>
 					</control>
@@ -263,6 +266,9 @@
 				<control type="grouplist" id="14100">
 					<defaultcontrol always="true">14101</defaultcontrol>
 					<visible>String.IsEqual(window(home).Property(settingslist_content),games)</visible>
+					<orientation>vertical</orientation>
+					<itemgap>0</itemgap>
+					<scrolltime tween="cubic" easing="out">500</scrolltime>
 					<control type="button" id="14101">
 						<description>Video filter button</description>
 						<width>1200</width>
@@ -311,7 +317,7 @@
 						<texturenofocus>dialogs/default/separator.png</texturenofocus>
 						<include>DialogButton</include>
 						<label>$LOCALIZE[13376]</label>
-						<label2>Select + Right Stick</label2>
+						<label2>$FEATURE[select,game.controller.snes] + $FEATURE[rightstick,game.controller.default]</label2>
 						<onleft>8002</onleft>
 						<onright>8002</onright>
 						<onclick>ActivateWindow(GameVolume)</onclick>					
@@ -369,19 +375,6 @@
 				<onleft>11000</onleft>
 				<onright>11000</onright>		
 
-			<!--	<control type="button" id="28">
-					<description>OK</description>
-					<label>$LOCALIZE[186]</label>
-					<include>DialogButtonOther</include>
-					<animation effect="fade" start="100" end="75" time="0" condition="!Control.IsEnabled(28)">Conditional</animation>
-				</control>
-				<control type="button" id="29">
-					<left>200</left>
-					<description>Cancel</description>
-					<label>$LOCALIZE[222]</label>
-					<include>DialogButtonOther</include>
-					<animation effect="fade" start="100" end="75" time="0" condition="!Control.IsEnabled(29)">Conditional</animation>
-				</control> -->
 				<control type="button" id="30">
 					<left>740</left>
 					<description>Clear</description>

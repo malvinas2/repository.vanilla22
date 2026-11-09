@@ -57,7 +57,6 @@
 						<include>DialogButton</include>
 						<align>left</align>
 						<textoffsetx>20</textoffsetx>
-						<spinposx>5</spinposx>
 						<onup>8000</onup>
 						<ondown>8002</ondown>
 						<onleft>16</onleft>
@@ -79,7 +78,6 @@
 						<include>DialogButton</include>
 						<align>left</align>
 						<textoffsetx>20</textoffsetx>
-						<spinposx>5</spinposx>
 						<onup>8000</onup>
 						<ondown>8002</ondown>
 						<onleft>15</onleft>

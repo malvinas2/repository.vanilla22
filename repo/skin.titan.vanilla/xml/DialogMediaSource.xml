@@ -12,10 +12,10 @@
 			<visible>!Window.IsVisible(virtualkeyboard) + !Window.IsVisible(filebrowser) + !Window.IsVisible(networksetup)</visible>
 			<control type="image">
 				<!--Panel-->
-				 <left>445</left>
+				<left>445</left>
 				<top>280</top>
 				<width>1030</width>
-				<height>531</height>
+				<height>631</height>
 				<texture border="15">diffuse/bgpanel.png</texture>
 				<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
 			</control>
@@ -24,28 +24,28 @@
 				<left>445</left>
 				<top>280</top>
 				<width>1030</width>
-				<height>531</height>
+				<height>631</height>
 				<texture border="15">diffuse/bgpanel.png</texture>
 				<bordersize>10</bordersize>
 				<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
 			</control>
 			<control type="image">
 				<left>479</left>
-				<top>413</top>
+				<top>463</top>
 				<width>690</width>
 				<height>181</height>
 				<texture border="5">dialogs/default/inner.png</texture>
 			</control>
 			<control type="image">
 				<left>1183</left>
-				<top>413</top>
+				<top>463</top>
 				<width>258</width>
 				<height>181</height>
 				<texture border="5">dialogs/default/inner.png</texture>
 			</control>
 			<control type="image">
 				<left>479</left>
-				<top>647</top>
+				<top>707</top>
 				<width>962</width>
 				<height>61</height>
 				<texture border="5">dialogs/default/inner.png</texture>
@@ -65,17 +65,18 @@
 				<control type="label">
 					<description>Path label</description>
 					<left>479</left>
-					<top>375</top>
+					<top>355</top>
 					<width>922</width>
-					<height>30</height>
-					<align>left</align>
+					<height>90</height>
+					<align>center</align>
+					<wrapmultiline>true</wrapmultiline>
 					<textoffsetx>20</textoffsetx>
 					<label>$LOCALIZE[1021]</label>
 					<include>DialogLabel</include>
 				</control>
 				<control type="list" id="10">
 					<left>479</left>
-					<top>413</top>
+					<top>463</top>
 					<width>690</width>
 					<height>180</height>
 					<onup>9001</onup>
@@ -183,7 +184,7 @@
 				</control>
 				<control type="scrollbar" id="60">
 					<left>1155</left>
-					<top>416</top>
+					<top>466</top>
 					<height>174</height>
 					<onleft>10</onleft>
 					<onright>9004</onright>
@@ -195,7 +196,7 @@
 					<left>1183</left>
 					<control type="radiobutton" id="11">
 						<description>Browse</description>
-						<top>413</top>
+						<top>463</top>
 						<label>$LOCALIZE[1024]</label>
 						<include>DialogButtonBrowse</include>
 						<onup>18</onup>
@@ -207,7 +208,7 @@
 					</control>
 					<control type="radiobutton" id="13">
 						<description>Add</description>
-						<top>473</top>
+						<top>523</top>
 						<label>$LOCALIZE[15019]</label>
 						<include>DialogButtonBrowseAdd</include>
 						<onup>11</onup>
@@ -219,7 +220,7 @@
 					</control>
 					<control type="radiobutton" id="14">
 						<description>remove</description>
-						<top>533</top>
+						<top>583</top>
 						<label>$LOCALIZE[1210]</label>
 						<include>DialogButtonBrowseRemove</include>
 						<onup>13</onup>
@@ -235,7 +236,7 @@
 				<control type="label">
 					<description>Name label</description>
 					<left>479</left>
-					<top>609</top>
+					<top>669</top>
 					<width>922</width>
 					<height>30</height>
 					<align>left</align>
@@ -245,21 +246,21 @@
 				<control type="edit" id="12">
 					<description>Name Button</description>
 					<left>479</left>
-					<top>647</top>
+					<top>707</top>
 					<width>960</width>
 					<height>60</height>
 					<align>left</align>
 					<textoffsetx>20</textoffsetx>
 					<textoffsety>8</textoffsety>
 					<onup>9002</onup>
-					<onleft></onleft>
-					<onright></onright>
+					<onleft>noop</onleft>
+					<onright>noop</onright>
 					<ondown>9001</ondown>
 					<animation effect="fade" start="100" end="50" time="0" condition="!Control.IsEnabled(12)" reversible="false">Conditional</animation>
 				</control>
 				<control type="image">
 					<left>1367</left>
-					<top>647</top>
+					<top>707</top>
 					<width>74</width>
 					<height>60</height>
 					<texture>dialogs/mediasource/keyboard-nf.png</texture>
@@ -268,7 +269,7 @@
 				</control>
 				<control type="image">
 					<left>1367</left>
-					<top>647</top>
+					<top>707</top>
 					<width>74</width>
 					<height>60</height>
 					<texture>dialogs/mediasource/keyboard-nf.png</texture>
@@ -279,7 +280,7 @@
 			<!--Buttons-->
 			<control type="group" id="9001">
 				<left>470</left>
-				<top>720</top>
+				<top>820</top>
 				<width>980</width>
 				<control type="button" id="18">
 					<description>OK</description>

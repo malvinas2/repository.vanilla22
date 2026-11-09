@@ -1,0 +1,286 @@
+<?xml version='1.0' encoding='utf-8'?>
+<addon id="plugin.audio.spotifykodiconnect" version="1.4.4" name="SpotifyKodiConnect" provider-name="primez-x">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0" />
+        <import addon="xbmc.addon" version="18.9.701" />
+        <import addon="script.module.certifi" version="2023.5.7" />
+        <import addon="script.module.chardet" version="5.1.0" />
+        <import addon="script.module.idna" version="3.4.0" />
+        <import addon="script.module.requests" version="2.31.0" />
+        <import addon="script.module.urllib3" version="1.26.16" />
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="plugin.py">
+        <provides>audio</provides>
+    </extension>
+    <extension library="service.py" point="xbmc.service" />
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="en_GB">Spotify for Kodi with consistent art, metadata, and background loading (Kodi Connect style)</summary>
+        <description lang="en_GB">Unofficial Spotify music plugin for Kodi. Improves on the original Spotify addon with consistent album/artist art in all views (including playlists), correct metadata tags, and background loading so navigation and playback feel smooth. Requires Spotify Premium.</description>
+        <disclaimer lang="en_GB">This product uses the SPOTIFY WEB API but is not endorsed, certified or otherwise approved in any way by Spotify. Spotify is the registered trademark of Spotify AB.</disclaimer>
+        <source>https://github.com/primez-x/plugin.audio.spotifykodiconnect</source>
+        <news>v1.4.4
+- Wait 10 seconds before the one retry after Spotify denies a song's audio key, instead of three fast retries that Spotify also denies.
+
+v1.4.3
+- Recover playback when a Spotify access point refuses or closes the connection.
+
+v1.4.2
+- Retry zero-audio Spotify sessions through alternate access-point ports.
+
+v1.4.1
+- Release available audio without an extra startup buffer wait.
+- Require a complete audio frame at the requested stream position.
+- Avoid duplicate stream reads before song playback.
+- Reuse downloaded audio when a stopped song starts again.
+- Start a clicked song at once without a rebuild of the queue for a large list.
+- Add Play next and Queue item to the song context menu.
+
+v1.4.0
+- Show clear messages for rate-limit, permission, and connection failures in listings.
+- Add Next page entries to all four search listings.
+- Keep remote Explore icons working alongside local icon files.
+- Report playback failures once per queue session instead of failing silently.
+- Retry only safe read requests and bound Spotify request timeouts.
+- Hide Like and Follow toggles when the current state is unknown.
+
+v1.3.3
+- Prevent local stream probes from freezing Spotify playback and song metadata.
+- Release stopped audio streams before a song replay.
+- Release Spotify audio when a video starts after Stop.
+- Record the cause when the local player refuses a stream.
+
+v1.3.2
+Show Liked songs and most-played page names in music list headers.
+
+v1.3.1
+- Keep old playlist loaders from changing a newer playback queue.
+- Find playable tracks beyond an unplayable first playlist page.
+
+v1.3.0
+- Reduce startup audio buffers and start prebuffer near the next track.
+- Recover proxy bind failures and bound inactive audio cache memory.
+- Allow cancellable Spotify pairing for up to three minutes.
+
+v1.2.5
+- The heart on the player no longer shows the previous track's liked state when a track change and a like, unlike or liked-state lookup happen at the same moment, including likes made from the add-on's own menu.
+
+v1.2.4
+- Liking or unliking a track no longer changes the heart of the next track when playback moves on before Spotify answers or the request fails.
+- Pressing Like while Spotify is still connecting now shows a "connecting" notification right away instead of silently waiting about 5 seconds.
+
+v1.2.3
+- The local streaming server errors (such as "code 400" and "Request timed out") appear in the Kodi log as warnings again; only the per-request access lines stay at debug level.
+
+v1.2.2
+- Spotify listings and playback wait for their background loading to finish before the plugin call ends, instead of leaving it running while Kodi shuts the plugin down (a possible cause of Kodi crashes).
+- The local streaming server no longer writes every track request to the Kodi log as an error.
+
+v1.2.1
+- Fix Spotify playback failing until Kodi restarts after the add-on was updated or restarted during playback: the stopped service now releases its local streaming port.
+
+v1.2.0
+- New setting Debug > "Log listing times": writes one line per Spotify widget or listing to the Kodi log with how long it took, to find slow widgets. Off by default.
+
+v1.1.7
+- Songs played from a skin's search or widgets show their title, artist, album and cover in the player again, instead of a number.
+
+v1.1.6
+- No changes to playback; this release only republishes 1.1.5.
+
+v1.1.5
+- Tracks no longer end with up to a second of silence while the progress bar keeps running; the stream length now matches the song.
+
+v1.1.4
+- Fixed a brief audio repeat (about a tenth of a second) that could be heard roughly 12 seconds into a track, or after a stream recovered mid-track.
+
+v1.1.3
+- The publish checks run the add-on's tests again; nothing in the add-on changes.
+
+v1.1.2
+- Playlists shown in home widgets now load every track in the background, so opening them shows the whole playlist instead of the first 50.
+- Library precache (when enabled) now keeps all of Liked Songs ready, not only libraries of up to 250 songs.
+
+v1.1.1
+- Fix Liked Songs stopping at the first 50 songs: the rest now always loads in the background, also when the list was first opened from a widget or a slow screen.
+- Liking or unliking a song no longer reloads the whole Liked Songs list; new likes are added on top of the cached list instantly.
+- Big playlists and Liked Songs page in four requests at a time, several times faster.
+
+v1.1.0
+- Search: the four search widgets share one cached Spotify search (results now rank like the Spotify app; repeating a search makes no requests).
+- Much smaller, faster cache for big playlists and Liked Songs (about 6x less data, far fewer disk writes while paging).
+- Fix a cache cleanup that could stall a listing for seconds every 4 hours or hang a plugin process; the cache database now uses WAL and is compacted only by the service while idle.
+- Faster listings: lazy loading of the Spotify client, cached Explore categories and artist fanart, fewer calls for Saved Artists and Daylist.
+- Fix cache checksums that could collide and serve stale lists.
+
+v1.0.47
+- Enforce the Primez versioning rules in the publish checks; nothing in the add-on changes.
+
+v1.0.46
+- Add publish rule checks (pre-push hook and CI workflow); nothing in the add-on changes.
+
+v1.0.45
+- Home widgets no longer stall 5 s each at boot while Spotify connects, and an expired token is never used (no more silently empty listings after a failed renewal).
+- The root-menu re-authenticate prompt only appears once token renewal has actually failed.
+- Correct HTTP Range handling for the audio stream (inclusive end byte, 416 past end of file).
+
+v1.0.44
+- Cap playback memory: Spotty now pauses once it is ~95 s of audio ahead of Kodi instead of decoding the whole track into RAM (a 60-minute mix no longer holds ~635 MB).
+- Preloaded next tracks longer than ~2.5 min are no longer thrown away and re-downloaded.
+- Next-track preload is no longer skipped after seeking in the current track.
+
+v1.0.43
+- Fix search results for queries containing &amp;, #, + or % (sub-search links are now URL-encoded).
+- Saved albums load from the /me/albums response directly instead of re-fetching every album, and liking a song no longer invalidates the saved-albums cache.
+- Opening an album reuses its embedded first page of tracks; track lookups use batches of 50.
+- Autoplay uses recommendation results directly instead of re-fetching each track.
+- Like/follow state is read and written in one cache transaction per page.
+- Token renewal never accepts a stale token file left by an earlier run.
+
+v1.0.42
+- Add Claude Code project settings (not packaged).
+
+v1.0.41
+- Never force a Spotify re-pair while the service is still connecting: show "Spotify is connecting…" instead, keep widgets silent, and only pair automatically when no stored credentials exist.
+- Make token renewal non-blocking: 15s spotty timeout with kill and reap, 3 abort-aware retries, exponential back-off up to 5 minutes, and keep a still-valid token after a failed renewal.
+- Start background paging on first navigation by waiting briefly for the listing to become active.
+- Fail fast on long Spotify rate limits and pause background work until the Retry-After window passes.
+- Stop library totals from invalidating album, artist and playlist caches; reflect likes and follows in cached listings directly.
+- Write background-paged collections every 5 pages, database-only, and close cache database connections.
+- Fix saved-tracks cache staleness, empty playlist playback sessions, and test isolation.
+
+v1.0.40
+- Package the reconciled paging and authentication fixes as an update newer than the layered CoreELEC build.
+
+v1.0.39
+- Avoid background Spotify widget paging unless its listing is the active Kodi folder.
+
+v1.0.38
+- Self-heal Spotify auth after power loss or interrupted credential rotation: if credentials.json is missing at startup but credentials.json.bak exists, restore it automatically instead of forcing a full zeroconf re-pair.
+- Detect and clean poisoned token files: when spotty cannot create a session (network not ready at boot, transient Spotify outage, missing credentials), it writes an error-shaped payload into the token cache. The auth loop now detects this, deletes the bad file, and retries cleanly instead of throwing KeyError on every retry and staying broken until manual intervention.
+
+v1.0.37
+- Remove the obsolete two-second synthetic WAV preroll so tracks begin with genuine Spotify PCM and Kodi reports the correct duration, while retaining real-PCM startup gating and recovery.
+
+v1.0.36
+- Require genuine Spotify PCM before exposing a startup stream, and watchdog stalled Spotty attempts with bounded, offset-safe retries instead of serving synthetic silence.
+- Remove the blocking 60-second handoff wait and require healthy real-PCM progress before protecting a prior stream, preventing multi-minute stalls and 503 skip cascades.
+- Preserve bounded redacted Spotty diagnostics for failed attempts and read Kodi 21's active file-cache chunk setting.
+
+v1.0.35
+- Require active Kodi audio playback before stale Spotify stream guards trust player labels, preventing stopped/error states from blocking the next selected track.
+
+v1.0.34
+- Discard stale internal Spotify stream guards when Kodi no longer confirms that previous track as active playback, preventing 503 skip storms after stopped or failed starts.
+
+v1.0.33
+- Allow the real Spotify next-track handoff at the natural end of playback even when the previous cache downloader has already drained or been evicted.
+
+v1.0.32
+- Restart Spotify cache downloaders when a prebuffer trimmed past the requested byte so real handoffs can always read the WAV header and first PCM bytes.
+
+v1.0.31
+- Fail Spotify handoff requests before Kodi decoding when Spotty exits before producing real PCM, preventing empty 200 responses and decoder skip storms.
+
+v1.0.30
+- Discard empty or failed Spotify prebuffers so a next-track downloader that produced no PCM cannot poison the real queue handoff.
+
+v1.0.29
+- Throttle Kodi's early follow-up range readers with the same absolute stream budget as the initial Spotify GET so playback connections stay alive for the audible track duration.
+
+v1.0.28
+- Let older captured Spotify stream generators continue serving bytes when Kodi opens queued playlist items, preventing preload requests from turning the current stream into an empty response.
+
+v1.0.27
+- Keep active Spotify HTTP readers out of cache eviction and isolate stream termination per request so queued preloads cannot cut off the currently playing track.
+
+v1.0.26
+- Preflight new from-start streams before committing HTTP headers so Spotty failures before real PCM cannot return a zero-byte 200 response to Kodi.
+
+v1.0.25
+- Keep seek/tail range reads from marking a Spotify track finished before Kodi actually transitions, preventing near-end seeks from making queued preloads start too early.
+
+v1.0.24
+- Treat early Kodi player metadata for the queued track as unconfirmed until the previous Spotify downloader is safely complete, preventing QueueNextFileEx from starting a competing zero-byte Spotty stream.
+
+v1.0.23
+- Publish Spotify.CurrentTrack only after Kodi confirms active playback, so QueueNextFileEx/preload requests cannot make skins or companion addons believe the next song is already current.
+- Keep prebuffer and queued preload downloads from aborting an unfinished active stream; unsafe preloads now defer cleanly instead of causing decoder failures and skipped tracks.
+
+v1.0.22
+- Fix concurrent Kodi range readers trimming bytes out from under each other: the Spotty cache now tracks active reader positions and only trims data that every active reader has consumed.
+- Prevent the unread-tail cap from discarding bytes while a reader is active, avoiding zero-byte/partial responses during QueueNextFileEx and reconnect probes.
+
+v1.0.21
+- Fix silent "blank track" playback after short Spotty reads: large short downloads now retry from the buffered byte offset and fail cleanly after retries instead of padding minutes of fake silence while Kodi's OSD advances.
+- Restore bounded short-tail padding only for small duration mismatches, preserving Kodi cache stability without masking real stream truncation.
+
+v1.0.20
+- Fix daylist/multi-page playlist autoplay firing mid-load: new plugin-owned play-queue session coordinates the plugin (paging tracks in) with the service (deciding when to fire autoplay), so autoplay only fires after the original playlist is fully loaded — no more destroyed queues.
+- Autoplay now APPENDS recommendations instead of clearing the playlist; deduped against existing queue contents.
+- Fix playback stalls when spotty delivers a short track: pad silence to the declared WAV length so Kodi's CFileCache doesn't enter an infinite reconnect loop (spinner/lockup on track transitions).
+- Remove the 10-second cap on spotty short-track padding.
+
+v1.0.16
+- Tear down all Spotify audio resources (spotty processes, HTTP streams, prebuffer, cache downloads) the instant a non-Spotify player starts, preventing Amlogic audio driver deadlocks when switching from Spotify to a movie (e.g. via PlexKodiConnect).
+
+v1.0.15
+- Keep Spotify's real dynamic Daylist title authoritative: generic responses now stay as "daylist" and retry until the personalized title is available, instead of using a forced period fallback.
+- Resolve older Made For You hub category routes to Spotify's current category id so startup/restored hubs do not 404 on the stale made-for-you slug.
+
+v1.0.14
+- Keep Daylist hub rows from falling back to plain "daylist" when Spotify only returns the generic playlist title, using the current Daylist period as a startup-safe fallback.
+
+v1.0.13
+- Start speculative prebuffering only after Kodi confirms Spotify playback, and avoid serving silence-only WAV bodies when Spotty fails before real PCM.
+
+v1.0.12
+- Speed up Spotify hubs and playlist lists by using short-lived route caches before live refresh, avoiding per-playlist follow checks, and reusing New Releases album pages.
+- Skip dynamic container refreshes when Kodi cannot confirm the active folder.
+
+v1.0.11
+- Prime the full Kodi startup burst with real Spotify PCM so queued playback cannot skip after only one decoded chunk.
+
+v1.0.10
+- Refresh cached Daylist rows that still show the generic "daylist" title, and fall back to cached playlist rows when Spotify browsing is temporarily unavailable.
+
+v1.0.9
+- Show playlist hub sublabels from their parent grouping, such as Made For You or Featured playlists, instead of Kodi's generic Folder fallback.
+
+v1.0.8
+- Show Spotify Daylist's current dynamic title in playlist hubs, with "daylist" as the secondary label where skins support it.
+
+v1.0.7
+- Wait for real Spotify PCM before releasing the initial WAV response so CoreELEC PAPlayer does not skip silence-only startup streams.
+
+v1.0.6
+- Harden Spotify playback startup on CoreELEC by extending the WAV preroll and preventing non-critical track-start worker floods from breaking playback.
+
+v1.0.5
+- Make Liked Songs render from the first saved-track page, then hydrate the rest in the background without manual pagination.
+
+v1.0.4
+- Improve browsing performance with hidden dynamic paging, page-local relation checks, bounded optional precache, adaptive prebuffer timing, and quieter default logging.
+
+v1.0.3
+- Fix intermittent Music OSD like button disappearance when PAPlayer metadata is late.
+
+v1.0.2
+- Fix cold Spotify stream startup skips by adding an immediate silent WAV preroll before live PCM arrives.
+
+v1.0.1
+- Primez branch metadata/version bump for repository auto-updates.
+
+v1.0.0
+- Fork of plugin.audio.spotify with Kodi Connect–style improvements.
+- Consistent art: thumb, poster, fanart, and icon set for albums, artists, playlists, and tracks so every list view shows art.
+- Correct metadata: proper Kodi music info types (year, duration, tracknumber, albumartist, etc.) for reliable tagging.
+- Background precache: library precache runs in a thread so the main menu appears immediately.
+- Smoother playlist play: first track starts quickly; remaining tracks are queued in the background.
+        </news>
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>

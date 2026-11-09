@@ -329,7 +329,6 @@
 					<ondown>200</ondown>
 					<onclick>PlayerControl(Play)</onclick>
 					<visible>VideoPlayer.Content(LiveTV)</visible>
-					<enable>false</enable>
 					<enable>Player.PauseEnabled</enable>
 				</control>
 				<control type="button" id="704">
@@ -486,7 +485,6 @@
 					<centerleft>+375</centerleft>
 					<width>475</width>
 					<height>267</height>
-					<aspectratio>scale</aspectratio>
 					<visible>Player.HasVideo</visible>
 				</control>
 			</control>

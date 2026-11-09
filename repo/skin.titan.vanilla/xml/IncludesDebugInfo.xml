@@ -138,7 +138,24 @@
 				<align>justify</align>
 				<label>li filenameandpath : $INFO[ListItem.FileNameAndPath]</label>
 			</control>
-
+			<control type="label">
+				<width>100%</width>
+				<height>60</height>
+				<textcolor>white</textcolor>
+				<shadowcolor>black</shadowcolor>
+				<font>Reg24</font>
+				<align>justify</align>
+				<label>ListItemClearLogo : $VAR[ListItemClearLogo]</label>
+			</control>
+			<control type="label">
+				<width>100%</width>
+				<height>60</height>
+				<textcolor>white</textcolor>
+				<shadowcolor>black</shadowcolor>
+				<font>Reg24</font>
+				<align>justify</align>
+				<label>Control.GetLabel(884) : $INFO[Control.GetLabel(884)]</label>
+			</control>
 			<!-- Window labels -->
 			<control type="label">
 				<width>780</width>

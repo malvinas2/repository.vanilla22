@@ -340,14 +340,6 @@ msgctxt "#31088"
 msgid "Live-TV"
 msgstr "Telewizja"
 
-msgctxt "#31089"
-msgid "XBMB3C add-on"
-msgstr "Dodatek XBMB3C"
-
-msgctxt "#31090"
-msgid "XBMB3C settings"
-msgstr "Ustawienia XBMB3C"
-
 msgctxt "#31091"
 msgid "Mediabrowser"
 msgstr "MediaBrowser"
@@ -2854,14 +2846,14 @@ msgctxt "#31826"
 msgid "Select country flags / icons"
 msgstr "Wybierz pakiet flag państw"
 
-msgctxt "#30035"
+msgctxt "#31956"
 msgid "Continue watching in $INFO[Window.Property(remaining)] seconds"
 msgstr "Kontynuuj oglądanie za $INFO[Window.Property(remaining)] sekundy"
 
-msgctxt "#30036"
+msgctxt "#31957"
 msgid "Up next in $INFO[Window.Property(remaining)] seconds"
 msgstr "Kolejny za $INFO[Window.Property(remaining)] sekundy"
 
-msgctxt "#30037"
+msgctxt "#31958"
 msgid "Next episode in $INFO[Window.Property(remaining)] seconds"
 msgstr "Następny odcinek za $INFO[Window.Property(remaining)] sekundy"

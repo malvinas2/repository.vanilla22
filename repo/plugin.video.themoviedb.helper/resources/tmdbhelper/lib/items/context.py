@@ -12,21 +12,20 @@ CONTEXT_MENU_ITEMS = {
         'episode': {'tmdb_type': 'tv', 'tmdb_id': '{tmdb_id}', 'season': '{season}', 'episode': '{episode}'},
         'other': {'tmdb_type': '{tmdb_type}', 'tmdb_id': '{tmdb_id}'}
     },
-    # Trakt Options
-    '$ADDON[plugin.video.themoviedb.helper 32295]': {
-        'command': 'RunScript(plugin.video.themoviedb.helper,sync_trakt,{})',
-        'setting': 'contextmenu_sync_trakt',
-        'episode': {'tmdb_type': '{tmdb_type}', 'tmdb_id': '{tmdb_id}', 'season': '{season}', 'episode': '{episode}'},
+    # Sync Options
+    '$ADDON[plugin.video.themoviedb.helper 32549]': {
+        'command': 'RunScript(plugin.video.themoviedb.helper,sync_options,{})',
+        'setting': 'contextmenu_sync_options',
+        'season': {'tmdb_type': 'tv', 'tmdb_id': '{tmdb_id}', 'season': '{season}'},
+        'episode': {'tmdb_type': 'tv', 'tmdb_id': '{tmdb_id}', 'season': '{season}', 'episode': '{episode}'},
         'other': {'tmdb_type': '{tmdb_type}', 'tmdb_id': '{tmdb_id}'}
     },
-    # Manage Artwork
-    '$ADDON[plugin.video.themoviedb.helper 32222]': {
-        'command': 'RunScript(plugin.video.themoviedb.helper,manage_artwork,{})',
-        'setting': 'contextmenu_manage_artwork',
-        'movie': {'tmdb_type': 'movie', 'tmdb_id': '{tmdb_id}'},
-        'tvshow': {'tmdb_type': 'tv', 'tmdb_id': '{tmdb_id}'},
-        'season': {'tmdb_type': 'tv', 'tmdb_id': '{tmdb_id}', 'season': '{season}'},
-        'episode': {'tmdb_type': 'tv', 'tmdb_id': '{tmdb_id}', 'season': '{season}'}
+    # TMDb User Options
+    '$ADDON[plugin.video.themoviedb.helper 32522]': {
+        'command': 'RunScript(plugin.video.themoviedb.helper,sync_tmdb,{})',
+        'setting': 'contextmenu_sync_tmdb',
+        'episode': {'tmdb_type': '{tmdb_type}', 'tmdb_id': '{tmdb_id}', 'season': '{season}', 'episode': '{episode}'},
+        'other': {'tmdb_type': '{tmdb_type}', 'tmdb_id': '{tmdb_id}'}
     },
     # Refresh Details
     '$ADDON[plugin.video.themoviedb.helper 32233]': {
@@ -35,6 +34,15 @@ CONTEXT_MENU_ITEMS = {
         'episode': {'tmdb_type': 'tv', 'tmdb_id': '{tmdb_id}', 'season': '{season}', 'episode': '{episode}'},
         'season': {'tmdb_type': 'tv', 'tmdb_id': '{tmdb_id}', 'season': '{season}'},
         'other': {'tmdb_type': '{tmdb_type}', 'tmdb_id': '{tmdb_id}'}
+    },
+    # Modify Artwork
+    '$ADDON[plugin.video.themoviedb.helper 32118]': {
+        'command': 'RunScript(plugin.video.themoviedb.helper,modify_artwork,{})',
+        'setting': 'contextmenu_modify_artwork',
+        'movie': {'tmdb_type': '{tmdb_type}', 'tmdb_id': '{tmdb_id}'},
+        'tvshow': {'tmdb_type': '{tmdb_type}', 'tmdb_id': '{tmdb_id}'},
+        'episode': {'tmdb_type': 'tv', 'tmdb_id': '{tmdb_id}', 'season': '{season}', 'episode': '{episode}'},
+        'season': {'tmdb_type': 'tv', 'tmdb_id': '{tmdb_id}', 'season': '{season}'},
     },
     # Add to Library
     '$LOCALIZE[20444]': {
@@ -70,7 +78,12 @@ class ContextMenu():
     def get(self, context=None):
         context = context or CONTEXT_MENU_ITEMS
         return [(name, str(item)) for name, item in (
-            (name, self._build_item(mediatypes)) for name, mediatypes in context.items()) if item]
+            (name, self._build_item(mediatypes))
+            for name, mediatypes in context.items()) if item]
+
+    @property
+    def has_sync_actions(self):
+        return self._li.action_discovery.is_available
 
     def _build_item(self, mediatypes):
         params_def = mediatypes.get(self.mediatype, mediatypes.get('other'))
@@ -79,6 +92,8 @@ class ContextMenu():
             return
 
         if not get_setting(mediatypes['setting']):
+            return
+        if mediatypes['setting'] == 'contextmenu_sync_options' and not self.has_sync_actions:
             return
 
         item = {}

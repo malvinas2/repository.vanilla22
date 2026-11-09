@@ -5,22 +5,24 @@
 		<control type="group">
 			<animation effect="slide" start="0" end="0,210" time="0" condition="Window.IsActive(visualisation)">Conditional</animation>
 			<animation type="WindowOpen">
-				<effect type="slide" start="-600" end="30" time="600" tween="cubic" easing="inout" />
+				<effect type="slide" start="-600" end="30" time="300" tween="cubic" easing="inout" />
 			</animation>
 			<animation type="WindowClose">
-				<effect type="slide" start="30" end="-600" time="250" tween="cubic" easing="inout" />
+				<effect type="slide" start="30" end="-600" time="300" tween="cubic" easing="inout" />
 			</animation>
-		
 			<!-- <left>30</left> -->
-			<bottom>10%</bottom>
+			<top>12%</top>
 			<height>800</height>
 			<!--Panel-->
+			<!-- malvinas2: Don't use built-in control 'id="999" Background image of context menu' here -->
+			<!-- What is the meaning of this id here ??? -->
 			<control type="image">
 				<width>500</width>
 				<height>800</height>
 				<texture border="15">diffuse/bgpanel.png</texture>
 				<bordersize>20</bordersize>
 				<colordiffuse>$INFO[Skin.String(SideBladePanelColor)]</colordiffuse>
+				<!-- <colordiffuse>$VAR[ViewDetailsPanelColor]</colordiffuse> -->
 			</control>
 			<!--Label Menu: -->
 			<control type="label" id="200">
@@ -65,12 +67,14 @@
 			<width>270</width>
 			<animation effect="slide" start="0" end="0,210" time="0" condition="Window.IsActive(visualisation)">Conditional</animation>
 			<animation type="WindowOpen">
-				<effect type="slide" start="-660" end="0" time="250" tween="cubic" easing="inout" />
+				<effect type="slide" start="-660" end="0" time="300" tween="cubic" easing="inout" />
 			</animation>
 			<animation type="WindowClose">
-				<effect type="slide" start="0" end="-660" time="250" tween="cubic" easing="inout" />
+				<effect type="slide" start="0" end="-660" time="300" tween="cubic" easing="inout" />
 			</animation>
 		<!--Panel-->
+		<!-- malvinas2: Don't use built-in control 'id="999" Background image of context menu' here -->
+		<!-- What is the meaning of this id here ??? -->
 		<control type="image">
 			<top>-250</top>
 			<left>-20</left>
@@ -119,7 +123,6 @@
 				<top>1005</top>
 				<include condition="Skin.HasSetting(EnableTouchSupport)">close_button</include>
 			</control>
-			
 			<control type="grouplist" id="996">
 				<width>458</width>
 				<left>21</left>
@@ -859,11 +862,11 @@
 				<include>HiddenButton</include>
 			</control>
 			<control type="button" id="3">
-			<description>Viewtype Toggle</description>
+			<description>Sort Method</description>
 				<include>HiddenButton</include>
 			</control>
 			<control type="togglebutton" id="4">
-			<description>Viewtype Toggle</description>
+			<description>Sortmode Toggle</description>
 				<include>HiddenButton</include>
 			</control>
 			<control type="button" id="1099">
@@ -892,7 +895,7 @@
 					<left>0</left>
 					<right>40</right>
 					<textwidth>400</textwidth>
-					<label>$LOCALIZE[70029]</label>
+					<label>$LOCALIZE[31915]</label>
 					<label2>[B]$INFO[Control.GetLabel(29)][/B]</label2>
 					<include>SideBladeMenuButton</include>
 					<onclick>SendClick(28)</onclick>
@@ -904,7 +907,7 @@
 					<left>0</left>
 					<right>40</right>
 					<textwidth>400</textwidth>
-					<label>$LOCALIZE[70029]</label>
+					<label>$LOCALIZE[31915]</label>
 					<label2>[B]$INFO[Control.GetLabel(30)][/B]</label2>
 					<include>SideBladeMenuButton</include>
 					<onclick>SendClick(28)</onclick>
@@ -942,7 +945,7 @@
 				<control type="button" id="6053">
 					<description>Sort by button</description>
 					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[70030]</label>
+					<label>$LOCALIZE[31916]</label>
 					<label2>[B]$INFO[Container.SortMethod][/B]</label2>
 					<onright>Container.NextSortMethod</onright>
 					<onleft>Container.PreviousSortMethod</onleft>
@@ -954,7 +957,7 @@
 					<include>SideBladeMenuButton</include>
 					<!-- <alttexturefocus border="5" colordiffuse="$INFO[Skin.String(ButtonFocusColor)]">diffuse/panel.png</alttexturefocus> -->
 					<!-- <alttexturenofocus></alttexturenofocus> -->
-					<label>$LOCALIZE[70031]</label>
+					<label>$LOCALIZE[31917]</label>
 					<label2>[B]$INFO[Container.SortOrder][/B]</label2>
 					<!-- <onclick>SendClick(4)</onclick> -->
 					<onclick>Container.SetSortDirection</onclick>
@@ -970,7 +973,7 @@
 					<description>Show deleted recordings</description>
 					<include>SideBladeMenuButton</include>
 					<label>$LOCALIZE[19184]</label>
-					<visible>Window.IsActive(TVRecordings) | Window.IsActive(RadioRecordings)</visible>
+					<visible>Window.IsActive(MyPVRRecordings.xml)</visible>
 				</control>
 				<control type="radiobutton" id="8">  
 					<description>Hide disabled timers</description>  
@@ -979,7 +982,7 @@
 					<visible>Window.IsActive(TVTimers) | Window.IsActive(RadioTimers) | Window.IsActive(TVTimerRules) | Window.IsActive(RadioTimerRules)</visible>  
 				</control>  
 				<control type="button" id="10009">
-					<description>Watched Toggle</description>
+					<description>Watched Toggle - Watched, Unwatched, All</description>
 					<include>SideBladeMenuButton</include>
 					<label>$LOCALIZE[20367]</label>
 					<label2>[B]$INFO[Container.NumNonFolderItems][/B]</label2>
@@ -1080,6 +1083,14 @@
 					<label>$LOCALIZE[137]</label>
 					<onclick condition="String.IsEmpty(Window.Property(IsRadio))">ActivateWindow(TVSearch)</onclick>
 					<onclick condition="!String.IsEmpty(Window.Property(IsRadio))">ActivateWindow(RadioSearch)</onclick>
+				</control>
+
+				<control type="image" id="6201">
+					<!--Seperator-->
+					<width>458</width>
+					<height>10</height>
+					<align>left</align>
+					<texture>common/menu-separator.png</texture>
 				</control>
 
 				<include condition="!Skin.HasSetting(KioskMode.Enabled)">SideBladeViewCommands</include>

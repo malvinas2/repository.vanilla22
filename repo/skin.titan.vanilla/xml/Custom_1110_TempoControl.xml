@@ -41,7 +41,7 @@
 					<top>80</top>
 					<width>380</width>
 					<height>40</height>
-					<label>$LOCALIZE[70053]</label>
+					<label>$LOCALIZE[31939]</label>
 					<align>left</align>
 					<font>Reg30</font>
 					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
@@ -81,7 +81,7 @@
 					<visible allowhiddenfocus="true">Control.HasFocus(141)</visible>
 					<onfocus>PlayerControl(Tempo(0.8))</onfocus>
 					<onclick>Action(close)</onclick>
-					<onleft></onleft>
+					<onleft>noop</onleft>
 					<onright>142</onright>
 				</control>
 				
@@ -180,7 +180,7 @@
 					<onfocus>PlayerControl(Tempo(1.5))</onfocus>
 					<onclick>Action(close)</onclick>
 					<onleft>147</onleft>
-					<onright></onright>
+					<onright>noop</onright>
 				</control>				
 			</control>
 		</control>

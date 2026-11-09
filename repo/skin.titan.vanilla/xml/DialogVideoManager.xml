@@ -85,7 +85,7 @@
 				<height>30</height>
 				<align>right</align>
 				<include>DialogLabel</include>
-				<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(50).NumItems][/COLOR] $LOCALIZE[91830] - [COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(50).CurrentPage]/$INFO[Container(50).NumPages][/COLOR]</label>
+				<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(50).NumItems][/COLOR] $LOCALIZE[31954] - [COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(50).CurrentPage]/$INFO[Container(50).NumPages][/COLOR]</label>
 			</control>			
 
 			<control type="group" id="100">
@@ -230,25 +230,26 @@
 				<height>630</height>
 				<!-- <onleft>50</onleft> -->
 				<onleft condition="Integer.IsGreater(Container(50).NumItems,0)">100</onleft>
-				<itemgap>10</itemgap>
-				<align>top</align>
+				<itemgap>5</itemgap>
 				<orientation>vertical</orientation>
 				<control type="button" id="21">
 					<description>Play</description>
 					<label>$LOCALIZE[208]</label>
 					<width>270</width>
+					<disabledcolor>AAFFFFFF</disabledcolor>
+					<height>74</height>
 					<include>DialogButtonOther</include>
 					<textwidth>250</textwidth>
-					<height>80</height>
 					<!-- <visible>true</visible> -->
 				</control>
 				<control type="button" id="22">
 					<description>Add Version</description>
 					<label>$LOCALIZE[40014]</label>
 					<width>270</width>
+					<disabledcolor>AAFFFFFF</disabledcolor>
+					<height>74</height>
 					<include>DialogButtonOther</include>
 					<textwidth>250</textwidth>
-					<height>80</height>
 					<!-- <visible>true</visible> -->
 					<visible>Window.IsVisible(managevideoversions)</visible>
 				</control>				
@@ -256,9 +257,10 @@
 					<description>Add Extra</description>
 					<label>$LOCALIZE[40015]</label>
 					<width>270</width>
+					<disabledcolor>AAFFFFFF</disabledcolor>
+					<height>74</height>
 					<include>DialogButtonOther</include>
 					<textwidth>250</textwidth>
-					<height>80</height>
 					<!-- <visible>true</visible> -->
 					<visible>Window.IsVisible(managevideoextras)</visible>
 				</control>					
@@ -266,18 +268,20 @@
 					<description>Choose artwork</description>
 					<label>$LOCALIZE[13511]</label>
 					<width>270</width>
+					<disabledcolor>AAFFFFFF</disabledcolor>
+					<height>74</height>
 					<include>DialogButtonOther</include>
 					<textwidth>250</textwidth>
-					<height>80</height>
 					<!-- <visible>true</visible> -->
 				</control>
 				<control type="button" id="24">
 					<description>choose typ</description>
 					<label>$LOCALIZE[40004]</label>
 					<width>270</width>
+					<disabledcolor>AAFFFFFF</disabledcolor>
+					<height>74</height>
 					<include>DialogButtonOther</include>
 					<textwidth>250</textwidth>
-					<height>80</height>
 					<!-- <visible>true</visible> -->
 					<visible>Window.IsVisible(managevideoversions)</visible>
 				</control>
@@ -285,9 +289,10 @@
 					<description>rename</description>
 					<label>$LOCALIZE[118]</label>
 					<width>270</width>
+					<disabledcolor>AAFFFFFF</disabledcolor>
+					<height>74</height>
 					<include>DialogButtonOther</include>
 					<textwidth>250</textwidth>
-					<height>80</height>
 					<!-- <visible>true</visible> -->
 					<visible>Window.IsVisible(managevideoextras)</visible>
 				</control>
@@ -295,18 +300,31 @@
 					<description>remove</description>
 					<label>$LOCALIZE[15015]</label>
 					<width>270</width>
+					<disabledcolor>AAFFFFFF</disabledcolor>
+					<height>74</height>
 					<include>DialogButtonOther</include>
 					<textwidth>250</textwidth>
-					<height>80</height>
 					<!-- <visible>true</visible> -->
+				</control>
+				<control type="button" id="29">
+					<description>turn movie version into movie</description>
+					<label>$LOCALIZE[40046]</label>
+					<width>270</width>
+					<textwidth>250</textwidth>
+					<disabledcolor>AAFFFFFF</disabledcolor>
+					<height>74</height>
+					<include>DialogButtonOther</include>
+					<!-- <visible>true</visible> -->
+					<visible>Window.IsVisible(managevideoversions)</visible>
 				</control>
 				<control type="button" id="25">
 					<description>set as default</description>
 					<label>$LOCALIZE[40023]</label>
 					<width>270</width>
 					<textwidth>250</textwidth>
+					<disabledcolor>AAFFFFFF</disabledcolor>
+					<height>74</height>
 					<include>DialogButtonOther</include>
-					<height>80</height>
 					<!-- <visible>true</visible> -->
 					<visible>Window.IsVisible(managevideoversions)</visible>
 				</control>
@@ -315,8 +333,9 @@
 					<label>$LOCALIZE[31308]</label>
 					<width>270</width>
 					<textwidth>250</textwidth>
+					<disabledcolor>AAFFFFFF</disabledcolor>
+					<height>74</height>
 					<include>DialogButtonOther</include>
-					<height>80</height>
 					<visible>true</visible>
 					<onclick>Close</onclick>
 				</control>

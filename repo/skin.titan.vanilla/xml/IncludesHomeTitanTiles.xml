@@ -20,7 +20,7 @@
 				<top>390</top>
 				<height>570</height>
 				<onleft>50</onleft>
-				<onright></onright>
+				<onright>noop</onright>
 				<visible>false</visible>
 			</control>
 			

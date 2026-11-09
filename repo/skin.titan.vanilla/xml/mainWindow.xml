@@ -421,8 +421,6 @@
 					<scrolltime>300</scrolltime>
 					<visible>String.IsEqual(Container(1000).ListItem.Property(listTyp), 1200)</visible>    
 					<itemlayout height="100">
-						<left>0</left>
-						<top>2</top>
 						<control type="image">
 							<left>0</left>
 							<top>2</top>
@@ -526,8 +524,6 @@
 						</control>
 					</itemlayout>
 					<focusedlayout height="100">
-						<left>0</left>
-						<top>2</top>
 						<control type="group">
 							<visible>Control.HasFocus(1200)</visible>
 							<control type="image">
@@ -762,8 +758,6 @@
 					<scrolltime>300</scrolltime>
 					<visible>String.IsEqual(Container(1000).ListItem.Property(listTyp), 1300)</visible>    
 					<itemlayout height="70">
-						<left>0</left>
-						<top>2</top>
 						<control type="image">
 							<left>0</left>
 							<top>2</top>
@@ -943,8 +937,6 @@
 						</control>
 					</itemlayout>
 					<focusedlayout height="70">
-						<left>0</left>
-						<top>2</top>
 						<control type="group">
 							<visible>Control.HasFocus(1300)</visible>
 							<control type="image">
@@ -1361,9 +1353,7 @@
 				<left>680</left>
 				<top>990</top>
 				<orientation>horizontal</orientation>
-				<itemgap>20</itemgap>
 				<width>1200</width>
-				<defaultcontrol>5</defaultcontrol>
 				<onup condition="String.IsEqual(Container(1000).ListItem.Property(listTyp), 1100)">1100</onup>
 				<onup condition="String.IsEqual(Container(1000).ListItem.Property(listTyp), 1900)">1900</onup>
 				<onup condition="String.IsEqual(Container(1000).ListItem.Property(listTyp), 1200)">1200</onup>

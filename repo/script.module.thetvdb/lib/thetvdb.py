@@ -50,6 +50,7 @@ class TheTvDb(object):
     ignore_cache = False
     _close_called = False
 
+
     def __init__(self, api_key=None):
         '''Initialize our Module'''
         if api_key:
@@ -605,7 +606,8 @@ class TheTvDb(object):
                 result["art"]["banner"] = "https://thetvdb.com/banners/" + showdetails["banner"]
         return result
 
-    def _parse_kodi_show(self, kodi_details):
+#------------- old version ------------------
+    def _parse_kodi_show_old(self, kodi_details):
         ''' get tvdb series details by providing kodi showdetails'''
         tvdb_details = None
         result = None
@@ -644,6 +646,136 @@ class TheTvDb(object):
             result["tvdb_status"] = tvdb_details["status"]
             result["library"] = "videodb://tvshows/titles/%s/" % kodi_details["tvshowid"]
         return result
+#------------- old version ------------------
+
+#------------- new version ------------------
+    def _parse_kodi_show(self, kodi_details):
+        ''' get tvdb series details by providing kodi showdetails'''
+        tvdb_details = None
+        result = None
+
+        uniqueids = kodi_details.get("uniqueid", {})
+
+        # Prefer explicit TVDB ID
+        tvdb_id = uniqueids.get("tvdb")
+        if tvdb_id:
+            tvdb_details = self.get_series(tvdb_id)
+
+        # Fallback to IMDb
+        if not tvdb_details:
+            imdb_id = uniqueids.get("imdb")
+            if imdb_id:
+                tvdb_details = self.get_series_by_imdb_id(imdb_id)
+
+        # Absolute fallback — search by title
+        if not tvdb_details:
+            tvdb_search = self.search_series(kodi_details["title"])
+            if tvdb_search:
+                tvdb_details = self.get_series(tvdb_search[0]["id"])
+
+        if tvdb_details:
+            result = kodi_details
+
+            # merge artwork
+            for key, value in tvdb_details["art"].items():
+                if value and not result["art"].get(key):
+                    result["art"][key] = value
+
+            # merge other fields
+            for key, value in tvdb_details.items():
+                if value and not result.get(key):
+                    result[key] = value
+
+            result["isFolder"] = True
+            result["tvdb_status"] = tvdb_details["status"]
+            result["library"] = "videodb://tvshows/titles/%s/" % kodi_details["tvshowid"]
+
+        return result
+#------------- new version ------------------
+
+#------------- new DEBUG version ------------------
+    def _parse_kodi_show_new_with_debug(self, kodi_details):
+        ''' get tvdb series details by providing kodi showdetails '''
+        tvdb_details = None
+        result = None
+
+        uniqueids = kodi_details.get("uniqueid", {})
+        self._log_msg("Processing show: %s" % kodi_details.get("title", "UNKNOWN"))
+
+        tvdb_id = None
+        imdb_id = None
+
+        # --- Handle dict format (Kodi 19+) ---
+        if isinstance(uniqueids, dict):
+            self._log_msg("UniqueIDs detected as dict: %s" % str(uniqueids))
+            tvdb_id = uniqueids.get("tvdb")
+            imdb_id = uniqueids.get("imdb")
+
+        # --- Handle list format (older behavior or unexpected format) ---
+        elif isinstance(uniqueids, list):
+            self._log_msg("UniqueIDs detected as list: %s" % str(uniqueids))
+            for item in uniqueids:
+                if isinstance(item, dict):
+                    if item.get("type") == "tvdb":
+                        tvdb_id = item.get("value")
+                    elif item.get("type") == "imdb":
+                        imdb_id = item.get("value")
+
+        else:
+            self._log_msg("UniqueIDs in unexpected format: %s" % str(type(uniqueids)))
+
+        # --- Prefer TVDB ID ---
+        if tvdb_id:
+            self._log_msg("Using TVDB ID: %s" % tvdb_id)
+            tvdb_details = self.get_series(tvdb_id)
+
+        # --- Fallback to IMDb ---
+        if not tvdb_details and imdb_id:
+            self._log_msg("Using IMDb fallback ID: %s" % imdb_id)
+            tvdb_details = self.get_series_by_imdb_id(imdb_id)
+
+        # --- Final fallback: search by title ---
+        if not tvdb_details:
+            self._log_msg("Falling back to title search for: %s" % kodi_details.get("title"))
+            tvdb_search = self.search_series(kodi_details["title"])
+            if tvdb_search:
+                found_id = tvdb_search[0]["id"]
+                self._log_msg("Title search found TVDB ID: %s" % found_id)
+                tvdb_details = self.get_series(found_id)
+            else:
+                self._log_msg("Title search returned no results")
+
+        if tvdb_details:
+            result = kodi_details
+
+            self._log_msg("TVDB match confirmed: %s (Status: %s)" %
+                          (tvdb_details.get("title"), tvdb_details.get("status")))
+
+            # merge artwork
+            for key, value in tvdb_details.get("art", {}).items():
+                if value and not result.get("art", {}).get(key):
+                    result["art"][key] = value
+
+            # merge fields
+            for key, value in tvdb_details.items():
+                if value and not result.get(key):
+                    result[key] = value
+
+            result["isFolder"] = True
+            result["tvdb_status"] = tvdb_details.get("status")
+            result["library"] = "videodb://tvshows/titles/%s/" % kodi_details.get("tvshowid")
+
+        else:
+            self._log_msg("No TVDB match found for show: %s" %
+                          kodi_details.get("title"), xbmc.LOGWARNING)
+
+        return result
+#------------- new DEBUG version ------------------
+
+
+
+
+
 
     @staticmethod
     def _log_msg(msg, level=xbmc.LOGINFO):

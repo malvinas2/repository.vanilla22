@@ -44,7 +44,6 @@
 					<ondown>53</ondown>
 					<pagecontrol></pagecontrol>
 					<scrolltime tween="cubic" easing="out">500</scrolltime>
-					<movement>1</movement>
 					<itemlayout height="140" width="670">
 						<control type="image">
 							<left>0</left>
@@ -67,7 +66,7 @@
 								<top>22</top>
 								<width>490</width>
 								<height>40</height>
-								<textcolor fallback="white">$INFO[Skin.String(GeneralTextColor)]</textcolor>
+								<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 								<label>$INFO[ListItem.Label]</label>
 								<font>Light42</font>
 								<align>left</align>
@@ -79,7 +78,7 @@
 								<top>61</top>
 								<width>490</width>
 								<height>40</height>
-								<textcolor fallback="white">$INFO[Skin.String(GeneralTextColor)]</textcolor>
+								<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 								<label>$INFO[ListItem.Label2]</label>
 								<font>Light30</font>
 								<align>left</align>
@@ -111,7 +110,7 @@
 								<top>22</top>
 								<width>490</width>
 								<height>40</height>
-								<textcolor fallback="mainblue">$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
+								<textcolor>$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
 								<label>[B]$INFO[ListItem.Label][/B]</label>
 								<font>Light42</font>
 								<align>left</align>
@@ -123,7 +122,7 @@
 								<top>61</top>
 								<width>490</width>
 								<height>40</height>
-								<textcolor fallback="mainblue">$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
+								<textcolor>$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
 								<label>$INFO[ListItem.Label2]</label>
 								<font>Light30</font>
 								<align>left</align>

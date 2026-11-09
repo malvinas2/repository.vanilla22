@@ -1,0 +1,923 @@
+# Library Widgets
+
+Widget content sourced from the Kodi library. See also: [Discovery Widgets](widgets-discovery.md) for online content.
+
+[← Back to Index](../index.md)
+
+---
+
+## Table of Contents
+
+- [Localized Labels](#localized-labels)
+- [TV Show Items](#tv-show-items)
+- [Next Up](#next-up)
+- [Next Up (Favourites)](#next-up-favourites)
+- [Upcoming Episodes](#upcoming-episodes)
+- [Continue Watching](#continue-watching)
+- [Recent Episodes Grouped](#recent-episodes-grouped)
+- [Recent Videos](#recent-videos)
+- [Favourites](#favourites)
+- [By Actor](#by-actor)
+- [By Director](#by-director)
+- [Similar Items](#similar-items)
+- [Recommended For You](#recommended-for-you)
+- [Seasonal](#seasonal)
+- [Similar Artists](#similar-artists)
+- [Artist Albums](#artist-albums)
+- [Artist Music Videos](#artist-music-videos)
+- [Genre Artists](#genre-artists)
+
+---
+
+## Localized Labels
+
+Each widget has a translated label you can reuse, so your widget heading follows the user's
+language instead of hardcoded English:
+
+```xml
+<label>$ADDON[script.skin.info.service 32620]</label>
+```
+
+| Widget | Action | Label |
+|--------|--------|-------|
+| Next Up | `next_up` | 32620 |
+| Next Up (Favourites) | `next_up_favourites` | 32685 |
+| Upcoming Episodes | `next_aired` | 32071 |
+| Continue Watching | `continue_watching` | 32696 |
+| Recent Episodes Grouped | `recent_episodes_grouped` | 32621, renders "Recent Episodes" |
+| Recent Videos | `recent_videos` | 32686 |
+| Favourites | `favourites` | Kodi 1036 |
+| Favourite Movies | `favourites&dbtype=movie` | 32687 |
+| Favourite TV Shows | `favourites&dbtype=tvshow` | 32688 |
+| Favourite Episodes | `favourites&dbtype=episode` | 32689 |
+| Favourite Music Videos | `favourites&dbtype=musicvideo` | 32690 |
+| Recommended (movies) | `recommended&dbtype=movie` | 32623, renders "Recommended Movies" |
+| Recommended (TV shows) | `recommended&dbtype=tvshow` | 32624, renders "Recommended TV Shows" |
+| Recommended (both) | `recommended&dbtype=both` | 32682, renders "Recommendations" |
+| Similar Items | `similar` | 32683, renders "Similar in Library" |
+| Similar Artists | `similar_artists` | 32697 |
+| Seasonal (christmas) | `seasonal&season=christmas` | 32642 |
+| Seasonal (halloween) | `seasonal&season=halloween` | 32643 |
+| Seasonal (valentines) | `seasonal&season=valentines` | 32644 |
+| Seasonal (thanksgiving) | `seasonal&season=thanksgiving` | 32645 |
+| Seasonal (starwars) | `seasonal&season=starwars` | 32646 |
+| Seasonal (startrek) | `seasonal&season=startrek` | 32647 |
+| Seasonal (newyear) | `seasonal&season=newyear` | 32648 |
+| Seasonal (easter) | `seasonal&season=easter` | 32649 |
+| Seasonal (independence) | `seasonal&season=independence` | 32650 |
+
+Kodi core strings are marked as such and come from `$LOCALIZE[1036]` rather than the addon.
+
+Every widget also sets `Container.PluginCategory` to its label, so a skin that opens a widget
+path in a full window (`ActivateWindow(Videos,plugin://...,return)`) can take the heading from
+the container:
+
+```xml
+<label>$INFO[Container.PluginCategory]</label>
+```
+
+Widgets with no row set the category from their source item instead:
+
+| Widget | Category |
+|--------|----------|
+| By Actor | the actor's name |
+| By Director | the director's name |
+| Artist Albums | the artist's name |
+| Artist Music Videos | the artist's name |
+| Genre Artists | the genre |
+
+---
+
+## TV Show Items
+
+Every TV show row these widgets return carries:
+
+| Property | Description |
+|----------|-------------|
+| `TotalEpisodes` | Episode count |
+| `WatchedEpisodes` | Watched episode count |
+| `UnWatchedEpisodes` | Unwatched episode count |
+| `WatchedEpisodePercent` | Watched episodes as a percentage |
+
+`TotalSeasons`, the show's season count, is also set on the TV show rows of Recent Videos and
+Recommended For You, and on every row of Recent Episodes Grouped.
+
+---
+
+## Next Up
+
+Returns the next unwatched episode for each in-progress TV show.
+
+For the same thing over your favourited shows instead, see
+[Next Up (Favourites)](#next-up-favourites).
+
+### Usage
+
+```xml
+<content>plugin://script.skin.info.service/?action=next_up</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `limit` | No | 25 | Maximum shows to process |
+
+### Examples
+
+```xml
+<!-- Basic -->
+<content>plugin://script.skin.info.service/?action=next_up</content>
+
+<!-- Custom limit -->
+<content>plugin://script.skin.info.service/?action=next_up&amp;limit=10</content>
+```
+
+### Behavior
+
+1. Takes in-progress TV shows, most recently played first
+2. For each show, finds the last played episode
+3. Returns the next unwatched episode in same season
+4. If season complete, returns first unwatched overall
+
+### Item Properties
+
+- **Label**: Formatted as `2x05. Episode Title`
+- **MediaType**: `episode`
+- **Video Info**: title, season, episode, showtitle, plot, rating, runtime, firstaired
+- **Artwork**: TV show artwork + episode thumb
+- **Resume Point**: If partially watched
+
+**Widget Type:** Episode
+
+---
+
+## Next Up (Favourites)
+
+[Next Up](#next-up) restricted to the TV shows in your Kodi favourites.
+
+Shows appear in the order you favourited them, and one you have never started appears at its
+first episode. Fully watched shows are skipped.
+
+### Usage
+
+```xml
+<content>plugin://script.skin.info.service/?action=next_up_favourites</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `limit` | No | 25 | Maximum episodes to return |
+
+### Examples
+
+```xml
+<!-- Basic -->
+<content>plugin://script.skin.info.service/?action=next_up_favourites</content>
+
+<!-- Custom limit -->
+<content>plugin://script.skin.info.service/?action=next_up_favourites&amp;limit=10</content>
+```
+
+### Behavior
+
+1. Reads TV shows from the favourites list, keeping the order you favourited them
+2. Skips shows that are fully watched
+3. Returns the next unwatched episode in the season last played
+4. If the show has not been started, returns its first unwatched episode
+
+Only shows favourited from the library are used. Favourites pointing at a file or an add-on are
+ignored.
+
+### Item Properties
+
+- **Label**: Formatted as `2x05. Episode Title`
+- **MediaType**: `episode`
+- **Video Info**: title, season, episode, showtitle, plot, rating, runtime, firstaired
+- **Artwork**: TV show artwork + episode thumb
+- **Resume Point**: If partially watched
+
+**Widget Type:** Episode
+
+---
+
+## Upcoming Episodes
+
+Episodes of the TV shows in your library that air in the coming days, from Trakt's TV calendar,
+in air time order. With `shows=trakt`, the shows on your Trakt account instead, in the library or
+not.
+
+### Usage
+
+```xml
+<content>plugin://script.skin.info.service/?action=next_aired&amp;days=7</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `day` | No | 0 | First day to list, counted from today: 0 is today, 1 tomorrow, up to 30 |
+| `days` | No | 1 | Number of days to list from `day`; the list ends 31 days from today at most |
+| `weekday` | No | | One weekday, 0 Monday to 6 Sunday: the next one, today included. Used instead of `day` |
+| `shows` | No | `library` | `library`, or `trakt` for the shows on your Trakt account. `trakt` requires Trakt OAuth and returns an empty list if no Trakt account is linked |
+
+### Examples
+
+```xml
+<!-- Today -->
+<content>plugin://script.skin.info.service/?action=next_aired</content>
+
+<!-- Tomorrow -->
+<content>plugin://script.skin.info.service/?action=next_aired&amp;day=1</content>
+
+<!-- The next 7 days -->
+<content>plugin://script.skin.info.service/?action=next_aired&amp;days=7</content>
+
+<!-- Thursday -->
+<content>plugin://script.skin.info.service/?action=next_aired&amp;weekday=3</content>
+
+<!-- Your Trakt shows, the next 7 days -->
+<content>plugin://script.skin.info.service/?action=next_aired&amp;days=7&amp;shows=trakt</content>
+```
+
+### Behavior
+
+1. Days and times are local, so an episode can land on a different day than the network lists
+2. Each episode is its own item, so a show releasing a whole season at once lists every episode
+3. Selecting an item opens the show in the library; an episode of a show not in the library has no action
+4. Episode titles and plots are in English
+
+### Item Properties
+
+- **Label**: Formatted as `2x05. Episode Title`
+- **MediaType**: `episode`
+- **Video Info**: title, season, episode, showtitle, plot, runtime, firstaired (the local air
+  date), studio, mpaa, genre, status
+- **Artwork**: TV show artwork, from Trakt for a show not in the library. With `shows=trakt`, the
+  episode still as `thumb` when Trakt has one
+
+| Property | Description |
+|----------|-------------|
+| `AirDate` | Air date in the short date format of Kodi's region settings |
+| `AirDateLong` | Air date in the long date format |
+| `AirDay` | Weekday name |
+| `AirDayShort` | Short weekday name, such as `Wed` |
+| `AirTime` | Air time, formatted like Kodi's clock |
+| `EpisodeType` | `standard`, or a premiere or finale such as `season_premiere`, `mid_season_finale` or `series_finale` |
+| `TVShowDBID` | The show's library DBID; empty for a show not in the library |
+| `TVShowTMDBID` | The show's TMDB ID |
+
+**Widget Type:** Episode
+
+---
+
+## Continue Watching
+
+In-progress movies and the next episode of each in-progress TV show in one list, most recently
+played first.
+
+The episode half is [Next Up](#next-up). The movie half is every movie with a resume point.
+
+### Usage
+
+```xml
+<content>plugin://script.skin.info.service/?action=continue_watching</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `limit` | No | 25 | Maximum items to return |
+
+### Examples
+
+```xml
+<!-- Basic -->
+<content>plugin://script.skin.info.service/?action=continue_watching</content>
+
+<!-- Custom limit -->
+<content>plugin://script.skin.info.service/?action=continue_watching&amp;limit=10</content>
+```
+
+### Behavior
+
+1. Takes up to `limit` in-progress movies and up to `limit` in-progress TV shows, each
+   sorted by last played
+2. For each show, picks the next unwatched episode the same way Next Up does
+3. Merges both into one list ordered by last played, then trims to `limit`
+
+A show's position comes from when the show was last played, not from the episode returned, so
+a show you watched last night stays above a movie you paused last week even though its next
+episode has never been started.
+
+### Item Properties
+
+- **MediaType**: `movie` or `episode`
+- **Artwork**: movie artwork, or TV show artwork plus episode thumb
+- **Resume Point**: on every movie, and on an episode that was partially watched
+
+**Widget Type:** Mixed video
+
+---
+
+## Recent Episodes Grouped
+
+Recently added episodes, grouped by show.
+
+### Usage
+
+```xml
+<content>plugin://script.skin.info.service/?action=recent_episodes_grouped</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `limit` | No | 25 | Maximum shows to process |
+| `include_watched` | No | false | Include shows with all episodes watched |
+
+### Examples
+
+```xml
+<!-- Unwatched only -->
+<content>plugin://script.skin.info.service/?action=recent_episodes_grouped&amp;limit=25</content>
+
+<!-- Include watched -->
+<content>plugin://script.skin.info.service/?action=recent_episodes_grouped&amp;include_watched=true</content>
+```
+
+### Behavior
+
+1. Takes recently added TV shows
+2. For each show:
+   - **1 unwatched episode**: Returns episode item with show artwork
+   - **Multiple unwatched**: Returns show folder
+   - **include_watched=true**: Checks if multiple added same day
+
+Returns **mixed** episode and TV show items.
+
+**Widget Type:** Mixed
+
+---
+
+## Recent Videos
+
+Recently added movies and episodes in one list, interleaved by the date they were added.
+
+Kodi has no equivalent: `videodb://recentlyaddedmovies/` and `videodb://recentlyaddedepisodes/`
+are separate nodes, two `<content>` tags list one after the other rather than interleaving, and no
+smart playlist type combines movies with episodes.
+
+### Usage
+
+```xml
+<content>plugin://script.skin.info.service/?action=recent_videos</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `limit` | No | 25 | Maximum items to return |
+| `group` | No | `true` | One row per show. `false` lists every episode |
+
+### Examples
+
+```xml
+<!-- Basic -->
+<content>plugin://script.skin.info.service/?action=recent_videos</content>
+
+<!-- Every episode, ungrouped -->
+<content>plugin://script.skin.info.service/?action=recent_videos&amp;group=false</content>
+```
+
+### Behavior
+
+1. With `group=true`, each show contributes one row: a show folder when its two newest episodes
+   were added on the same day, otherwise its newest episode
+2. Merges both into one list ordered by date added, then trims to `limit`
+
+Grouping keeps a batch add from filling the widget. A season added at once collapses to a single
+row, while a show airing weekly still shows its individual episode.
+
+### Item Properties
+
+- **MediaType**: `movie`, `episode`, or `tvshow` for a collapsed show
+- **DateAdded**: set on every item, so lists can be sorted or labeled by it
+- **Artwork**: movie artwork, or TV show artwork plus episode thumb
+
+Collapsed show rows are folders that open the show; everything else is playable.
+
+**Widget Type:** Mixed video
+
+---
+
+## Favourites
+
+Your Kodi favourites, resolved back to their library items so they carry full metadata.
+
+Kodi's own favourites list stores only a label, a thumb and a path or window target. This resolves
+each one to the library item behind it, so the widget gets poster, fanart, clearlogo, plot, rating,
+watched state and resume point. It also lets you show one media type on its own, which the plain
+favourites list cannot do.
+
+### Usage
+
+```xml
+<content>plugin://script.skin.info.service/?action=favourites&amp;dbtype=movie</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `dbtype` | No | all | `movie`, `tvshow`, `episode` or `musicvideo`. Omit for every resolved favourite |
+| `limit` | No | 0 | Maximum items; 0 returns all |
+
+### Examples
+
+```xml
+<!-- Favourited movies only -->
+<content>plugin://script.skin.info.service/?action=favourites&amp;dbtype=movie</content>
+
+<!-- Favourited TV shows only -->
+<content>plugin://script.skin.info.service/?action=favourites&amp;dbtype=tvshow</content>
+
+<!-- Everything, mixed -->
+<content>plugin://script.skin.info.service/?action=favourites</content>
+```
+
+### Behavior
+
+1. Reads the favourites list, keeping the order you favourited things
+2. Favourites whose item is no longer in the library are skipped
+
+Favourites pointing at an add-on or a plugin path are not resolved and do not appear. TV show rows
+are folders that open the show; everything else is playable.
+
+### Item Properties
+
+- **MediaType**: `movie`, `tvshow`, `episode` or `musicvideo`
+- **Artwork**: full library artwork for the resolved item
+- **Video Info**: plot, rating, year, and watched state
+- **Resume Point**: If partially watched
+
+**Widget Type:** Mixed video, or the requested `dbtype`
+
+---
+
+## By Actor
+
+Items featuring a random actor from the source item's cast, or a chosen billing position.
+
+### Usage
+
+```xml
+<content>plugin://script.skin.info.service/?action=by_actor&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=$INFO[ListItem.DBType]</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `dbid` | Yes | - | Database ID of source item |
+| `dbtype` | No | movie | Source type (movie/tvshow/episode) |
+| `limit` | No | 25 | Maximum items |
+| `cast_limit` | No | 4 | Pick from top N cast (0=all) |
+| `position` | No | - | Billing position to use instead of a random pick (1 = top billed); empty when the cast is shorter |
+| `mix` | No | true | Mixed movie/show results |
+| `lock` | No | false | Lock to same actor across widgets |
+
+### Examples
+
+```xml
+<!-- Mixed results -->
+<content>plugin://script.skin.info.service/?action=by_actor&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=$INFO[ListItem.DBType]</content>
+
+<!-- Movies only -->
+<content>plugin://script.skin.info.service/?action=by_actor&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=$INFO[ListItem.DBType]&amp;mix=false</content>
+
+<!-- Lock same actor across two widgets -->
+<content>plugin://script.skin.info.service/?action=by_actor&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=movie&amp;mix=false&amp;lock=true</content>
+<content>plugin://script.skin.info.service/?action=by_actor&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=tvshow&amp;mix=false&amp;lock=true</content>
+
+<!-- One widget per top-billed actor -->
+<content>plugin://script.skin.info.service/?action=by_actor&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=$INFO[ListItem.DBType]&amp;position=1</content>
+<content>plugin://script.skin.info.service/?action=by_actor&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=$INFO[ListItem.DBType]&amp;position=2</content>
+<content>plugin://script.skin.info.service/?action=by_actor&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=$INFO[ListItem.DBType]&amp;position=3</content>
+```
+
+### Actor Locking
+
+With `lock=true`, every locked widget shows the same actor until focus moves to another item.
+
+**Widget Type:**
+
+- **mix=true**: Mixed widget
+- **mix=false**: Movie or TV Show widget
+
+### Per-Item Properties
+
+Each result ListItem has the standard movie/tvshow infotag fields plus:
+
+| Property | Description                                                |
+|----------|------------------------------------------------------------|
+| `Actor`  | Name of the picked actor (same value on every result)      |
+| `Role`   | Character the actor plays in this item                     |
+
+Use `Role`; `Label2` may not hold the character.
+
+---
+
+## By Director
+
+Items by a random director from the source item.
+
+### Usage
+
+```xml
+<content>plugin://script.skin.info.service/?action=by_director&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=$INFO[ListItem.DBType]</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `dbid` | Yes | - | Database ID |
+| `dbtype` | No | movie | Source type (movie/episode) |
+| `limit` | No | 25 | Maximum items |
+| `director_limit` | No | 3 | Pick from top N directors (0=all) |
+| `mix` | No | true | Mixed movie/episode results |
+
+### Examples
+
+```xml
+<!-- Mixed results -->
+<content>plugin://script.skin.info.service/?action=by_director&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=$INFO[ListItem.DBType]</content>
+
+<!-- Movies only -->
+<content>plugin://script.skin.info.service/?action=by_director&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=$INFO[ListItem.DBType]&amp;mix=false</content>
+```
+
+**Widget Type:**
+
+- **mix=true**: Mixed widget (movie + episode)
+- **mix=false**: Movie or Episode widget
+
+### Per-Item Properties
+
+| Property   | Description                                                |
+|------------|------------------------------------------------------------|
+| `Director` | Name of the picked director (same value on every result)   |
+
+---
+
+## Similar Items
+
+Items similar to the source. Shared genre count decides the order first, then tags, crew, era,
+certificate and popularity break the tie within each group.
+
+### Usage
+
+```xml
+<!-- Library item as seed -->
+<content>plugin://script.skin.info.service/?action=similar&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=$INFO[ListItem.DBType]</content>
+
+<!-- TMDB-only item as seed (no library entry) -->
+<content>plugin://script.skin.info.service/?action=similar&amp;tmdb_id=$INFO[ListItem.Property(tmdb_id)]&amp;dbtype=movie</content>
+
+<!-- Only unwatched, scored inside your own smart playlist -->
+<content>plugin://script.skin.info.service/?action=similar&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=movie&amp;watched=unwatched&amp;path=special://profile/playlists/video/My%20List.xsp</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `dbid` | Conditional | - | Library ID. Provide this OR `tmdb_id`. A library seed scores on everything below. |
+| `tmdb_id` | Conditional | - | TMDB ID. Used when no library entry exists. Only genres and year come from TMDB. |
+| `dbtype` | No | movie | Source type (`movie`, `set`, `tvshow`). An `episode` source returns nothing; pass its show instead. |
+| `limit` | No | 25 | Maximum items |
+| `watched` | No | both | `watched`, `unwatched` or `both` |
+| `path` | No | - | Score inside this path instead of the whole library. Takes a `.xsp` file, an inline XSP filter or a smart playlist. |
+
+Results are always **library items**; `tmdb_id` only changes how the seed's genres are obtained.
+
+### Ordering
+
+Items sharing more genres always rank above items sharing fewer, so the list works down a group at
+a time until it reaches `limit`. Within a group:
+
+- **Tags**: rarer shared tags count for more than common ones. Tags come from the scraper, so this
+  needs "Add tags" enabled in the scraper settings; without them the remaining signals still order
+  the list.
+- **Crew**: shared director, then writer, then studio
+- **Era**: closer release years
+- **Certificate**: same rating, compared per country so `NL:16` and `GR:16` stay distinct
+- **Popularity**: vote count and rating, which decides items that match on nothing else
+- **Same set**: ranked lower
+
+### Example
+
+Source: "The Dark Knight" (Action, Crime, Drama)
+
+- "Heat" (Action, Crime, Drama) ranks above every two-genre match, whatever its rating
+- "Inception" (Action, Sci-Fi) only appears once the three-genre matches run out
+
+**Widget Type:**
+
+- **Source movie/set**: Movie widget
+- **Source tvshow**: TV Show widget
+
+---
+
+## Recommended For You
+
+Personalized recommendations from your watch history.
+
+By default this is single-seed: it picks titles most like your single most recent watch, matching on genre, MPAA tone, shared director, and release era. Every item is tagged with that seed, so the widget can show a "Recommended based on <title>" header. Add `multi=true` for a blend across several recent watches instead, weighted toward the most recent.
+
+### Usage
+
+```xml
+<content>plugin://script.skin.info.service/?action=recommended&amp;dbtype=movie</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `dbtype` | No | movie | Content type (movie/tvshow/both) |
+| `limit` | No | 25 | Maximum items |
+| `multi` | No | false | Blend across recent history instead of a single seed |
+| `strict_rating` | No | false | Only match the seed's MPAA tone |
+| `min_rating` | No | 6.0 | Minimum rating threshold |
+| `recency` | No | 0.75 | Multi only: 0-1, how strongly recent watches dominate |
+| `history_size` | No | 10 | Multi only: number of recent watches blended |
+
+### Item properties
+
+| Property | Description |
+|----------|-------------|
+| `ListItem.Property(BasedOn)` | Seed title a pick came from (single: the one seed; multi: that pick's own seed watch) |
+| `ListItem.Property(BasedOnLabel)` | Ready-made header label: "Recommended based on <title>" (single) or "Recommended based on recent watches" (multi) |
+
+### Examples
+
+```xml
+<!-- Single-seed (default): more like your last watch -->
+<content>plugin://script.skin.info.service/?action=recommended&amp;dbtype=movie</content>
+
+<!-- Blend across recent history -->
+<content>plugin://script.skin.info.service/?action=recommended&amp;dbtype=movie&amp;multi=true</content>
+
+<!-- TV shows -->
+<content>plugin://script.skin.info.service/?action=recommended&amp;dbtype=tvshow</content>
+
+<!-- Mixed -->
+<content>plugin://script.skin.info.service/?action=recommended&amp;dbtype=both</content>
+
+<!-- Family mode -->
+<content>plugin://script.skin.info.service/?action=recommended&amp;dbtype=movie&amp;strict_rating=true&amp;min_rating=7.0</content>
+```
+
+### Notes
+
+- Requires watch history; only returns unwatched items.
+- A TV show counts as watched history once any episode is watched, and as an unwatched pick only while no episode is watched.
+- Single-seed fills to `limit` with same-tone titles when there are few genuine matches, so the widget isn't sparse.
+- `dbtype=both` mixes movies and TV shows in one widget.
+
+---
+
+## Seasonal
+
+Seasonal movie collections filtered by TMDB tags.
+
+### Usage
+
+```xml
+<content>plugin://script.skin.info.service/?action=seasonal&amp;season=christmas</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `season` | Yes | - | Season identifier |
+| `limit` | No | 50 | Maximum items |
+| `sort` | No | random | Sort method |
+
+### Available Seasons
+
+| Season ID | Description |
+|-----------|-------------|
+| `christmas` | Christmas movies |
+| `halloween` | Halloween movies, mixed with horror for variety |
+| `valentines` | Valentine's Day / romance movies |
+| `thanksgiving` | Thanksgiving movies |
+| `newyear` | New Year's movies |
+| `easter` | Easter movies |
+| `independence` | Independence Day movies |
+| `starwars` | Star Wars franchise |
+| `startrek` | Star Trek franchise |
+
+### Sort Methods
+
+`random`, `title`, `year`, `rating`, `dateadded`
+
+### Examples
+
+```xml
+<!-- Christmas random -->
+<content>plugin://script.skin.info.service/?action=seasonal&amp;season=christmas</content>
+
+<!-- Halloween by rating -->
+<content>plugin://script.skin.info.service/?action=seasonal&amp;season=halloween&amp;sort=rating</content>
+
+<!-- Star Wars marathon, chronological -->
+<content>plugin://script.skin.info.service/?action=seasonal&amp;season=starwars&amp;sort=year</content>
+```
+
+### Notes
+
+- Holiday seasons (christmas, halloween, thanksgiving, newyear, easter, independence) need TMDB keyword tags imported in your scraper; without them they return empty
+- `starwars`, `startrek` and `valentines` do not use tags, so they work regardless of scraper tag settings
+- `halloween` mixes holiday titles with horror for variety
+
+**Widget Type:** Movie
+
+---
+
+## Similar Artists
+
+Library artists similar to a given artist, matched via Last.fm data.
+
+### Usage
+
+```xml
+<content sortby="none">plugin://script.skin.info.service/?action=similar_artists&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=$INFO[ListItem.DBType]</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `artist` | No* | - | Artist name |
+| `dbid` | No* | - | Database ID of source item |
+| `dbtype` | No* | - | Source type (musicvideo/artist/album/song) |
+| `limit` | No | 25 | Maximum items |
+
+*Either `artist` or `dbid`+`dbtype` required. `artist` wins when both are given, and a name ends at its first `&`.
+
+### Examples
+
+```xml
+<!-- From musicvideo -->
+<content sortby="none">plugin://script.skin.info.service/?action=similar_artists&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=musicvideo</content>
+
+<!-- From artist name -->
+<content sortby="none">plugin://script.skin.info.service/?action=similar_artists&amp;artist=$INFO[ListItem.Artist]&amp;limit=10</content>
+```
+
+### Behavior
+
+1. Library artists that Last.fm lists as similar to the given artist
+2. In Last.fm's order, up to `limit`, with library artwork
+
+**Widget Type:** Artist
+
+---
+
+## Artist Albums
+
+Albums by a given artist from AudioLibrary.
+
+### Usage
+
+```xml
+<content sortby="none">plugin://script.skin.info.service/?action=artist_albums&amp;artist=$INFO[ListItem.Artist]</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `artist` | No* | - | Artist name |
+| `dbid` | No* | - | Database ID of source item |
+| `dbtype` | No* | - | Source type (musicvideo/artist/album/song) |
+| `limit` | No | 25 | Maximum items |
+| `sort` | No | year | Sort method |
+
+*Either `artist` or `dbid`+`dbtype` required.
+
+### Examples
+
+```xml
+<!-- From artist name -->
+<content sortby="none">plugin://script.skin.info.service/?action=artist_albums&amp;artist=$INFO[ListItem.Artist]</content>
+
+<!-- From musicvideo, sorted by title -->
+<content sortby="none">plugin://script.skin.info.service/?action=artist_albums&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=musicvideo&amp;sort=title</content>
+```
+
+### Behavior
+
+1. The given artist's albums in the music library, ordered by `sort`
+2. Returns album ListItems with cover art
+
+**Widget Type:** Album
+
+---
+
+## Artist Music Videos
+
+Music videos by a given artist from VideoLibrary.
+
+### Usage
+
+```xml
+<content sortby="none">plugin://script.skin.info.service/?action=artist_musicvideos&amp;artist=$INFO[ListItem.Artist]</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `artist` | No* | - | Artist name |
+| `dbid` | No* | - | Database ID of source item |
+| `dbtype` | No* | - | Source type (musicvideo/artist/album/song) |
+| `limit` | No | 25 | Maximum items |
+
+*Either `artist` or `dbid`+`dbtype` required.
+
+When `dbid`+`dbtype=musicvideo` is provided, that musicvideo is excluded from results.
+
+### Examples
+
+```xml
+<!-- Other musicvideos by this artist (exclude current) -->
+<content sortby="none">plugin://script.skin.info.service/?action=artist_musicvideos&amp;artist=$INFO[ListItem.Artist]&amp;dbid=$INFO[ListItem.DBID]&amp;dbtype=musicvideo&amp;limit=10</content>
+
+<!-- All musicvideos by artist name -->
+<content sortby="none">plugin://script.skin.info.service/?action=artist_musicvideos&amp;artist=$INFO[ListItem.Artist]</content>
+```
+
+### Behavior
+
+1. The given artist's music videos, newest year first
+2. Excludes source musicvideo if `dbid`+`dbtype=musicvideo` provided
+3. Returns playable musicvideo ListItems
+
+**Widget Type:** Music Video
+
+---
+
+## Genre Artists
+
+Artists in the same genre as a given artist from AudioLibrary.
+
+### Usage
+
+```xml
+<content sortby="none">plugin://script.skin.info.service/?action=genre_artists&amp;artist=$INFO[ListItem.Artist]</content>
+```
+
+### Parameters
+
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `artist` | No* | - | Artist name (to resolve genre) |
+| `dbid` | No* | - | Database ID of source item |
+| `dbtype` | No* | - | Source type (musicvideo/artist/album/song) |
+| `genre` | No | - | Explicit genre (skips artist lookup) |
+| `limit` | No | 25 | Maximum items |
+
+*Either `artist`, `dbid`+`dbtype`, or `genre` required.
+
+### Examples
+
+```xml
+<!-- From artist name -->
+<content sortby="none">plugin://script.skin.info.service/?action=genre_artists&amp;artist=$INFO[ListItem.Artist]&amp;limit=10</content>
+
+<!-- Explicit genre -->
+<content sortby="none">plugin://script.skin.info.service/?action=genre_artists&amp;genre=Rock&amp;limit=10</content>
+```
+
+### Behavior
+
+1. Library artists sharing the given artist's first genre, or `genre` when set, in random order
+2. Excludes source artist
+3. Returns artist ListItems with library artwork
+
+**Widget Type:** Artist
+
+---
+
+[↑ Top](#library-widgets) · [Index](../index.md)

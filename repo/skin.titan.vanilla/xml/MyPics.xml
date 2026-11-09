@@ -53,7 +53,7 @@
 			    <control type="button" id="6053">
 					<description>Sort by button</description>
 					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[70030]</label>
+					<label>$LOCALIZE[31916]</label>
 					<label2>[B]$INFO[Container.SortMethod][/B]</label2>
 					<visible>Control.IsEnabled(3)</visible>
 					<onright>Container.NextSortMethod</onright>
@@ -63,7 +63,7 @@
 				<control type="button" id="6052">
 					<description>Sort asc</description>
 					<include>SideBladeMenuButton</include>
-					<label>$LOCALIZE[70031]</label>
+					<label>$LOCALIZE[31917]</label>
 					<label2>[B]$INFO[Container.SortOrder][/B]</label2>
 					<visible>Control.IsEnabled(4)</visible>
 					<onright>SendClick(4)</onright>
@@ -80,7 +80,7 @@
 					<onclick>right</onclick>
 					<label>$LOCALIZE[587]</label>
 				</control>
-				<control type="button" id="20">
+				<control type="radiobutton" id="20">
 					<visible>Container.CanFilterAdvanced</visible>
 					<description>Filter</description>
 					<include>SideBladeMenuButton</include>
@@ -91,13 +91,13 @@
 				</control>
 				<control type="button" id="6">
 					<!--Slideshow-->
-					<visible>!ListItem.IsFolder</visible>
+					<!-- <visible>!ListItem.IsFolder</visible> -->
 					<include>SideBladeMenuButton</include>
 					<label>$LOCALIZE[108]</label>
 				</control>
 				<control type="button" id="7">
 					<!--Recursive Slideshow-->
-					<visible>ListItem.IsFolder</visible>
+					<!-- <visible>ListItem.IsFolder</visible> -->
 					<include>SideBladeMenuButton</include>
 					<label>$LOCALIZE[108]</label>
 				</control>
@@ -106,7 +106,31 @@
 					<include>SideBladeMenuButton</include>
 					<label>$LOCALIZE[13319]</label>
 				</control>
+
+				<control type="image" id="6201">
+					<!--Seperator-->
+					<width>458</width>
+					<height>10</height>
+					<align>left</align>
+					<texture>common/menu-separator.png</texture>
+				</control>
+
+				<control type="button" id="621">
+					<description>Get more</description>
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[21452]</label>
+					<onclick>ActivateWindow(addonbrowser,addons://more/image/,return)</onclick>
+					<visible>Container.Content(addons)</visible>
+				</control>
+				<control type="button" id="624">
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[10140]</label>
+					<onclick>Addon.OpenSettings($INFO[Container.PluginName])</onclick>
+					<visible>!String.IsEmpty(Container.PluginName)</visible>
+				</control>
+
 				<include>SideBladeViewCommands</include>
+				
 				<control type="radiobutton" id="31029">
 					<!--Disable footer-->
 					<include>SideBladeMenuButton</include>

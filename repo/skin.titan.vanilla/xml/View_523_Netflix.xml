@@ -287,8 +287,10 @@
 				<selected>Control.HasFocus(5001)</selected>
 				<texturefocus></texturefocus>
 				<texturenofocus></texturenofocus>
-				<textureradiofocus colordiffuse="$INFO[Skin.String(ButtonTextFocusColor)]">touchcontrols/icon_back.png</textureradiofocus>
-				<textureradionofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">touchcontrols/icon_back.png</textureradionofocus>
+				<textureradioonfocus colordiffuse="$INFO[Skin.String(ButtonTextFocusColor)]">touchcontrols/icon_back.png</textureradioonfocus>
+				<textureradioonnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">touchcontrols/icon_back.png</textureradioonnofocus>
+				<textureradioofffocus colordiffuse="$INFO[Skin.String(ButtonTextFocusColor)]">touchcontrols/icon_back.png</textureradioofffocus>
+				<textureradiooffnofocus colordiffuse="$INFO[Skin.String(ButtonTextColor)]">touchcontrols/icon_back.png</textureradiooffnofocus>
 				<radiowidth>60</radiowidth>
 				<radioheight>60</radioheight>
 				<onclick>Close</onclick>

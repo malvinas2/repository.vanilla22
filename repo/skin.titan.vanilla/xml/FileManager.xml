@@ -74,7 +74,7 @@
 					<onup>20</onup>
 					<ondown>20</ondown>
 					<pagecontrol>60</pagecontrol>
-					<itemlayout height="69" width="900">
+					<itemlayout height="49" width="900">
 						<control type="image">
 							<left>140</left>
 							<top>13</top>
@@ -119,7 +119,7 @@
 							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 						</control>
 					</itemlayout>
-					<focusedlayout height="69" width="900">
+					<focusedlayout height="49" width="900">
 						<control type="image">
 							<visible>Control.HasFocus(20)</visible>
 							<left>100</left>
@@ -185,8 +185,8 @@
 						</control>
 					</focusedlayout>
 				</control>
-				<control type="label" id="12">
-					<label></label>
+				<control type="label" id="122">
+					<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(20).NumItems][/COLOR] $LOCALIZE[31954] - [COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(20).CurrentPage]/$INFO[Container(20).NumPages][/COLOR]</label>
 					<!--Object Info RSS-->
 					<description>Header Label</description>
 					<left>140</left>
@@ -210,7 +210,7 @@
 					<texture border="5">diffuse/panel.png</texture>
 					<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
 				</control>
-				<control type="label" id="102">
+				<control type="label" id="1022">
 					<!--Header-->
 					<description>Header Label</description>
 					<left>140</left>
@@ -232,7 +232,7 @@
 					<onup>21</onup>
 					<ondown>21</ondown>
 					<pagecontrol>70</pagecontrol>
-					<itemlayout height="69" width="900">
+					<itemlayout height="49" width="900">
 						<control type="image">
 							<left>140</left>
 							<top>13</top>
@@ -277,7 +277,7 @@
 							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 						</control>
 					</itemlayout>
-					<focusedlayout height="69" width="900">
+					<focusedlayout height="49" width="900">
 						<control type="image">
 							<visible>Control.HasFocus(21)</visible>
 							<left>100</left>
@@ -355,14 +355,14 @@
 					<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(70) | Skin.HasSetting(EnableTouchSupport) | Container(20).Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
 					<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(70) | Skin.HasSetting(EnableTouchSupport) | Container(20).Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
 				</control>
-				<control type="label" id="13">
+				<control type="label" id="133">
 					<!--Object Info RSS-->
 					<description>Header Label</description>
 					<left>140</left>
 					<top>610</top>
 					<width>480</width>
 					<align>left</align>
-					<label></label>
+					<label>[COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(21).NumItems][/COLOR] $LOCALIZE[31954] - [COLOR=$INFO[Skin.String(GeneralHighlightTextColor)]]$INFO[Container(21).CurrentPage]/$INFO[Container(21).NumPages][/COLOR]</label>
 					<font>Reg30</font>
 					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 				</control>

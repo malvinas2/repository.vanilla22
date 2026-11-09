@@ -229,8 +229,10 @@
 			<selected>Control.HasFocus(99223)</selected>
 			<texturefocus></texturefocus>
 			<texturenofocus></texturenofocus>
-			<textureradiofocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/menu.png</textureradiofocus>
-			<textureradionofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">common/menu.png</textureradionofocus>
+			<textureradioonfocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/menu.png</textureradioonfocus>
+			<textureradioonnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">common/menu.png</textureradioonnofocus>
+			<textureradioofffocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/menu.png</textureradioofffocus>
+			<textureradiooffnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">common/menu.png</textureradiooffnofocus>
 			<radiowidth>60</radiowidth>
 			<radioheight>60</radioheight>
 			<onclick condition="!String.IsEqual(Window(Home).Property(ShowViewSubMenu),show) + [Skin.String(HomeLayout,win10) | Skin.String(HomeLayout,netflix)]">SetProperty(ShowViewSubMenu, show,home)</onclick>
@@ -246,8 +248,10 @@
 			<selected>Control.HasFocus(99227)</selected>
 			<texturefocus></texturefocus>
 			<texturenofocus></texturenofocus>
-			<textureradiofocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/widget.png</textureradiofocus>
-			<textureradionofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">touchcontrols/widget.png</textureradionofocus>
+			<textureradioonfocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/widget.png</textureradioonfocus>
+			<textureradioonnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">touchcontrols/widget.png</textureradioonnofocus>
+			<textureradioofffocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/widget.png</textureradioofffocus>
+			<textureradiooffnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">touchcontrols/widget.png</textureradiooffnofocus>
 			<radiowidth>50</radiowidth>
 			<radioheight>50</radioheight>
 			<onclick condition="String.IsEqual(Window(Home).Property(ShowWidget),show)">Control.SetFocus(300)</onclick>
@@ -263,8 +267,10 @@
 			<selected>Control.HasFocus(99224)</selected>
 			<texturefocus></texturefocus>
 			<texturenofocus></texturenofocus>
-			<textureradiofocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/shutdown2.png</textureradiofocus>
-			<textureradionofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">common/shutdown2.png</textureradionofocus>
+			<textureradioonfocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/shutdown2.png</textureradioonfocus>
+			<textureradioonnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">common/shutdown2.png</textureradioonnofocus>
+			<textureradioofffocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/shutdown2.png</textureradioofffocus>
+			<textureradiooffnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">common/shutdown2.png</textureradiooffnofocus>
 			<radiowidth>50</radiowidth>
 			<radioheight>50</radioheight>
 			<onclick>ActivateWindow(111)</onclick>
@@ -278,8 +284,10 @@
 			<selected>Control.HasFocus(99225)</selected>
 			<texturefocus></texturefocus>
 			<texturenofocus></texturenofocus>
-			<textureradiofocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/back.png</textureradiofocus>
-			<textureradionofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">touchcontrols/back.png</textureradionofocus>
+			<textureradioonfocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/back.png</textureradioonfocus>
+			<textureradioonnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">touchcontrols/back.png</textureradioonnofocus>
+			<textureradioofffocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/back.png</textureradioofffocus>
+			<textureradiooffnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">touchcontrols/back.png</textureradiooffnofocus>
 			<radiowidth>50</radiowidth>
 			<radioheight>50</radioheight>
 			<onclick>Back</onclick>
@@ -294,8 +302,10 @@
 			<selected>Control.HasFocus(99226)</selected>
 			<texturefocus></texturefocus>
 			<texturenofocus></texturenofocus>
-			<textureradiofocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/home.png</textureradiofocus>
-			<textureradionofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">touchcontrols/home.png</textureradionofocus>
+			<textureradioonfocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/home.png</textureradioonfocus>
+			<textureradioonnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">touchcontrols/home.png</textureradioonnofocus>
+			<textureradioofffocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">touchcontrols/home.png</textureradioofffocus>
+			<textureradiooffnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">touchcontrols/home.png</textureradiooffnofocus>
 			<radiowidth>50</radiowidth>
 			<radioheight>50</radioheight>
 			<onclick>ActivateWindow(Home)</onclick>
@@ -341,6 +351,7 @@
 			<aspectratio align="right" aligny="center">keep</aspectratio>
 			<texture background="true">$VAR[ListItemClearLogo]</texture>
 			<visible>!String.IsEmpty(Control.GetLabel(881)) + Skin.String(ClearLogoLocation, topright)</visible>
+			<!-- <visible>Skin.String(ClearLogoLocation, topright)</visible> -->
 			<visible>!Window.IsActive(notification) + !Window.IsActive(extendedprogressdialog) + !Control.IsVisible(88888)</visible>
 			<animation type="Conditional" condition="Window.IsActive(volumebar)">
 				<effect type="slide" start="0,0" end="-120,0" time="400" tween="cubic" easing="inout" delay="0" />
@@ -357,6 +368,7 @@
 			<aspectratio align="left" aligny="center">keep</aspectratio>
 			<texture background="true">$VAR[ListItemClearLogo]</texture>
 			<visible>!String.IsEmpty(Control.GetLabel(882)) + Skin.String(ClearLogoLocation, topleft)</visible>
+			<!-- <visible>Skin.String(ClearLogoLocation, topleft)</visible> -->
 			<visible>!Window.IsActive(notification) + !Window.IsActive(extendedprogressdialog) + !Control.IsVisible(88888)</visible>
 		</control>
 		
@@ -372,6 +384,7 @@
 			<visible>!Window.IsActive(notification) + !Window.IsActive(extendedprogressdialog) + !Control.IsVisible(88888)</visible>
 			<visible>![Skin.String(View514_DisplayInfo,small) + Control.IsVisible(514)] + ![Control.IsVisible(514) + Skin.String(View514_DisplayInfo,small_delayed) + System.IdleTime(3)]</visible>
 			<visible>![Skin.String(View513_DisplayInfo,small) + Control.IsVisible(513)] + ![Control.IsVisible(513) + Skin.String(View513_DisplayInfo,small_delayed) + System.IdleTime(3)]</visible>
+			<!-- <visible>Skin.String(ClearLogoLocation, topcenter) + !Skin.HasSetting(ShowMovieTitleHeader)</visible> -->
 			<visible>!String.IsEmpty(Control.GetLabel(883)) + Skin.String(ClearLogoLocation, topcenter) + !Skin.HasSetting(ShowMovieTitleHeader)</visible>
 		</control>
 		
@@ -387,7 +400,9 @@
 			<texture background="true">$VAR[ListItemClearLogo]</texture>
 			<visible>!Skin.HasSetting(nofooterbar)</visible>
 			<visible>![[Skin.String(mediaflagsstyle,large_color) | Skin.String(mediaflagsstyle,large) | Skin.HasSetting(EnableTouchSupport)] + !String.IsEmpty(ListItem.VideoResolution)]</visible>
-			<visible>!String.IsEmpty(Control.GetLabel(884)) + Skin.String(ClearLogoLocation, footer) + !String.IsEqual(Window(Home).Property(showinfopanel),show)</visible>
+			<!-- <visible>!String.IsEqual(Control.GetLabel(884),empty) + Skin.String(ClearLogoLocation,footer) + !String.IsEqual(Window(Home).Property(showinfopanel),show)</visible> -->
+			<visible>!String.IsEmpty(Control.GetLabel(884)) + Skin.String(ClearLogoLocation,footer) + !String.IsEqual(Window(Home).Property(showinfopanel),show)</visible>
+			<!-- <visible>Skin.String(ClearLogoLocation,footer) + !String.IsEqual(Window(Home).Property(showinfopanel),show)</visible> -->
 		</control>
 		<!--clearlogo footer (with touch mode or large icons-->
 		<control type="image" id="884">
@@ -401,7 +416,8 @@
 			<texture background="true">$VAR[ListItemClearLogo]</texture>
 			<visible>!Skin.HasSetting(nofooterbar)</visible>
 			<visible>[[Skin.String(mediaflagsstyle,large_color) | Skin.String(mediaflagsstyle,large) | Skin.HasSetting(EnableTouchSupport)] + !String.IsEmpty(ListItem.VideoResolution)]</visible>
-			<visible>!String.IsEmpty(Control.GetLabel(884)) + Skin.String(ClearLogoLocation, footer) + !String.IsEqual(Window(Home).Property(showinfopanel),show)</visible>
+			<!-- <visible>Skin.String(ClearLogoLocation,footer) + !String.IsEqual(Window(Home).Property(showinfopanel),show)</visible> -->
+			<visible>!String.IsEmpty(Control.GetLabel(884)) + Skin.String(ClearLogoLocation,footer) + !String.IsEqual(Window(Home).Property(showinfopanel),show)</visible>
 			<animation effect="slide" start="0,0" end="150,0" time="0" condition="[Skin.HasSetting(StudioInFooter) | Skin.HasSetting(IMDBRatingInFooter)] + ![Skin.HasSetting(StudioInFooter) + Skin.HasSetting(IMDBRatingInFooter)]">Conditional</animation>
 			<animation effect="slide" start="0,0" end="60,0" time="0" condition="Skin.HasSetting(StudioInFooter) + Skin.HasSetting(IMDBRatingInFooter)">Conditional</animation>
 			<animation effect="slide" end="-100" time="0" condition="!String.IsEmpty(Window(Home).Property(SkinHelper.ListItem.IMDB.Top250)) + Skin.HasSetting(IMDBRatingInFooter)">Conditional</animation>
@@ -526,14 +542,14 @@
 				<bordersize>8</bordersize>
 				<height>75%</height>
 				<texture fallback="common/profil/avatar.png">$INFO[System.ProfileThumb]</texture>
-				<aspectratio align="center" valign="top">keep</aspectratio>
+				<aspectratio align="center" aligny="top">keep</aspectratio>
 				<visible>!Control.HasFocus(890)</visible>	
 			</control>
 			<control type="image" id="889">
 				<bordersize>8</bordersize>
 				<height>75%</height>
 				<texture fallback="common/profil/avatar.png">$INFO[System.ProfileThumb]</texture>
-				<aspectratio align="center" valign="top">keep</aspectratio>
+				<aspectratio align="center" aligny="top">keep</aspectratio>
 				<visible>Control.HasFocus(890)</visible>			
 			</control>
 			<control type="button" id="890">
@@ -577,8 +593,10 @@
 			<label>$VAR[ProfileLabel]</label>
 			<textcolor>$INFO[Skin.String(HeaderTextColor)]</textcolor>
 			<focusedcolor>$INFO[Skin.String(HomeViewDetailsFocusColor)]</focusedcolor>
-			<textureradiofocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/profil/avatar.png</textureradiofocus>
-			<textureradionofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">common/profil/avatar.png</textureradionofocus>
+			<textureradioonfocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/profil/avatar.png</textureradioonfocus>
+			<textureradioonnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">common/profil/avatar.png</textureradioonnofocus>
+			<textureradioofffocus colordiffuse="$INFO[Skin.String(HomeViewDetailsFocusColor)]">common/profil/avatar.png</textureradioofffocus>
+			<textureradiooffnofocus colordiffuse="$INFO[Skin.String(HeaderTextColor)]">common/profil/avatar.png</textureradiooffnofocus>
 			<textoffsetx>70</textoffsetx>
 			<radioposx>0</radioposx>
 			<pulseonselect>false</pulseonselect>

@@ -45,7 +45,7 @@
 				<control type="label">
 					<top>40</top>
 					<left>20</left>
-					<label>$LOCALIZE[70012]: </label>
+					<label>$LOCALIZE[31898]: </label>
 					<width>180</width>
 					<height>40</height>
 					<font>Reg28</font>
@@ -98,7 +98,7 @@
 						<height>55</height>
 						<aligny>center</aligny>
 						<font>font13</font>
-						<label>$LOCALIZE[32297]</label>
+						<label>$ADDON[script.globalsearch 32297]</label>
 						<visible>Control.IsVisible(991)</visible>
 					</control>
 					<control type="label" id="991">
@@ -114,7 +114,7 @@
 					<top>0</top>
 					<width>500</width>
 					<height>120</height>
-					<label>$LOCALIZE[32299]</label>
+					<label>$ADDON[script.globalsearch 32299]</label>
 					<align>left</align>
 					<aligny>center</aligny>
 					<font>font14</font>
@@ -135,7 +135,6 @@
 					<height>50</height>
 					<textoffsetx>20</textoffsetx>
 					<!-- <textoffsety>15</textoffsety> -->
-					<radioposx>300</radioposx>
 					<font>font24_title</font>
 					<aligny>top</aligny>
 					<textcolor>$INFO[Skin.String(ViewDetailsHighlightTextColor)]</textcolor>
@@ -163,7 +162,6 @@
 					<height>50</height>
 					<textoffsetx>20</textoffsetx>
 					<!-- <textoffsety>15</textoffsety> -->
-					<radioposx>300</radioposx>
 					<font>font24_title</font>
 					<aligny>top</aligny>
 					<textcolor>$INFO[Skin.String(ViewDetailsHighlightTextColor)]</textcolor>
@@ -488,7 +486,6 @@
 						<aligny>center</aligny>
 						<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
 						<label>$INFO[ListItem.Label]</label>
-						<autoscroll delay="2000" time="2000" repeat="500">true</autoscroll>
 						<visible>Container.Content(artists)</visible>
 					</control>
 					<control type="label">
@@ -502,7 +499,6 @@
 						<aligny>center</aligny>
 						<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
 						<label>[B]$INFO[ListItem.Artist][/B]</label>
-						<autoscroll delay="2000" time="2000" repeat="500">true</autoscroll>
 						<visible>Container.Content(albums) | Container.Content(songs)</visible>
 					</control>
 					<control type="label">
@@ -516,7 +512,6 @@
 						<aligny>center</aligny>
 						<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
 						<label>$INFO[ListItem.Property(Starttime)]</label>
-						<autoscroll delay="2000" time="2000" repeat="500">true</autoscroll>
 						<visible>Container.Content(livetv)</visible>
 					</control>
 					<control type="label">
@@ -530,7 +525,6 @@
 						<aligny>center</aligny>
 						<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
 						<label>$INFO[ListItem.Label]</label>
-						<autoscroll delay="2000" time="2000" repeat="500">true</autoscroll>
 						<visible>!Container.Content(artists)</visible>
 					</control>
 				</itemlayout>
@@ -580,7 +574,7 @@
 							<aligny>center</aligny>
 							<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
 							<label>[B]$INFO[ListItem.Artist][/B]</label>
-							<autoscroll delay="2000" time="2000" repeat="500">true</autoscroll>
+							<scroll>true</scroll>
 							<visible>Container.Content(albums) | Container.Content(songs)</visible>
 						</control>
 						<control type="label">
@@ -594,7 +588,7 @@
 							<aligny>center</aligny>
 							<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
 							<label>[B]$INFO[ListItem.Property(Starttime)][/B]</label>
-							<autoscroll delay="2000" time="2000" repeat="500">true</autoscroll>
+							<scroll>true</scroll>
 							<visible>Container.Content(livetv)</visible>
 						</control>
 						<control type="label">
@@ -608,7 +602,7 @@
 							<aligny>center</aligny>
 							<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
 							<label>$INFO[ListItem.Label]</label>
-							<autoscroll delay="2000" time="2000" repeat="500">true</autoscroll>
+							<scroll>true</scroll>
 							<visible>!Container.Content(artists)</visible>
 						</control>
 					</control>
@@ -972,8 +966,6 @@
 					<top>420</top>
 					<height>340</height>
 					<width>400</width>
-					<aligny>justify</aligny>
-					<!-- <font>font25_narrow</font> -->
 					<font>Reg26</font>
 					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
 					<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
@@ -985,8 +977,6 @@
 					<top>420</top>
 					<height>340</height>
 					<width>400</width>
-					<aligny>justify</aligny>
-					<!-- <font>font25_narrow</font> -->
 					<font>Reg26</font>
 					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
 					<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
@@ -998,8 +988,6 @@
 					<top>420</top>
 					<height>340</height>
 					<width>400</width>
-					<aligny>justify</aligny>
-					<!-- <font>font25_narrow</font> -->
 					<font>Reg26</font>
 					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
 					<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
@@ -1011,8 +999,6 @@
 					<top>420</top>
 					<height>340</height>
 					<width>400</width>
-					<aligny>justify</aligny>
-					<!-- <font>font25_narrow</font> -->
 					<font>Reg26</font>
 					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
 					<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>
@@ -1024,8 +1010,6 @@
 					<top>420</top>
 					<height>340</height>
 					<width>400</width>
-					<aligny>justify</aligny>
-					<!-- <font>font25_narrow</font> -->
 					<font>Reg26</font>
 					<textcolor>$INFO[Skin.String(ViewDetailsTextColor)]</textcolor>
 					<shadowcolor>$INFO[Skin.String(ViewDetailsTextShadowColor)]</shadowcolor>

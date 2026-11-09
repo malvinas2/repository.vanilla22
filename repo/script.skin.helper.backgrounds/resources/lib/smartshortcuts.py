@@ -217,7 +217,7 @@ class SmartShortCuts():
                                 xmldata = xmltree.fromstring(contents_data)
                                 media_type = "unknown"
                                 label = item["label"]
-                                for line in xmldata.getiterator():
+                                for line in xmldata.iter():
                                     if line.tag == "smartplaylist":
                                         media_type = line.attrib['type']
                                     if line.tag == "name":
@@ -276,7 +276,7 @@ class SmartShortCuts():
         '''helper to create a skinshortcuts submenu for the top level smart shortcut node'''
         try:
             if xbmcvfs.exists("special://skin/shortcuts/"):
-                shortcutsfile = "special://home/addons/script.skinshortcuts/resources/shortcuts/"\
+                shortcutsfile = "special://home/addons/script.skinshortcutsV2/resources/shortcuts/"\
                     "info-window-home-property-%s-title.DATA.xml" % win_prop.replace(".", "-")
                 templatefile = "special://home/addons/%s/resources/smartshortcuts/smartshortcuts-submenu-template.xml" \
                     % (ADDON_ID)

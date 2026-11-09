@@ -446,8 +446,8 @@
 			<visible>System.hasAddon(plugin.video.tvvlaanderen)</visible>
 		</item>
 		<item id="185">
-			<description>Catch-up TV & More</description>
-			<label>Catch-up TV & More</label>
+			<description>Catch-up TV &amp; More</description>
+			<label>Catch-up TV &amp; More</label>
 			<label2></label2>
 			<icon>$INFO[System.AddonIcon(plugin.video.catchuptvandmore)]</icon>
 			<onclick>Dialog.Close(all)</onclick>
@@ -2066,8 +2066,8 @@
 			<visible>System.hasAddon(script.video.nfl.gamepass)</visible>
 		</item>			
 		<item id="105">
-			<description>Ngā Taonga Sound & Vision</description>
-			<label>Ngā Taonga Sound & Vision</label>
+			<description>Ngā Taonga Sound &amp; Vision</description>
+			<label>Ngā Taonga Sound &amp; Vision</label>
 			<label2></label2>
 			<icon>$INFO[System.AddonIcon(plugin.video.ntsv)]</icon>
 			<onclick>Dialog.Close(all)</onclick>

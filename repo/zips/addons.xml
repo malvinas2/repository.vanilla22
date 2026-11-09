@@ -1,5 +1,38 @@
 <?xml version='1.0' encoding='utf-8'?>
-<addons><addon id="plugin.audio.spotify" version="1.3.12" name="Spotify" provider-name="glk1001">
+<addons><addon id="plugin.audio.spotify" version="1.3.15~tv20" name="Spotify" provider-name="glk1001">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0" />
+        <import addon="xbmc.addon" version="18.9.701" />
+        <import addon="script.module.certifi" version="2023.5.7" />
+        <import addon="script.module.chardet" version="5.1.0" />
+        <import addon="script.module.idna" version="3.4.0" />
+        <import addon="script.module.requests" version="2.31.0" />
+        <import addon="script.module.urllib3" version="1.26.16" />
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="plugin.py">
+        <provides>audio</provides>
+    </extension>
+    <extension library="service.py" point="xbmc.service" />
+    <extension point="xbmc.python.script" library="script.py" />
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="en_GB">Unofficial Spotify music plugin for Kodi</summary>
+        <description lang="en_GB">Allows you to use your Spotify premium account to connect and play Spotify through Kodi.</description>
+        <disclaimer lang="en_GB">This product uses the SPOTIFY WEB API but is not endorsed, certified or otherwise approved in any way by Spotify. Spotify is the registered trademark of Spotify AB.</disclaimer>
+        <source>https://github.com/glk1001/plugin.audio.spotify</source>
+        <website>https://github.com/glk1001/glk1001.github.io</website>
+        <news>1.3.15~tv20: Merged upstream: plugin actions are allowlisted, auth tokens are no longer logged, an expired token signs in again. The own client id setting is now upstream's "user_client_id". Long track lists and grids have a slider on the right to page through them quickly. All playlists are listed while Spotify throttles requests. Tracks started while a video is playing are played as music, also from the classic menu and remote apps. Videos playing in the background stay in sync and are shown as a mini preview. New TV interface with synced lyrics, much faster listings, playlists preloaded, optional own client id with tabs and rows of tiles, made for remote controls.
+v1.3.14 (2025-02-10)
+Upgraded python 'bottle' module to version '0.14-dev'. Now works with python 3.13.
+1.3.13: Changed default album retrieval for 'artists' to just albums and singles instead of everything. And added more logging to figure how many cached/non-cached things the plugin is retrieving.
+1.3.12: Added a workaround setting "problem_with_terminate_streaming" to not terminate streaming early. Added for Raspberry Pi devices.
+        </news>
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon><addon id="plugin.audio.spotifykodiconnect" version="1.4.4" name="SpotifyKodiConnect" provider-name="primez-x">
     <requires>
         <import addon="xbmc.python" version="3.0.0" />
         <import addon="xbmc.addon" version="18.9.701" />
@@ -15,22 +48,275 @@
     <extension library="service.py" point="xbmc.service" />
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
-        <summary lang="en_GB">Unofficial Spotify music plugin for Kodi</summary>
-        <description lang="en_GB">Allows you to use your Spotify premium account to connect and play Spotify through Kodi.</description>
+        <summary lang="en_GB">Spotify for Kodi with consistent art, metadata, and background loading (Kodi Connect style)</summary>
+        <description lang="en_GB">Unofficial Spotify music plugin for Kodi. Improves on the original Spotify addon with consistent album/artist art in all views (including playlists), correct metadata tags, and background loading so navigation and playback feel smooth. Requires Spotify Premium.</description>
         <disclaimer lang="en_GB">This product uses the SPOTIFY WEB API but is not endorsed, certified or otherwise approved in any way by Spotify. Spotify is the registered trademark of Spotify AB.</disclaimer>
-        <source>https://github.com/glk1001/plugin.audio.spotify</source>
-        <website>https://github.com/glk1001/glk1001.github.io</website>
-        <news>v1.3.12 (2024-09-28)
-Added a workaround setting "problem_with_terminate_streaming" to not terminate streaming early. Added for Raspberry Pi devices.
-1.3.11: Fixed 'all albums' for artist menu. Added extra artist track options. Cleaned menus.
-1.3.10: Replaced 'user/password' authentication with zeroconf authentication.
+        <source>https://github.com/primez-x/plugin.audio.spotifykodiconnect</source>
+        <news>v1.4.4
+- Wait 10 seconds before the one retry after Spotify denies a song's audio key, instead of three fast retries that Spotify also denies.
+
+v1.4.3
+- Recover playback when a Spotify access point refuses or closes the connection.
+
+v1.4.2
+- Retry zero-audio Spotify sessions through alternate access-point ports.
+
+v1.4.1
+- Release available audio without an extra startup buffer wait.
+- Require a complete audio frame at the requested stream position.
+- Avoid duplicate stream reads before song playback.
+- Reuse downloaded audio when a stopped song starts again.
+- Start a clicked song at once without a rebuild of the queue for a large list.
+- Add Play next and Queue item to the song context menu.
+
+v1.4.0
+- Show clear messages for rate-limit, permission, and connection failures in listings.
+- Add Next page entries to all four search listings.
+- Keep remote Explore icons working alongside local icon files.
+- Report playback failures once per queue session instead of failing silently.
+- Retry only safe read requests and bound Spotify request timeouts.
+- Hide Like and Follow toggles when the current state is unknown.
+
+v1.3.3
+- Prevent local stream probes from freezing Spotify playback and song metadata.
+- Release stopped audio streams before a song replay.
+- Release Spotify audio when a video starts after Stop.
+- Record the cause when the local player refuses a stream.
+
+v1.3.2
+Show Liked songs and most-played page names in music list headers.
+
+v1.3.1
+- Keep old playlist loaders from changing a newer playback queue.
+- Find playable tracks beyond an unplayable first playlist page.
+
+v1.3.0
+- Reduce startup audio buffers and start prebuffer near the next track.
+- Recover proxy bind failures and bound inactive audio cache memory.
+- Allow cancellable Spotify pairing for up to three minutes.
+
+v1.2.5
+- The heart on the player no longer shows the previous track's liked state when a track change and a like, unlike or liked-state lookup happen at the same moment, including likes made from the add-on's own menu.
+
+v1.2.4
+- Liking or unliking a track no longer changes the heart of the next track when playback moves on before Spotify answers or the request fails.
+- Pressing Like while Spotify is still connecting now shows a "connecting" notification right away instead of silently waiting about 5 seconds.
+
+v1.2.3
+- The local streaming server errors (such as "code 400" and "Request timed out") appear in the Kodi log as warnings again; only the per-request access lines stay at debug level.
+
+v1.2.2
+- Spotify listings and playback wait for their background loading to finish before the plugin call ends, instead of leaving it running while Kodi shuts the plugin down (a possible cause of Kodi crashes).
+- The local streaming server no longer writes every track request to the Kodi log as an error.
+
+v1.2.1
+- Fix Spotify playback failing until Kodi restarts after the add-on was updated or restarted during playback: the stopped service now releases its local streaming port.
+
+v1.2.0
+- New setting Debug &gt; "Log listing times": writes one line per Spotify widget or listing to the Kodi log with how long it took, to find slow widgets. Off by default.
+
+v1.1.7
+- Songs played from a skin's search or widgets show their title, artist, album and cover in the player again, instead of a number.
+
+v1.1.6
+- No changes to playback; this release only republishes 1.1.5.
+
+v1.1.5
+- Tracks no longer end with up to a second of silence while the progress bar keeps running; the stream length now matches the song.
+
+v1.1.4
+- Fixed a brief audio repeat (about a tenth of a second) that could be heard roughly 12 seconds into a track, or after a stream recovered mid-track.
+
+v1.1.3
+- The publish checks run the add-on's tests again; nothing in the add-on changes.
+
+v1.1.2
+- Playlists shown in home widgets now load every track in the background, so opening them shows the whole playlist instead of the first 50.
+- Library precache (when enabled) now keeps all of Liked Songs ready, not only libraries of up to 250 songs.
+
+v1.1.1
+- Fix Liked Songs stopping at the first 50 songs: the rest now always loads in the background, also when the list was first opened from a widget or a slow screen.
+- Liking or unliking a song no longer reloads the whole Liked Songs list; new likes are added on top of the cached list instantly.
+- Big playlists and Liked Songs page in four requests at a time, several times faster.
+
+v1.1.0
+- Search: the four search widgets share one cached Spotify search (results now rank like the Spotify app; repeating a search makes no requests).
+- Much smaller, faster cache for big playlists and Liked Songs (about 6x less data, far fewer disk writes while paging).
+- Fix a cache cleanup that could stall a listing for seconds every 4 hours or hang a plugin process; the cache database now uses WAL and is compacted only by the service while idle.
+- Faster listings: lazy loading of the Spotify client, cached Explore categories and artist fanart, fewer calls for Saved Artists and Daylist.
+- Fix cache checksums that could collide and serve stale lists.
+
+v1.0.47
+- Enforce the Primez versioning rules in the publish checks; nothing in the add-on changes.
+
+v1.0.46
+- Add publish rule checks (pre-push hook and CI workflow); nothing in the add-on changes.
+
+v1.0.45
+- Home widgets no longer stall 5 s each at boot while Spotify connects, and an expired token is never used (no more silently empty listings after a failed renewal).
+- The root-menu re-authenticate prompt only appears once token renewal has actually failed.
+- Correct HTTP Range handling for the audio stream (inclusive end byte, 416 past end of file).
+
+v1.0.44
+- Cap playback memory: Spotty now pauses once it is ~95 s of audio ahead of Kodi instead of decoding the whole track into RAM (a 60-minute mix no longer holds ~635 MB).
+- Preloaded next tracks longer than ~2.5 min are no longer thrown away and re-downloaded.
+- Next-track preload is no longer skipped after seeking in the current track.
+
+v1.0.43
+- Fix search results for queries containing &amp;, #, + or % (sub-search links are now URL-encoded).
+- Saved albums load from the /me/albums response directly instead of re-fetching every album, and liking a song no longer invalidates the saved-albums cache.
+- Opening an album reuses its embedded first page of tracks; track lookups use batches of 50.
+- Autoplay uses recommendation results directly instead of re-fetching each track.
+- Like/follow state is read and written in one cache transaction per page.
+- Token renewal never accepts a stale token file left by an earlier run.
+
+v1.0.42
+- Add Claude Code project settings (not packaged).
+
+v1.0.41
+- Never force a Spotify re-pair while the service is still connecting: show "Spotify is connecting…" instead, keep widgets silent, and only pair automatically when no stored credentials exist.
+- Make token renewal non-blocking: 15s spotty timeout with kill and reap, 3 abort-aware retries, exponential back-off up to 5 minutes, and keep a still-valid token after a failed renewal.
+- Start background paging on first navigation by waiting briefly for the listing to become active.
+- Fail fast on long Spotify rate limits and pause background work until the Retry-After window passes.
+- Stop library totals from invalidating album, artist and playlist caches; reflect likes and follows in cached listings directly.
+- Write background-paged collections every 5 pages, database-only, and close cache database connections.
+- Fix saved-tracks cache staleness, empty playlist playback sessions, and test isolation.
+
+v1.0.40
+- Package the reconciled paging and authentication fixes as an update newer than the layered CoreELEC build.
+
+v1.0.39
+- Avoid background Spotify widget paging unless its listing is the active Kodi folder.
+
+v1.0.38
+- Self-heal Spotify auth after power loss or interrupted credential rotation: if credentials.json is missing at startup but credentials.json.bak exists, restore it automatically instead of forcing a full zeroconf re-pair.
+- Detect and clean poisoned token files: when spotty cannot create a session (network not ready at boot, transient Spotify outage, missing credentials), it writes an error-shaped payload into the token cache. The auth loop now detects this, deletes the bad file, and retries cleanly instead of throwing KeyError on every retry and staying broken until manual intervention.
+
+v1.0.37
+- Remove the obsolete two-second synthetic WAV preroll so tracks begin with genuine Spotify PCM and Kodi reports the correct duration, while retaining real-PCM startup gating and recovery.
+
+v1.0.36
+- Require genuine Spotify PCM before exposing a startup stream, and watchdog stalled Spotty attempts with bounded, offset-safe retries instead of serving synthetic silence.
+- Remove the blocking 60-second handoff wait and require healthy real-PCM progress before protecting a prior stream, preventing multi-minute stalls and 503 skip cascades.
+- Preserve bounded redacted Spotty diagnostics for failed attempts and read Kodi 21's active file-cache chunk setting.
+
+v1.0.35
+- Require active Kodi audio playback before stale Spotify stream guards trust player labels, preventing stopped/error states from blocking the next selected track.
+
+v1.0.34
+- Discard stale internal Spotify stream guards when Kodi no longer confirms that previous track as active playback, preventing 503 skip storms after stopped or failed starts.
+
+v1.0.33
+- Allow the real Spotify next-track handoff at the natural end of playback even when the previous cache downloader has already drained or been evicted.
+
+v1.0.32
+- Restart Spotify cache downloaders when a prebuffer trimmed past the requested byte so real handoffs can always read the WAV header and first PCM bytes.
+
+v1.0.31
+- Fail Spotify handoff requests before Kodi decoding when Spotty exits before producing real PCM, preventing empty 200 responses and decoder skip storms.
+
+v1.0.30
+- Discard empty or failed Spotify prebuffers so a next-track downloader that produced no PCM cannot poison the real queue handoff.
+
+v1.0.29
+- Throttle Kodi's early follow-up range readers with the same absolute stream budget as the initial Spotify GET so playback connections stay alive for the audible track duration.
+
+v1.0.28
+- Let older captured Spotify stream generators continue serving bytes when Kodi opens queued playlist items, preventing preload requests from turning the current stream into an empty response.
+
+v1.0.27
+- Keep active Spotify HTTP readers out of cache eviction and isolate stream termination per request so queued preloads cannot cut off the currently playing track.
+
+v1.0.26
+- Preflight new from-start streams before committing HTTP headers so Spotty failures before real PCM cannot return a zero-byte 200 response to Kodi.
+
+v1.0.25
+- Keep seek/tail range reads from marking a Spotify track finished before Kodi actually transitions, preventing near-end seeks from making queued preloads start too early.
+
+v1.0.24
+- Treat early Kodi player metadata for the queued track as unconfirmed until the previous Spotify downloader is safely complete, preventing QueueNextFileEx from starting a competing zero-byte Spotty stream.
+
+v1.0.23
+- Publish Spotify.CurrentTrack only after Kodi confirms active playback, so QueueNextFileEx/preload requests cannot make skins or companion addons believe the next song is already current.
+- Keep prebuffer and queued preload downloads from aborting an unfinished active stream; unsafe preloads now defer cleanly instead of causing decoder failures and skipped tracks.
+
+v1.0.22
+- Fix concurrent Kodi range readers trimming bytes out from under each other: the Spotty cache now tracks active reader positions and only trims data that every active reader has consumed.
+- Prevent the unread-tail cap from discarding bytes while a reader is active, avoiding zero-byte/partial responses during QueueNextFileEx and reconnect probes.
+
+v1.0.21
+- Fix silent "blank track" playback after short Spotty reads: large short downloads now retry from the buffered byte offset and fail cleanly after retries instead of padding minutes of fake silence while Kodi's OSD advances.
+- Restore bounded short-tail padding only for small duration mismatches, preserving Kodi cache stability without masking real stream truncation.
+
+v1.0.20
+- Fix daylist/multi-page playlist autoplay firing mid-load: new plugin-owned play-queue session coordinates the plugin (paging tracks in) with the service (deciding when to fire autoplay), so autoplay only fires after the original playlist is fully loaded — no more destroyed queues.
+- Autoplay now APPENDS recommendations instead of clearing the playlist; deduped against existing queue contents.
+- Fix playback stalls when spotty delivers a short track: pad silence to the declared WAV length so Kodi's CFileCache doesn't enter an infinite reconnect loop (spinner/lockup on track transitions).
+- Remove the 10-second cap on spotty short-track padding.
+
+v1.0.16
+- Tear down all Spotify audio resources (spotty processes, HTTP streams, prebuffer, cache downloads) the instant a non-Spotify player starts, preventing Amlogic audio driver deadlocks when switching from Spotify to a movie (e.g. via PlexKodiConnect).
+
+v1.0.15
+- Keep Spotify's real dynamic Daylist title authoritative: generic responses now stay as "daylist" and retry until the personalized title is available, instead of using a forced period fallback.
+- Resolve older Made For You hub category routes to Spotify's current category id so startup/restored hubs do not 404 on the stale made-for-you slug.
+
+v1.0.14
+- Keep Daylist hub rows from falling back to plain "daylist" when Spotify only returns the generic playlist title, using the current Daylist period as a startup-safe fallback.
+
+v1.0.13
+- Start speculative prebuffering only after Kodi confirms Spotify playback, and avoid serving silence-only WAV bodies when Spotty fails before real PCM.
+
+v1.0.12
+- Speed up Spotify hubs and playlist lists by using short-lived route caches before live refresh, avoiding per-playlist follow checks, and reusing New Releases album pages.
+- Skip dynamic container refreshes when Kodi cannot confirm the active folder.
+
+v1.0.11
+- Prime the full Kodi startup burst with real Spotify PCM so queued playback cannot skip after only one decoded chunk.
+
+v1.0.10
+- Refresh cached Daylist rows that still show the generic "daylist" title, and fall back to cached playlist rows when Spotify browsing is temporarily unavailable.
+
+v1.0.9
+- Show playlist hub sublabels from their parent grouping, such as Made For You or Featured playlists, instead of Kodi's generic Folder fallback.
+
+v1.0.8
+- Show Spotify Daylist's current dynamic title in playlist hubs, with "daylist" as the secondary label where skins support it.
+
+v1.0.7
+- Wait for real Spotify PCM before releasing the initial WAV response so CoreELEC PAPlayer does not skip silence-only startup streams.
+
+v1.0.6
+- Harden Spotify playback startup on CoreELEC by extending the WAV preroll and preventing non-critical track-start worker floods from breaking playback.
+
+v1.0.5
+- Make Liked Songs render from the first saved-track page, then hydrate the rest in the background without manual pagination.
+
+v1.0.4
+- Improve browsing performance with hidden dynamic paging, page-local relation checks, bounded optional precache, adaptive prebuffer timing, and quieter default logging.
+
+v1.0.3
+- Fix intermittent Music OSD like button disappearance when PAPlayer metadata is late.
+
+v1.0.2
+- Fix cold Spotify stream startup skips by adding an immediate silent WAV preroll before live PCM arrives.
+
+v1.0.1
+- Primez branch metadata/version bump for repository auto-updates.
+
+v1.0.0
+- Fork of plugin.audio.spotify with Kodi Connect–style improvements.
+- Consistent art: thumb, poster, fanart, and icon set for albums, artists, playlists, and tracks so every list view shows art.
+- Correct metadata: proper Kodi music info types (year, duration, tracknumber, albumartist, etc.) for reliable tagging.
+- Background precache: library precache runs in a thread so the main menu appears immediately.
+- Smoother playlist play: first track starts quickly; remaining tracks are queued in the background.
         </news>
         <assets>
             <icon>resources/icon.png</icon>
             <fanart>resources/fanart.jpg</fanart>
         </assets>
     </extension>
-</addon><addon id="plugin.program.autocompletion" name="AutoCompletion for virtual keyboard + Patch" version="2.1.3" provider-name="Philipp Temminghoff (phil65), sualfred, xulek, finkleandeinhorn">
+</addon><addon id="plugin.program.autocompletion" name="AutoCompletion for virtual keyboard" version="2.1.3" provider-name="phil65, sualfred, xulek, finkleandeinhorn, Ivar Brandt">
     <requires>
         <import addon="xbmc.python" version="3.0.0" />
         <import addon="script.module.autocompletion" version="2.0.5" />
@@ -47,7 +333,7 @@ Added a workaround setting "problem_with_terminate_streaming" to not terminate s
         <description lang="es_ES">Autocompletar para el teclado virtual (necesita soporte de skin)</description>
         <platform>all</platform>
         <license>GPL-2.0-or-later</license>
-        <source>https://github.com/finkleandeinhorn/script.module.autocompletion</source>
+        <source>https://github.com/ivarbrandt/plugin.program.autocompletion</source>
         <assets>
             <icon>resources/icon.png</icon>
             <screenshot>resources/screenshot-01.jpg</screenshot>
@@ -55,15 +341,15 @@ Added a workaround setting "problem_with_terminate_streaming" to not terminate s
             <screenshot>resources/screenshot-03.jpg</screenshot>
         </assets>
     </extension>
-</addon><addon id="plugin.video.themoviedb.helper" version="5.2.22~nexus" name="TheMovieDb Helper" provider-name="jurialmunkey">
+</addon><addon id="plugin.video.themoviedb.helper" version="6.19.6" name="TMDb Helper" provider-name="jurialmunkey">
 <requires>
   <import addon="xbmc.python" version="3.0.1" />
   <import addon="script.module.requests" version="2.9.1" />
   <import addon="script.module.pil" version="1.1.7" />
   <import addon="script.module.addon.signals" version="0.0.6" />
-  <import addon="script.module.jurialmunkey" version="0.1.14" />
-  <import addon="script.module.infotagger" version="0.0.5" />
-  <import addon="script.module.beautifulsoup4" version="4.9.3" />
+  <import addon="script.module.jurialmunkey" version="0.2.35" />
+  <import addon="script.module.infotagger" version="0.1.0" />
+  <import addon="script.module.qrcode" version="6.1.0" />
 </requires>
 <extension point="xbmc.python.pluginsource" library="resources/plugin.py">
   <provides>video</provides>
@@ -73,147 +359,33 @@ Added a workaround setting "problem_with_terminate_streaming" to not terminate s
 <extension point="xbmc.python.module" library="resources/modules" />
 <extension point="xbmc.addon.metadata">
   <reuselanguageinvoker>false</reuselanguageinvoker>
-  <summary lang="en_GB">TheMovieDb Helper</summary>
-  <description lang="en_GB">TheMovieDb Helper provides details about movies, tvshows and actors from TMDb. Users can access a variety of lists from TMDb TVDb MDbList and Trakt.</description>
-  <disclaimer lang="en_GB">Data provided by TheMovieDb TVDb MDbList OMDb FanartTV and Trakt. Some of the information is provided by TheTVDB.com. Please consider supporting them. https://thetvdb.com/subscribe</disclaimer>
+  <summary lang="de_DE">TMDb Helfer</summary>
+  <summary lang="en_GB">TMDb Helper</summary>
+  <summary lang="es_ES">Asistente TMDb</summary>
+  <summary lang="zh_CN">TMDb 助手</summary>
+  <description lang="de_DE">TMDb Helper liefert Details über Filme, Fernsehsendungen und Schauspieler aus TMDb. Benutzer können auf eine Vielzahl von Listen aus TMDb TVDb MDbList und Trakt zugreifen.</description>
+  <description lang="en_GB">TMDb Helper provides details about movies, tvshows and actors from TMDb. Users can access a variety of lists from TMDb TVDb MDbList and Trakt.</description>
+  <description lang="es_ES">TMDb Helper proporciona detalles sobre películas, series y actores de TMDb. Los usuarios pueden acceder a una variedad de listas de TMDb, TVDb, MDbList y Trakt.</description>
+  <description lang="pl_PL">TMDb Helper dostarcza szczegółowych informacji o filmach, serialach i aktorach z serwisu TMDb. Użytkownicy mają dostęp do szeregu list z serwisów TMDb, TVDb, MDbList i Trakt.</description>
+  <description lang="sv_SE">TMDb Helper tillhandahåller information om filmer, tv-serier och skådespelare från TMDb. Användare kan få tillgång till en mängd olika listor från TMDb, TVDb, MDbList och Trakt.</description>
+  <description lang="zh_CN">TMDb 助手从 TMDb（影视数据库） 获取电影、电视剧及演员的详细信息。用户可访问来自 TMDb、TVDb、MDbList 和 Trakt 的各类影视列表。</description>
+  <disclaimer lang="de_DE">Daten bereitgestellt von TMDb TVDb MDbList OMDb FanartTV und Trakt. Einige der Informationen werden von TheTVDB.com bereitgestellt. Bitte erwäge sie zu unterstützen. https://thetvdb.com/subscribe</disclaimer>
+  <disclaimer lang="en_GB">Data provided by TMDb TVDb MDbList OMDb FanartTV and Trakt. Some of the information is provided by TheTVDB.com. Please consider supporting them. https://thetvdb.com/subscribe</disclaimer>
+  <disclaimer lang="es_ES">Datos proporcionados por TMDb, TVDb, MDbList, OMDb, FanartTV y Trakt. Parte de la información es suministrada por TheTVDB.com. Por favor, considera apoyarles. https://thetvdb.com/subscribe</disclaimer>
+  <disclaimer lang="pl_PL">Dane dostarczane przez TMDb TVDb MDbList OMDb FanartTV i Trakt. Niektóre informacje pochodzą z serwisu TheTVDB.com. Prosimy o rozważenie wsparcia tych serwisów. https://thetvdb.com/subscribe</disclaimer>
+  <disclaimer lang="sv_SE">Data tillhandahållen av TMDb TVDb MDbList OMDb FanartTV och Trakt. En del av informationen tillhandahålls av TheTVDB.com. Stöd dem gärna. https://thetvdb.com/subscribe</disclaimer>
+  <disclaimer lang="zh_CN">数据由 TMDb、TVDb、MDbList、OMDb、FanartTV 和 Trakt 提供。部分信息由 TheTVDB.com 提供，建议您支持他们。订阅链接：https://thetvdb.com/subscribe</disclaimer>
   <license>GPL-3.0-or-later</license>
   <website>https://github.com/jurialmunkey/plugin.video.themoviedb.helper</website>
   <forum>https://forum.kodi.tv/showthread.php?tid=345847</forum>
   <assets>
     <icon>icon.png</icon>
     <fanart>fanart.jpg</fanart>
+    <clearlogo>clearlogo.png</clearlogo>
     <screenshot>resources/screenshot-01.jpg</screenshot>
     <screenshot>resources/screenshot-02.jpg</screenshot>
   </assets>
 </extension>
-</addon><addon id="plugin.video.youtube" name="YouTube" version="7.1.0+beta.3" provider-name="anxdpanic, bromix, MoojMidge">
-    <requires>
-        <import addon="xbmc.python" version="3.0.0" />
-        <import addon="script.module.requests" version="2.27.1" />
-        <import addon="inputstream.adaptive" version="19.0.0" />
-        <import addon="script.module.inputstreamhelper" version="0.2.2" optional="true" />
-    </requires>
-    <extension point="xbmc.python.pluginsource" library="resources/lib/plugin.py">
-        <provides>video</provides>
-    </extension>
-    <extension point="xbmc.service" library="resources/lib/service.py" />
-    <extension point="xbmc.python.module" library="resources/lib/" />
-    <extension point="xbmc.python.script" library="resources/lib/script.py">
-        <provides>executable</provides>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <assets>
-            <icon>resources/media/icon.png</icon>
-            <fanart>resources/media/fanart.jpg</fanart>
-        </assets>
-        <platform>all</platform>
-        <license>GPL-2.0-only</license>
-        <forum>https://ytaddon.panicked.xyz/forum</forum>
-        <website>https://www.youtube.com</website>
-        <source>https://github.com/anxdpanic/plugin.video.youtube</source>
-        <reuselanguageinvoker>true</reuselanguageinvoker>
-        <summary lang="bg_BG">Добавка за YouTube</summary>
-        <summary lang="cs_CZ">Plugin pro YouTube</summary>
-        <summary lang="da_DK">Plugin til YouTube</summary>
-        <summary lang="de_DE">Plugin für YouTube</summary>
-        <summary lang="el_GR">Πρόσθετο YouTube</summary>
-        <summary lang="en_GB">Plugin for YouTube</summary>
-        <summary lang="es_ES">Complemento para YouTube</summary>
-        <summary lang="es_MX">Complemento para YouTube</summary>
-        <summary lang="fi_FI">YouTube-lisäosa</summary>
-        <summary lang="fr_FR">Plugin pour YouTube</summary>
-        <summary lang="he_IL">תוסף עבור YouTube</summary>
-        <summary lang="hr_HR">Dodatak za YouTube</summary>
-        <summary lang="hu_HU">YouTube kiegészítő</summary>
-        <summary lang="id_ID">Pengaya untuk YouTube</summary>
-        <summary lang="it_IT">Plugin per YouTube</summary>
-        <summary lang="ko_KR">유튜브 플러그인</summary>
-        <summary lang="nb_NO">Tillegg for YouTube</summary>
-        <summary lang="nl_NL">Plugin voor YouTube</summary>
-        <summary lang="pl_PL">Wtyczka YouTube</summary>
-        <summary lang="pt_BR">Plugin para YouTube</summary>
-        <summary lang="ro_RO">Modul pentru YouTube</summary>
-        <summary lang="ru_RU">Видеодополнение YouTube</summary>
-        <summary lang="sk_SK">Doplnok pre YouTube</summary>
-        <summary lang="sv_SE">Plugin för YouTube</summary>
-        <summary lang="tr_TR">YouTube için eklenti</summary>
-        <summary lang="uk_UA">Додаток для YouTube</summary>
-        <summary lang="vi_VN">Plugin dành cho YouTube</summary>
-        <summary lang="zh_CN">油管插件</summary>
-        <summary lang="zh_TW">YouTube附加元件</summary>
-        <description lang="bg_BG">YouTube е един от най-големите уеб сайтове за споделяне на видео в целия свят.</description>
-        <description lang="cs_CZ">YouTube je jedna z největších webových stránek světa sdílející video.</description>
-        <description lang="da_DK">YouTube er et af verdens største videodelingswebsteder.</description>
-        <description lang="de_DE">YouTube ist eines der größten Video-Sharing-Websites der Welt.</description>
-        <description lang="el_GR">Το YouTube είναι μία από τις μεγαλύτερες ιστοσελίδες διαμοιρασμού βίντεο στον κόσμο.</description>
-        <description lang="en_GB">YouTube is one of the biggest video-sharing websites of the world.</description>
-        <description lang="es_ES">YouTube es uno de los sitios web para compartir vídeos más grandes del mundo.</description>
-        <description lang="es_MX">YouTube es uno de los más grandes sitios web de intercambio de videos del mundo.</description>
-        <description lang="fi_FI">YouTube on yksi maailman suurimmista videoiden jakosivustoista.</description>
-        <description lang="fr_FR">YouTube est l'un des plus grands sites de partage vidéos du monde.</description>
-        <description lang="he_IL">YouTube הוא אחד מאתרי שיתוף הווידאו הגדולים בעולם.</description>
-        <description lang="hr_HR">YouTube je jedna od najvećih stranica za dijeljenje video sadržaja na svijetu.</description>
-        <description lang="hu_HU">A YouTube világ egyik legnagyobb videómegosztó weboldala.</description>
-        <description lang="id_ID">YouTube adalah salah satu situs web berbagi video terbesar di dunia.</description>
-        <description lang="it_IT">YouTube è uno dei più grandi siti di condivisione video del mondo.</description>
-        <description lang="ko_KR">유튜브는 세상에서 가장 큰 동영상 공유 사이트 중의 하나입니다.</description>
-        <description lang="nb_NO">YouTube er en av verdens største nettsider for videodeling.</description>
-        <description lang="nl_NL">YouTube is een van de grootste videodelenwebsite in de hele wereld.</description>
-        <description lang="pl_PL">YouTube jest jednym z największych na świecie serwisów udostępniania wideo.</description>
-        <description lang="pt_BR">O YouTube é um dos maiores sites de compartilhamento de vídeos do mundo.</description>
-        <description lang="ro_RO">YouTube este unul dintre cele mai mari saituri de distribuire de videoclipuri din lume.</description>
-        <description lang="ru_RU">YouTube - популярнейший видеохостинговый сайт, предоставляющий пользователям услуги хранения, доставки и показа видео.</description>
-        <description lang="sk_SK">YouTube je jednou z najväčších stránok na zdieľanie videa na svete.</description>
-        <description lang="sv_SE">YouTube är en av de största videodelningssajterna i världen.</description>
-        <description lang="tr_TR">YouTube, dünya üzerindeki en büyük video paylaşma platformlarından birisidir.</description>
-        <description lang="uk_UA">YouTube є одним з найбільших відеохостингів в світі.</description>
-        <description lang="vi_VN">YouTube là một trong những trang web chia sẻ video lớn nhất trên thế giới.</description>
-        <description lang="zh_CN">油管是世界上最大的视频分享网站之一。</description>
-        <description lang="zh_TW">Youtube 是全世界最大的影片分享網站。</description>
-        <disclaimer lang="cs_CZ">Tento plugin není schválen společností Google</disclaimer>
-        <disclaimer lang="da_DK">Dette plugin er ikke godkendt af Google</disclaimer>
-        <disclaimer lang="de_DE">Dieses Plugin ist nicht von Google befürwortet</disclaimer>
-        <disclaimer lang="el_GR">Η παρούσα μικροεφαρμογή δεν έχει υϊοθετηθεί από την Google</disclaimer>
-        <disclaimer lang="en_GB">This plugin is not endorsed by Google</disclaimer>
-        <disclaimer lang="es_ES">Este add-on no está respaldado por Google</disclaimer>
-        <disclaimer lang="es_MX">Este complemento no está respaldado por Google</disclaimer>
-        <disclaimer lang="fi_FI">Google ei tue tätä lisäosaa</disclaimer>
-        <disclaimer lang="fr_FR">Ce module n'est pas validé par Google</disclaimer>
-        <disclaimer lang="hr_HR">Ovaj dodatak nije podržan od strane Googlea</disclaimer>
-        <disclaimer lang="id_ID">Plugin ini tidak didukung oleh Google</disclaimer>
-        <disclaimer lang="it_IT">Questo plugin non è approvato da Google</disclaimer>
-        <disclaimer lang="ko_KR">이 플러그인은 Google의 허가를 받지 않았습니다</disclaimer>
-        <disclaimer lang="nl_NL">Deze plug-in wordt niet door Google ondersteund</disclaimer>
-        <disclaimer lang="pl_PL">Ta wtyczka nie jest zatwierdzona przez Google</disclaimer>
-        <disclaimer lang="pt_BR">Este plugin não é recomendado pelo Google</disclaimer>
-        <disclaimer lang="ro_RO">Acest modul nu este susținut de Google</disclaimer>
-        <disclaimer lang="ru_RU">Плагин не поддерживается Google</disclaimer>
-        <disclaimer lang="sk_SK">Tento doplnok nie je schválený spoločnosťou Google</disclaimer>
-        <disclaimer lang="sv_SE">Detta plugin är inte godkänt av Google</disclaimer>
-        <disclaimer lang="tr_TR">Bu eklenti Google tarafından üretilmemiştir</disclaimer>
-        <disclaimer lang="uk_UA">Цей плагін не має відношення до компанії Google</disclaimer>
-        <disclaimer lang="vi_VN">Plugin này không được xác nhận bởi Google</disclaimer>
-        <disclaimer lang="zh_CN">此插件未被谷歌认可</disclaimer>
-        <disclaimer lang="zh_TW">此附加元件未由Google支持</disclaimer>
-    </extension>
-</addon><addon id="repository.vanilla22" name="Titan Vanilla Repository" version="1.0.0" provider-name="malvinas2">
-    <extension point="xbmc.addon.repository" name="Example Repository">
-        <dir>
-            <info compressed="false">https://raw.githubusercontent.com/malvinas2/repository.vanilla22/master/repo/zips/addons.xml</info>
-            <checksum>https://raw.githubusercontent.com/malvinas2/repository.vanilla22/master/repo/zips/addons.xml.md5</checksum>
-            <datadir zip="true">https://raw.githubusercontent.com/malvinas2/repository.vanilla22/master/repo/zips/</datadir>
-        </dir>
-    </extension>
-    <extension point="xbmc.addon.metadata">
-        <summary>Titan Vanilla Repository</summary>
-        <description>Home of Titan Vanilla - Skin for Kodi 22 Omega</description>
-        <disclaimer />
-        <platform>all</platform>
-        <assets>
-            <icon>icon.png</icon>
-            <fanart>fanart.jpg</fanart>
-        </assets>
-    </extension>
 </addon><addon id="resource.images.backgroundoverlays.basic" name="Background Overlays Pack - Basic" version="1.0.0" provider-name="marcelveldt, mgonzales">
 	<extension point="kodi.resource.images" compile="false" type="backgroundoverlays" />
 	<requires>
@@ -264,7 +436,7 @@ Added a workaround setting "problem_with_terminate_streaming" to not terminate s
     <description lang="en">A pack of additional skin themes for the Titan skin, provided by both the author of the skin and community contributions</description>
     <platform>all</platform>
   </extension>
-</addon><addon id="resource.uisounds.titan.classic" version="1.0.0" name="Titan UI Sounds (Classic)" provider-name="marcelveldt,mgonzales">
+</addon><addon id="resource.uisounds.titan.classic" version="1.0.1" name="Titan UI Sounds (Classic)" provider-name="marcelveldt,mgonzales,malvinas2">
   <requires>
     <import addon="kodi.resource" version="1.0.0" />
   </requires>
@@ -274,7 +446,7 @@ Added a workaround setting "problem_with_terminate_streaming" to not terminate s
     <description lang="en">Titan UI Sounds (Classic)</description>
     <platform>all</platform>
   </extension>
-</addon><addon id="resource.uisounds.titan.modern" version="1.0.0" name="Titan UI Sounds (Modern)" provider-name="marcelveldt,mgonzales">
+</addon><addon id="resource.uisounds.titan.modern" version="1.0.1" name="Titan UI Sounds (Modern)" provider-name="marcelveldt,mgonzales,malvinas2">
   <requires>
     <import addon="kodi.resource" version="1.0.0" />
   </requires>
@@ -549,7 +721,7 @@ Pozri readme súbor</description>
     <forum>http://forum.xbmc.org/showthread.php?tid=361925</forum>
     <email />
   </extension>
-</addon><addon id="script.artwork.dump" name="Artwork Dump" version="0.4.1" provider-name="rmrector">
+</addon><addon id="script.artwork.dump" name="Artwork Dump" version="0.4.2~adev" provider-name="rmrector">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0" />
 		<import addon="xbmc.json" version="6.20.0" />
@@ -591,6 +763,118 @@ v0.4.0 (2025-03-23)
 		<assets>
 			<icon>icon.png</icon>
 		</assets>
+	</extension>
+</addon><addon id="script.extendedinfo" name="ExtendedInfo Script" version="6.1.01~beta.1" provider-name="scott967">
+	<requires>
+		<import addon="xbmc.python" version="3.0.0" />
+		<import addon="resource.images.studios.white" version="0.0.25" />
+		<import addon="script.module.routing" version="0.2.3+matrix.1" />
+        <import addon="script.module.pil" version="5.1.0" />
+		<import addon="plugin.program.autocompletion" version="2.1.2" />
+        <import addon="script.module.autocompletion" version="2.0.3" />
+        <import addon="script.module.requests" version="2.25.1+matrix.1" />
+	</requires>
+	<extension point="xbmc.python.script" library="default.py">
+		<provides>executable</provides>
+	</extension>
+	<extension point="xbmc.python.pluginsource" library="plugin.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<language />
+		<summary lang="en_GB">ExtendedInfo Script</summary>
+		<description lang="en_GB">This script offers various possibilities to display online content inside skins as well as a complete MovieDB browser including info dialogs for various media types. Used services are themoviedb.org, theaudiodb.org, Trakt.TV, omdbapi.com and a lot more. Needs skin implementation for lot of functions.</description>
+		<platform>all</platform>
+		<license>GNU GENERAL PUBLIC LICENSE Version 2, June 1991</license>
+		<forum>http://forum.kodi.tv/showthread.php?tid=160558</forum>
+		<source>https://github.com/scott967/script.extendedinfo</source>
+		<email>scott967@kodi.tv</email>
+		<news>Python 3 fixes and Piers/Omega/Nexus/Matrix updates by scott967.  Original addon for Leia and prior by phil65 (Philipp Temminghoff).</news>
+		<assets>
+			<icon>resources/icon.png</icon>
+			<fanart>resources/fanart.jpg</fanart>
+			<screenshot>resources/screenshot-01.jpg</screenshot>
+			<screenshot>resources/screenshot-02.jpg</screenshot>
+			<screenshot>resources/screenshot-03.jpg</screenshot>
+			<screenshot>resources/screenshot-04.jpg</screenshot>
+			<screenshot>resources/screenshot-05.jpg</screenshot>
+		</assets>
+	</extension>
+</addon><addon id="script.globalsearch" name="Global Search" version="9.2.2" provider-name="ronie">
+	<requires>
+		<import addon="xbmc.python" version="3.0.2" />
+	</requires>
+	<extension point="xbmc.python.script" library="default.py" />
+	<extension point="xbmc.addon.metadata">
+		<summary lang="bg_BG">Търси в библиотеката Ви.</summary>
+		<summary lang="ca_ES">Cerca a la teva biblioteca.</summary>
+		<summary lang="cs_CZ">Hledej v knihovně</summary>
+		<summary lang="de_DE">Durchsuchen Sie Ihre Bibliothek.</summary>
+		<summary lang="el_GR">Αναζήτηση στη Συλλογή σας.</summary>
+		<summary lang="en_GB">Search your library.</summary>
+		<summary lang="en_NZ">Search your library.</summary>
+		<summary lang="en_US">Search your library.</summary>
+		<summary lang="es_ES">Busca en tu biblioteca.</summary>
+		<summary lang="fr_FR">Chercher dans la médiathèque.</summary>
+		<summary lang="fr_CA">Chercher dans votre bibliothèque</summary>
+		<summary lang="gl_ES">Buscar a súa biblioteca.</summary>
+		<summary lang="he_IL">חיפוש בספריית המדיה.</summary>
+		<summary lang="hr_HR">Pretražite svoju zbirku.</summary>
+		<summary lang="hu_HU">Keresés a médiatárban</summary>
+		<summary lang="id_ID">Cari pustaka Anda.</summary>
+		<summary lang="it_IT">Ricerca nella la tua libreria.</summary>
+		<summary lang="ko_KR">라이브러리 찾기</summary>
+		<summary lang="lt_LT">Ieškoti bibliotekoje.</summary>
+		<summary lang="nl_NL">Zoek in je bibliotheek.</summary>
+		<summary lang="nb_NO">Søk i biblioteket ditt</summary>
+		<summary lang="pl_PL">Przeszukaj swoją bibliotekę</summary>
+		<summary lang="pt_PT">Faça buscas na sua biblioteca.</summary>
+		<summary lang="pt_BR">Pesquise sua coleção.</summary>
+		<summary lang="ro_RO">Căutați în mediateca dumneavoastră.</summary>
+		<summary lang="ru_RU">Поиск в вашей медиатеке.</summary>
+		<summary lang="sl_SI">Iščite v svoji knjižnici.</summary>
+		<summary lang="sv_SE">Sök i ditt bibliotek.</summary>
+		<summary lang="tr_TR">Kitaplığını ara</summary>
+		<summary lang="zh_CN">资料库搜索</summary>
+		<description lang="bg_BG">Добавката може да намери всеки елемент във вашата видео и музикална библиотека.</description>
+		<description lang="ca_ES">Aquest complement pot trobat qualsevol article en la teva biblioteca de vídeo i música</description>
+		<description lang="cs_CZ">Tento dopněk dokáže najít libovolnou položku ve vaší audio a video knihovně.</description>
+		<description lang="de_DE">Dieses Add-on kann jeden Eintrag in Ihrer Video- und Musikbibliothek finden.</description>
+		<description lang="el_GR">Αυτό το πρόσθετο μπορεί να βρει κάθε αντικείμενο στις συλλογές σας.</description>
+		<description lang="en_GB">This addon can find any item in your video and music library.</description>
+		<description lang="en_NZ">This addon can find any item in your video and music library.</description>
+		<description lang="en_US">This addon can find any item in your video and music library.</description>
+		<description lang="es_ES">Este complemento puede encontrar cualquier elemento en tu biblioteca de vídeo y música.</description>
+		<description lang="fr_FR">Cette extension peut trouver tout élément dans la vidéothèque et l'audiothèque.</description>
+		<description lang="fr_CA">Cet addiciel peut trouver tout élément dans votre vidéothèque et dans votre audiothèque.</description>
+		<description lang="gl_ES">Este complemento pode atopar calquera elemento na súa biblioteca de medios.</description>
+		<description lang="he_IL">הרחבה זו יכולה למצוא כל פריט בספריות הווידאו והמוזיקה.</description>
+		<description lang="hr_HR">Ovaj dodatak može pronaći svaku stavku u vašoj videoteci ili fonoteci.</description>
+		<description lang="hu_HU">Ez a kiegészítő bármely elemet megtalálja a videó és audió médiatárban.</description>
+		<description lang="id_ID">Addon ini dapat mencari item apa saja di pustaka video dan musik Anda.</description>
+		<description lang="it_IT">Questo addon può trovare ogni elemento nella tua libreria video ed in quella musicale.</description>
+		<description lang="ko_KR">비디오와 음악 라이브러리의 모든 항목을 검색합니다.</description>
+		<description lang="lt_LT">Šis priedas gali rasti bet kokį elementą jūsų vaizdo ir garso bibliotekoje.</description>
+		<description lang="nl_NL">Deze addon kan elk item in je video- en muziekbibliotheken vinden.</description>
+		<description lang="nb_NO">Dette tillegget kan finne hva som helst i ditt film eller musikk bibliotek.</description>
+		<description lang="pl_PL">Ten plugin może odnaleźć dowolną pozycję w twojej bibliotece wideo oraz muzycznej.</description>
+		<description lang="pt_PT">Este addon pode encontrar qualquer item na sua biblioteca de vídeos e de músicas.</description>
+		<description lang="pt_BR">Este addon pode encontrar qualquer item na sua coleção de vídeos e música.</description>
+		<description lang="ro_RO">Acest supliment poate găsi orice element în mediateca dumneavoastră video și audio.</description>
+		<description lang="ru_RU">Это дополнение поможет найти любую запись в вашей медиатеке.</description>
+		<description lang="sl_SI">Ta dodatek lahko poišče katerokoli podatek v vaši knjižnici filmov in glasbe.</description>
+		<description lang="sv_SE">Detta tillägg kan hitta vilket objekt som helst i ditt video och musikbibliotek.</description>
+		<description lang="tr_TR">Bu eklenti video ve müzik kitaplığınızdaki herhangi bir öğeyi bulabilir.</description>
+		<description lang="zh_CN">此插件搜索你的视频和音乐资料库项目。</description>
+		<platform>all</platform>
+		<license>GPL-2.0-only</license>
+		<forum>https://forum.kodi.tv/showthread.php?tid=109301</forum>
+		<source>https://gitlab.com/ronie/script.globalsearch/</source>
+		<assets>
+			<icon>resources/icon.png</icon>
+			<fanart>resources/fanart.jpg</fanart>
+		</assets>
+		<news>- compatibel wit Kodi 22 Piers</news>
 	</extension>
 </addon><addon id="script.module.autocompletion" name="AutoCompletion library + Patch" version="2.1.2.1" provider-name="Philipp Temminghoff (phil65), bbaronSVK, finkleandeinhorn, berkhornet">
     <requires>
@@ -710,24 +994,23 @@ v1.20.0
     <source>https://github.com/kodi-community-addons/script.module.musicbrainz</source>
     <platform>all</platform>
   </extension>
-</addon><addon id="script.module.simplecache" name="Simple Cache Module" version="2.0.0" provider-name="sualfred,marcelveldt">
+</addon><addon id="script.module.simplecache" name="Simple Cache Module" version="2.0.3" provider-name="sualfred, rafikW">
     <requires>
         <import addon="xbmc.python" version="3.0.0" />
     </requires>
     <extension point="xbmc.python.module" library="lib" />
     <extension point="xbmc.addon.metadata">
         <summary lang="en_GB">Provides a simple file- and memory based cache for Kodi addons</summary>
-        <description lang="en_GB">Provides a simple file- and memory based cache for Kodi addons</description>
-	    <news>v2.0.0 Py3 only version for Matrix. Py2 compatibility dropped.</news>
+        <description lang="en_GB">Provides a simple file- and memory based cache for Kodi addons. Based on the original work of Marcelveldt.</description>
         <platform>all</platform>
         <license>Apache 2.0</license>
         <forum />
-        <source>https://github.com/kodi-community-addons/script.module.simplecache</source>
+        <source>https://github.com/sualfred/script.module.simplecache</source>
         <assets>
             <icon>resources/icon.png</icon>
         </assets>
     </extension>
-</addon><addon id="script.module.thetvdb" name="The TVDB API v2" version="1.0.35" provider-name="marcelveldt and others">
+</addon><addon id="script.module.thetvdb" name="The TVDB API v3" version="1.0.36" provider-name="marcelveldt, rafikW and others">
     <requires>
 		<import addon="xbmc.python" version="3.0.0" />
         <import addon="script.module.requests" version="2.9.1" />
@@ -870,7 +1153,7 @@ V0.1.0 (2021-07-17)
 			<screenshot>resources/screenshot-02.png</screenshot>
     		</assets>
 	</extension>
-</addon><addon id="script.skin.helper.backgrounds" name="Skin Helper Service Backgrounds" version="1.0.36" provider-name="marcelveldt and others">
+</addon><addon id="script.skin.helper.backgrounds" name="Skin Helper Service Backgrounds" version="1.0.37" provider-name="marcelveldt and others">
 	<requires>
         <import addon="script.module.simplecache" version="1.0.0" />
         <import addon="script.module.metadatautils" version="1.0.31" />
@@ -1024,11 +1307,11 @@ v1.0.19 (2018-03-30)
         <website />
         <source>https://github.com/AnonTester/script.skin.helper.skinbackup</source>
     </extension>
-</addon><addon id="script.skin.helper.widgets" name="Skin Helper Service Widgets" version="1.20.1" provider-name="marcelveldt and others">
+</addon><addon id="script.skin.helper.widgets" name="Skin Helper Service Widgets" version="1.30.0" provider-name="marcelveldt, matke and others">
     <requires>
 		<import addon="xbmc.python" version="3.0.0" />
         <import addon="xbmc.addon" version="12.0.0" />
-        <import addon="script.module.metadatautils" version="1.20.1" />
+        <import addon="script.module.metadatautils" version="1.30.0" />
         <import addon="script.module.simplecache" version="2.0.2" />
     </requires>
 
@@ -1041,7 +1324,9 @@ v1.0.19 (2018-03-30)
         <summary lang="en">Ready to use widgets for all kind of media types</summary>
         <description />
 	<news>
-	</news>
+Version 1.30.0
+* Nexus version
+</news>
 		<assets>
             <icon>icon.png</icon>
             <fanart>fanart.jpg</fanart>
@@ -1051,29 +1336,76 @@ v1.0.19 (2018-03-30)
         <license>GPL v2.0</license>
         <forum>http://forum.kodi.tv/showthread.php?tid=235676</forum>
         <website />
-        <source>https://github.com/kodi-community-addons/script.skin.helper.widgets</source>
+        <source>https://github.com/matke-84/script.skin.helper.widgets</source>
     </extension>
-</addon><addon id="script.skin.info.service" name="Skin Info Service" version="1.2.0" provider-name="phil65, SiLVO">
+</addon><addon id="script.skin.info.service" name="Skin Info Service" version="2.0.1~beta14" provider-name="MikeSiLVO">
 	<requires>
-		<import addon="xbmc.python" version="3.0.0" />
+		<import addon="xbmc.python" version="3.0.1" />
+		<import addon="xbmc.json" version="13.5.0" />
+		<import addon="script.module.pil" version="1.1.7" />
+		<import addon="script.module.requests" version="2.31.0" />
 	</requires>
-	<extension point="xbmc.python.library" library="default.py" />
-	<extension point="xbmc.python.script" library="default.py">
-		<provides>executable</provides>
+	<extension point="xbmc.python.pluginsource" library="plugin.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="xbmc.python.library" library="script.py" />
+	<extension point="xbmc.service" library="service.py" />
+	<extension point="kodi.context.item">
+		<menu id="kodi.core.main">
+			<item library="context.py">
+				<label>$ADDON[script.skin.info.service 32102]</label>
+				<visible>!String.IsEmpty(ListItem.DBID) + [String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,season) | String.IsEqual(ListItem.DBType,episode) | String.IsEqual(ListItem.DBType,musicvideo) | String.IsEqual(ListItem.DBType,set) | String.IsEqual(ListItem.DBType,artist) | String.IsEqual(ListItem.DBType,album) | String.IsEqual(ListItem.DBType,song)] + [Addon.SettingBool(script.skin.info.service,context_show_review_artwork) | Addon.SettingBool(script.skin.info.service,context_show_download_artwork) | Addon.SettingBool(script.skin.info.service,context_show_update_ratings) | Addon.SettingBool(script.skin.info.service,context_show_edit_metadata) | Addon.SettingBool(script.skin.info.service,context_show_export_nfo)]</visible>
+			</item>
+			<item library="context.py" args="pvr">
+				<label>$ADDON[script.skin.info.service 32079]</label>
+				<visible>Skin.HasSetting(SkinInfo.PVR) + [[String.StartsWith(ListItem.FileNameAndPath,pvr://guide/) + !Window.IsActive(radioguide) + !Window.IsActive(radiosearch)] | [String.StartsWith(ListItem.FileNameAndPath,pvr://channels/tv/) + ListItem.HasEpg] | [String.StartsWith(ListItem.FileNameAndPath,pvr://recordings/tv/) + !ListItem.IsFolder] | [String.StartsWith(ListItem.FileNameAndPath,pvr://timers/tv/timers/) + ListItem.HasEpg]]</visible>
+			</item>
+		</menu>
 	</extension>
 	<extension point="xbmc.addon.metadata">
-		<summary lang="en_GB">Script used by skins to show extended media info.</summary>
-		<description lang="en_GB">This script fetches extended information for several media types (artists, albums, movie sets etc.). Needs skin support.</description>
 		<platform>all</platform>
-		<license>GPL-2.0-only</license>
-		<forum>https://forum.kodi.tv/showthread.php?tid=210069</forum>
-		<source>https://github.com/mikesilvo164/script.skin.info.service</source>
+		<license>GPL-3.0-only</license>
+		<source>https://github.com/MikeSiLVO/script.skin.info.service</source>
+		<forum>https://forum.kodi.tv/showthread.php?tid=384016</forum>
 		<assets>
 			<icon>icon.png</icon>
+			<fanart>fanart.jpg</fanart>
 		</assets>
-		<news>Kodi Matrix/Nexus changes</news>
+		<news>
+2.0.1~beta14
+- Plugin path that lists numbered infolabels, such as hourly weather, with 0-100 scaling
+- NFO export includes TV show status (Piers+)
+- Fix Library.Refreshed for removals, library clean and scans
+- Fix texture cleanup keeping unused actor photos from .actors folders
+		</news>
+		<summary lang="cs_CZ">Poskytuje vzhledům podrobné informace o médiích a grafiku.</summary>
+		<summary lang="en_GB">Provides rich media info and artwork to skins.</summary>
+		<summary lang="en_US">Provides rich media info and artwork to skins.</summary>
+		<summary lang="es_ES">Provee información enriquecida del contenido y arte a las skins.</summary>
+		<summary lang="fr_FR">Fournit aux habillages des informations enrichies sur les médias ainsi que leurs visuels.</summary>
+		<summary lang="hu_HU">Médiainformációkat és grafikákat biztosít a felszínekhez.</summary>
+		<summary lang="it_IT">Fornisce informazioni sui media e artwork di alta qualità alle skin.</summary>
+		<summary lang="pl_PL">Dostarcza bogatych informacji o mediach i grafikę dla skórek.</summary>
+		<summary lang="ru_RU">Предоставляет обложкам подробную информацию о медиа и иллюстрации.</summary>
+		<summary lang="zh_CN">为皮肤提供丰富的媒体信息和艺术图。</summary>
+		<description lang="cs_CZ">Služba Skin Info Service poskytuje vzhledům podrobná metadata a grafiku nad rámec toho, co Kodi standardně zpřístupňuje. Přidává další vlastnosti, například hodnocení z více zdrojů, grafiku, podrobnosti o streamu a informace o obsazení a ději filmů, seriálů, epizod, sbírek filmů, hudebních videoklipů, interpretů a alb; využívá přitom knihovnu i online data. Obsahuje také nástroj pro vyhledání animovaných plakátů GIF a jejich přidání do knihovny.</description>
+		<description lang="en_GB">Skin Info Service provides skins with rich metadata and artwork beyond what Kodi exposes by default. It adds extra properties such as ratings from multiple sources, artwork, stream details, and cast and plot information for movies, TV shows, episodes, sets, music videos, artists, and albums, drawing on both your library and online data. It also includes a tool to find and add animated GIF posters to your library.</description>
+		<description lang="en_US">Skin Info Service provides skins with rich metadata and artwork beyond what Kodi exposes by default. It adds extra properties such as ratings from multiple sources, artwork, stream details, and cast and plot information for movies, TV shows, episodes, sets, music videos, artists, and albums, drawing on both your library and online data. It also includes a tool to find and add animated GIF posters to your library.</description>
+		<description lang="es_ES">Skin Info Service provee skins con metadata enriquecida y mejor arte de lo que expone Kodi por defecto. Añade propiedades extra como las valoraciones desde distintas fuentes, arte, detalles de la emisión, elenco y argumento de las películas, programas de TV, episodios, sagas, vídeos musicales, intérpretes y álbumes, pintándolo todo en la colección y datos online. Incluye tambien una herramietna para buscar y añadir carteles de GIF animados para la colección.</description>
+		<description lang="fr_FR">Skin Info Service fournit des informations supplémentaires telles que les notes, les illustrations et les détails de flux pour les films, les séries, les sagas, les artistes et les albums. Comprend un outil de recherche d'affiches GIF pour trouver et ajouter automatiquement des affiches GIF animées à votre médiathèque.</description>
+		<description lang="hu_HU">A Skin Info Service gazdag metaadatokkal és grafikákkal látja el a felszíneket, amelyek túlmutatnak azon, amit a Kodi alapértelmezés szerint megjelenít. Extra tulajdonságokat ad hozzá, például értékeléseket több forrásból, grafikákat, streamelési részleteket, valamint szereplő- és cselekményinformációkat filmekhez, tévéműsorokhoz, epizódokhoz, díszletekhez, videoklipekhez, előadókhoz és albumokhoz, mind a médiatárad, mind az online adatok felhasználásával. Tartalmaz egy eszközt is, amellyel animált GIF-posztereket kereshetsz és adhatsz hozzá a médiatáradhoz.</description>
+		<description lang="it_IT">Skin Info Service fornisce alle skin metadati e artwork avanzati, oltre a quanto Kodi mostra di default. Aggiunge proprietà extra come le valutazioni da più fonti, artwork, dettagli del flusso e informazioni su cast e trama per film, serie TV, episodi, saghe cinematografiche, video musicali, artisti e album, attingendo sia dalla libreria che dai dati online. Include anche uno strumento per trovare e aggiungere poster GIF animati alla libreria.</description>
+		<description lang="pl_PL">Skin Info Service dostarcza skórkom bogate metadane i grafikę, wykraczając daleko poza to, co Kodi udostępnia domyślnie. Dodaje dodatkowe właściwości, takie jak oceny z wielu źródeł, grafikę, szczegóły transmisji oraz informacje o obsadzie i fabule filmów, seriali, odcinków, kolekcji filmowych, teledysków, wykonawców i albumów, korzystając zarówno z Twojej biblioteki, jak i danych online. Zawiera również narzędzie do wyszukiwania i dodawania animowanych plakatów GIF do Twojej biblioteki.</description>
+		<description lang="ru_RU">Skin Info Service предоставляет обложкам расширенные метаданные и иллюстрации, выходящие за рамки стандартных возможностей Kodi. Он добавляет дополнительные свойства, такие как рейтинги из нескольких источников, иллюстрации, сведения о потоках, а также информацию об актёрах и сюжете для фильмов, сериалов, серий, киноциклов, музыкальных клипов, исполнителей и альбомов, используя как вашу медиатеку, так и данные из интернета. Также включает инструмент для поиска и добавления в медиатеку анимированных постеров в формате GIF.</description>
+		<description lang="zh_CN">皮肤信息服务为皮肤提供超出 Kodi 默认范围的丰富元数据和艺术图。它添加了多种额外属性,例如来自多个来源的评分、艺术图、流媒体详情,以及电影、电视剧、剧集、合集、音乐视频、艺术家和专辑的演员阵容和剧情信息,数据来源包括您的媒体库和在线数据。它还包含一个工具,用于查找并向您的媒体库添加动画 GIF 海报。</description>
+		<disclaimer lang="cs_CZ">Tento doplněk využívá službu TMDb a její rozhraní API, ale nemá od TMDb oficiální podporu, certifikaci ani jiné schválení.</disclaimer>
+		<disclaimer lang="en_GB">This add-on uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.</disclaimer>
+		<disclaimer lang="en_US">This add-on uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.</disclaimer>
+		<disclaimer lang="it_IT">Questo add-on usa TMDB e le API di TMDB, ma non è approvato, certificato o altrimenti autorizzato da TMDB.</disclaimer>
+		<disclaimer lang="pl_PL">Ten dodatek korzysta z serwisu TMDB i interfejsów API TMDB, ale nie jest zatwierdzony, certyfikowany ani w żaden inny sposób wspierany przez TMDB.</disclaimer>
+		<disclaimer lang="ru_RU">Это дополнение использует TMDB и API TMDB, но не одобрено, не сертифицировано и иным образом не поддержано TMDB.</disclaimer>
 	</extension>
-</addon><addon id="script.skinshortcuts" name="Skin Shortcuts" version="2.0.4" provider-name="BigNoid, marcelveldt, SiLVO, anxdpanic">
+</addon><addon id="script.skinshortcutsV2" name="Skin Shortcuts V2" version="2.0.4" provider-name="BigNoid, marcelveldt, SiLVO, anxdpanic">
     <requires>
         <import addon="xbmc.python" version="3.0.0" />
         <import addon="script.module.unidecode" version="1.1.1+matrix.2" />
@@ -1125,32 +1457,263 @@ v1.0.19 (2018-03-30)
         <description lang="zh_CN">皮肤加载项，提供简单的用户快捷方式管理和列表（需要皮肤支持）</description>
         <description lang="zh_TW">插件为皮肤提供了简单的管理和用户连接方式列表 (需要皮肤支持)</description>
     </extension>
-</addon><addon id="script.toolbox" name="ToolBox Script" version="2.0.0" provider-name="phil65,sualfred">
+</addon><addon id="script.trakt" name="Trakt" version="3.9.0" provider-name="Trakt.tv, Razzeee">
     <requires>
         <import addon="xbmc.python" version="3.0.0" />
-        <import addon="script.module.pil" version="1.1.7" />
+        <import addon="script.module.dateutil" version="2.8.1" />
+    </requires>
+    <extension point="xbmc.python.script" library="defaultscript.py">
+        <provides>executable</provides>
+    </extension>
+    <extension point="xbmc.service" name="trakt.service" library="default.py" />
+    <extension point="xbmc.addon.metadata" name="trakt.metadata">
+        <platform>all</platform>
+        <license> GPL-2.0-only</license>
+        <forum>https://forum.kodi.tv/showthread.php?tid=220547</forum>
+        <website>https://trakt.tv</website>
+        <source>https://github.com/trakt/script.trakt</source>
+        <news>- Replace trakt.py dependency with built-in REST client
+- Fix: Adapt to Trakt 2026 API changes (pagination and extended=progress for watched/collected sync)
+- Fix: Restore legacy sync video defaults to keep watched/collection comparisons working
+- Fix: Normalize movie watched state from new Trakt API response format
+</news>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+            <screenshot>resources/image-01.png</screenshot>
+            <screenshot>resources/image-02.png</screenshot>
+            <screenshot>resources/image-03.png</screenshot>
+        </assets>
+        <summary lang="bs_BA">TV i filmski skrobler za Trakt.tv</summary>
+        <summary lang="da_DK">Tv- og film-scrobbler til Trakt.tv</summary>
+        <summary lang="de_DE">TV und Film Scrobbler für Trakt.tv</summary>
+        <summary lang="el_GR">Υπηρεσία κοινοποίησης ταινιών και τηλ. σειρών (scrobbler) στο Trakt.tv</summary>
+        <summary lang="en_GB">TV and movie scrobbler for Trakt.tv</summary>
+        <summary lang="es_ES">Scrobbler de películas y series para Trakt.tv</summary>
+        <summary lang="et_EE">Sarjade ja filmide vaatamisoleku sünkroonimine Trakt.tv teenusega</summary>
+        <summary lang="fi_FI">Sarjojen ja elokuvien katselutilanteen Trakt.tv-kirjaus</summary>
+        <summary lang="fr_FR">Scrobbler TV et film pour Trakt.tv</summary>
+        <summary lang="he_IL">Scrobbler סדרות וסרטים עבור Trakt.tv</summary>
+        <summary lang="he_IL">Scrobbler סדרות וסרטים עבור Trakt.tv</summary>
+        <summary lang="hr_HR">TV i filmski skrobler za Trakt.tv</summary>
+        <summary lang="hu_HU">Sorozat és film beküldő a Trakt.tv-hez</summary>
+        <summary lang="it_IT">Scrobbler di serie TV e film per Trakt.tv</summary>
+        <summary lang="ko_KR">Trakt.tv에 TV와 영화 시청 상태를 전송합니다</summary>
+        <summary lang="lt_LT">TV ir filmų registratorius, skirtas Trakt.tv</summary>
+        <summary lang="nl_NL">TV- en films-scrobbler voor Trakt.tv</summary>
+        <summary lang="pl_PL">Dodatek umożliwiający rejestrację odtwarzanych i obejrzanych seriali i filmów w serwisie Trakt.tv</summary>
+        <summary lang="pt_BR">Scrobbler de TV e filmes para Trakt.tv</summary>
+        <summary lang="pt_BR">Scrobbler de TV e filmes para Trakt.tv</summary>
+        <summary lang="pt_PT">Scrobbler de episódios e filmes para o Trakt.tv</summary>
+        <summary lang="pt_PT">Scrobbler de episódios e filmes para o Trakt.tv</summary>
+        <summary lang="sk_SK">Seri</summary>
+        <summary lang="sv_SE">TV- och filmskrobblare för Trakt.tv</summary>
+        <summary lang="uk_UA">Скроблер серіалів та фільмів для Trakt.tv</summary>
+        <summary lang="zh_CN">Trakt.tv 影视自动记录器</summary>
+        <description lang="bs_BA">Automatski pretražite sve TV epizode i filmove koje gledate na Trakt.tv! Vodite sveobuhvatnu historiju svega što ste gledali i postanite dio globalne zajednice TV i filmskih entuzijasta. Registrujte se za besplatan račun na http://trakt.tv i dobijte mnoštvo funkcija:[CR][CR]- Automatski skrobler koji pratite[CR]- Mobilne aplikacije za iPhone, iPad, Android i Windows Phone[CR]- Podijelite ono što gledate (u stvarnom vremenu) i ocjenu na Facebooku i Twitteru[CR]- Personalizirani kalendar kako nikada ne biste propustili TV emisiju[CR]- Pratite svoje prijatelje i ljude koji vas zanimaju[CR]- Koristite liste za praćenje kako ne biste zaboravili šta gledati[CR]- Pratite svoje medijske kolekcije i impresionirajte svoje prijatelje[CR]- Kreirajte prilagođene liste oko bilo koje teme koju odaberete[CR]- Lako pratite napredak svoje TV emisije kroz sve sezone i epizode[CR]- Pratite svoj napredak u odnosu na industrijske liste kao što je IMDb Top 250[CR]- Otkrijte nove emisije i filmove na osnovu vaših navika gledanja[CR]- Vidžeti za vaš potpis na forumu[CR][CR]Šta ovaj dodatak može učiniti?[CR][CR]- Automatski skrobler koji prati sve TV epizode i filmove koje gledate[CR]- Sinhronizujte svoje TV epizode i Kolekcije filmova u Traktu (aktivira se nakon ažuriranja biblioteke)[CR] - Automatsko čišćenje vaše Trakt kolekcije tako da se podudara s Kodijem[CR] - Sinhronizacija statusa gledanja između Kodija i Trakta[CR] - Ocjenjivanje filmova i epizoda nakon gledanja[CR][CR]Posebna zahvala svima koji su doprinijeli ovom dodatku! Provjerite historiju commita i dnevnik promjena kako biste vidjeli ove talentovane programere.</description>
+        <description lang="da_DK">Scrobble automatisk alle tv-afsnit og film du ser til Trakt.tv! Du får en omfattende historik af alt, hvad du har set og bliver del af et globalt fællesskab af serie- og filmentusiaster. Tilmeld dig gratis på http://trakt.tv og få et væld af funktioner:[CR][CR]- Scrobble automatisk alt hvad du ser[CR][CR]- Mobilapps til iPhone, iPad, Android og Windows Telefon[CR][CR]- Del det, du ser (i realtid), samt send bedømmelser til Facebook og Twitter[CR]- Personlig kalender, så du aldrig går glip af en serie eller film[CR]- Følg med i hvad dine venner og bekendte ser[CR]- Brug huskelister så du ikke glemmer, hvad du skal se[CR]- Vis og imponér din samling til venner[CR]- Opret brugerdefinerede lister[CR]- Hold nemt øje med dit serie-fremskridt i løbet af sæsoner og afsnit[CR]- Sammenlign din samling mod lister fra f.eks. IMDb Top 250[CR]- Opdag nye serier og film baseret på dine tv-vaner[CR]- Widgets til din forumsignatur[CR][CR]Hvad kan dette add-on tilbyde?[CR][CR][CR]- Scrobble automatisk alle tv-afsnit og film, du ser[CR]- Synkroniser dine tv-afsnit og filmsamlinger til Trakt (efter en opdatering af biblioteket)[CR]- Automatisk oprydning af din Trakt-samling, så den passer sammen med Kodi[CR]- Hold set status synkroniseret mellem Kodi og Trakt[CR]- Bedøm film og afsnit umiddelbart efter at de er set[CR][CR]Særlig tak til alle der har bidraget til dette add-on! Se historikken og changelog for at se hvem disse talentfulde udviklere er.</description>
+        <description lang="de_DE">Scrobble automatisch alle Serien und Filme die du schaust zu Trakt.tv! Behalte den Überblick über deine Sammlung und sei Teil einer globalen Gemeinschaft von Serien- und Filmliebhabern. Registriere jetzt deinen kostenlosen Account unter http://trakt.tv und bekomme einen Haufen Funktionen:[CR][CR]- Automatisches scrobbeln von dem was du guckst[CR]- Mobile Apps für iPhone, iPad, Android und Windows Phone[CR]- Teile was du schaust (in Echtzeit) und bewerte auf Facebook und Twitter[CR]- Personalisierte Kalender: So verpasst du nie wieder eine Serie[CR]- Folge deinen Freunden und Leuten, für die du dich interessierst[CR]- Mach dir Beobachtungsliste zu nutze, um nicht zu vergessen was du ansehen wolltest[CR]- Tracke deine Mediensammlung, um deine Freunde zu beeindrucken[CR]- Erstelle benutzerdefinierte Listen zu jedem Thema das dir einfällt[CR]- Behalte die Übersicht über deinen Fortschritt bei Serien[CR]- Überblicke deinen Fortschritt bei offiziellen Listen wie zum Beispiel den IMDb Top 250[CR]- Entdecke neue Serien und Filme anhand deines Geschmacks[CR]- Widgets für deine Forum Signatur[CR][CR]Was kann dieses Addon?[CR][CR]- Automatisches scrobbeln aller Serien und Filme die du anschaust[CR]- Synchronisiere deine gesammelten Serien und Filme zur Trakt Sammlung (direkt nach dem Bibliotheksupdate)[CR]- Automatisches aufräumen deiner Trakt Sammlung damit sie mit Kodi übereinstimmt[CR]- Halte gesehen Markierungen synchronisiert zwischen Kodi und Trakt[CR]- Bewerte Episoden und Filme direkt nach dem du sie geguckt hast[CR][CR]Besonderer Dank gilt allen die an diesem Plugin mit gearbeitet haben! Schau in die Commit Historie und das Änderungsprotokoll, um diese talentierten Entwickler zu sehen.</description>
+        <description lang="el_GR">Αυτόματη κοινοποίηση στο Trakt.tv όλων των επεισοδίων και ταινιών που παρακολουθείτε! Μπορείτε να διατηρείτε αναλυτικό ιστορικό από ο,τιδήποτε είδατε, και να γίνετε μέρος μιας παγκόσμιας κοινότητας σινεφίλ και φαν της τηλεόρασης. Εγγραφείτε δωρεάν στο http://trakt.tv για ένα πλήθος παροχών:[CR][CR]- Αυτόματη κοινοποίηση όσων παρακολουθείτε[CR]- Εφαρμογές για κινητά iPhone, Android, Windows Phone και iPad[CR]- Μοιραστείτε ό,τι παρακολουθείτε (σε πραγματικό χρόνο), μαζί με τη βαθμολογία σας, στο facebook και το twitter[CR]- Προσωπικό ημερολόγιο, για να μη χάνετε ποτέ επεισόδιο[CR]- Ακολουθήστε τους φίλους σας, και άτομα για τα οποία ενδιαφέρεστε[CR]- Χρήση λιστών προβολής, για να μην ξεχνάτε τι θέλετε να δείτε[CR]- Εντυπωσιάστε τους φίλους σας με τις συλλογές σας[CR]- Δημιουργήστε προσωπικές λίστες με ό,τι θέμα επιθυμείτε[CR]- Δείτε την πρόοδό σας όσον αφορά τις τηλεοπτικές σειρές, με πολύ εύκολο τρόπο[CR]- Συγκρίνετε την πρόοδό σας με επίσημες λίστες, όπως των 250 Κορυφαίων του IMDb[CR]- Ανακαλύψτε νέες σειρές και ταινίες με βάση όσα έχετε ήδη παρακολουθήσει[CR]- Widget για την υπογραφή σας σε διάφορα forum[CR][CR]Τι μπορεί να κάνει αυτό το πρόσθετο;[CR][CR]- Αυτόματη κοινοποίηση όλων των επεισοδίων και ταινιών που παρακολουθείτε[CR]- Συγχρονισμός όλων των επεισοδίων και συλλογών ταινιών στο Trakt (αυτόματα μετά από κάθε ενημέρωση της συλλογής)[CR]- Αυτόματη εκκαθάριση της συλλογής σας στο Trakt ούτως ώστε να ταυτίζεται με αυτή στο Kodi[CR]- Συγχρονισμός όσων παρακολουθήσατε ήδη μεταξύ του Kodi και του Trakt[CR]- Βαθμολογήστε τις ταινίες και τα επεισόδια αφού τα παρακολουθήσετε[CR][CR]Ευχαριστούμε ιδιαιτέρως όλους όσους συνεισέφεραν σε αυτήν την εφαρμογή! Ελέγξτε το ιστορικό των προσθηκών και αλλαγών για να βρείτε αυτούς τους ταλαντούχους προγραμματιστές.</description>
+        <description lang="en_GB">Automatically scrobble all TV episodes and movies you are watching to Trakt.tv! Keep a comprehensive history of everything you've watched and be part of a global community of TV and movie enthusiasts. Sign up for a free account at http://trakt.tv and get a ton of features:[CR][CR]- Automatically scrobble what you're watching[CR]- Mobile apps for iPhone, iPad, Android, and Windows Phone[CR]- Share what you're watching (in real time) and rating to facebook and twitter[CR]- Personalized calendar so you never miss a TV show[CR]- Follow your friends and people you're interesed in[CR]- Use watchlists so you don't forget to what to watch[CR]- Track your media collections and impress your friends[CR]- Create custom lists around any topics you choose[CR]- Easily track your TV show progress across all seasons and episodes[CR]- Track your progress against industry lists such as the IMDb Top 250[CR]- Discover new shows and movies based on your viewing habits[CR]- Widgets for your forum signature[CR][CR]What can this addon do?[CR][CR]- Automatically scrobble all TV episodes and movies you are watching[CR]- Sync your TV episode and movie collections to Trakt (triggered after a library update)[CR]- Auto clean your Trakt collection so that it matches up with Kodi[CR]- Keep watched statuses synced between Kodi and Trakt[CR]- Rate movies and episode after watching them[CR][CR]Special thanks to all who contributed to this plugin! Check the commit history and changelog to see these talented developers.</description>
+        <description lang="es_ES">¡Haz scrobble automáticamente de todos los series y películas que estás viendo en trakt.tv! Mantén un historial completo de todo lo que has visto y sé parte de una comunidad global de entusiastas de las series y las películas. Regístrate para obtener una cuenta gratuita en http://trakt.tv y obtén un montón de funciones:[CR][CR]- Selecciona automáticamente lo que estás viendo[CR]- Aplicaciones móviles para iPhone, iPad, Android y Windows Phone[CR]- Comparte lo que estás viendo (en tiempo real) y valora en Facebook y Twitter[CR]- Calendario personalizado para que nunca te pierdas un serie[CR]- Sigue a tus amigos y personas que te interesan[CR]- Usa listas de seguimiento para que no olvides qué ver[CR]- Realiza un seguimiento de tus colecciones de contenido e impresiona a tus amigos[CR]- Crea listas personalizadas en torno a cualquier tema que elijas[CR]- Realiza un seguimiento fácil del progreso de tu serie en todas las temporadas y episodios[CR]- Realiza un seguimiento de tu progreso en comparación con listas de la industria como el IMDb Top 250[CR]- Descubre nuevas series y películas según tus hábitos de visualización[CR]- Widgets para tu firma en el foro[CR][CR]¿Qué puede hacer este complemento?[CR][CR]- Selecciona automáticamente todos las series, episodios y películas que estás viendo[CR]- Sincroniza tus colecciones de películas y episodios con Trakt (se activa después de una actualización de la biblioteca)[CR]- Limpia automáticamente tu colección de Trakt para que coincida con Kodi[CR]- Mantén sincronizados los estados de visualización entre Kodi y Trakt[CR]- Valora películas y episodios después de verlos[CR][CR]¡Un agradecimiento especial a todos los que contribuyeron con este complemento! Consulta el historial de confirmaciones y el registro de cambios para ver a estos talentosos desarrolladores.</description>
+        <description lang="et_EE">Talleta automaatselt kõik vaadatud episoodid ja filmid Trakt.tv teenuses! Oma kõikehõlmavat ajalugu kõigest vaadatust ja saa osa ülemaailmsest tele- ja filmihuviliste kogukonnast. Registreeri tasuta konto aadressil http://trakt.tv ja hangi palju funktsioone:[CR][CR]- Talleta automaatselt, mida vaatad[CR]- Mobiilirakendused iPhone, iPad, Android, ja Windows Phone tarbeks[CR]- Jaga seda, mida vaatad (reaalajas) ja hindeid Facebookis ja Twitteris[CR]- Isikupärastatud kalender, et sa ei magaks oma sarja kunagi maha[CR]- Jälgi oma sõpru ja inimesi, kellest oled huvitatud[CR]- Jälgimisloendite abil pead meeles, mis sarju vaatad[CR]- Jälgi oma meediakogusid ja avalda sõpradele muljet[CR]- Loo kohandatud loendid mis tahes valitud teemade kohta[CR]- Jälgi iga sarja hooaja ja episoodi vaatamise seisu[CR]- Sünkrooni oma vaatamisi filmitööstuse loendites nagu IMDb Top 250[CR]- Avasta oma vaatamisharjumuste põhjal uusi saateid ja filme[CR]- Vidinad, mida saad kasutada foorumi signatuuris[CR][CR]Mida see lisamoodul teeb?[CR][CR]- Talleta automaatselt kõik vaadatud episoodid ja filmid[CR]- Sünkrooni sarja- ja filmikogud teenusega Trakt (käivitub pärast meediakogu värskendamist)[CR]- Puhasta oma Trakti kogumik automaatselt, et see klapiks Kodiga[CR]- Sünkrooni Kodi ja Trakti vaatamiste olek[CR]- Rate movies and episode after watching them[CR][CR]Eriline tänu kõigile, kes selle lisamooduli loomisele kaasa aitasid! Need andekad arendajad leiab muudatuste logist.</description>
+        <description lang="fi_FI">Kirjaa kaikki katsomasi sarjojen jaksot ja elokuvat Trakt.tv-kokoelmaasi automaattisesti! Säilytä kattava historia kaikesta katsomastasi ja osallistu maailmanlaajuiseen sarja- ja elokuvaharrastajien yhteisöön. Luo ilmainen tili osoitteessa http://trakt.tv ja hanki useita lisäominaisuuksia:[CR][CR]- Kirjaa automaattisesti mitä katsot[CR]- Mobiilisovellukset iPhone-, iPad-, Android- ja Windows Phone -alustoille[CR]- Jaa mitä katselet ja arvioit reaaliaikaisesti Facebookissa ja Twitterissä[CR]- Henkilökohtainen kalenteri, jotteivat sarjojen jaksot jää koskaan katsomatta[CR]- Seuraa kavereita ja kiinnostavia henkilöitä[CR]- Katselulistojen avulla et unohda mitä olit katsomassa[CR]- Seuraa mediakokoelmiasi ja tee vaikutus kavereihisi[CR]- Luo omia listoja mistä tahansa valitsemistasi aiheista[CR]- Pidä kirjaa sarjojen jokaisen kauden ja jakson katselutilanteesta[CR]- Pidä kirjaa katselutilanteestasi alan listoilla, kuten IMDb Top 250[CR]- Löydä uusia sarjoja ja elokuvia katselutottumustesi perusteella[CR]- Widgettejä, joita voit käyttää allekirjoituksissasi keskustelupalstoilla[CR][CR]Mitä tämä lisäosa tekee?[CR][CR]- Kirjaa automaattisesti kaikki sarja- ja elokuvakatselusi[CR]- Synkronoi sarja- ja elokuvakokoelmasi Trakt-kokoelmaasi (käynnistyy kirjastopäivityksen jälkeen)[CR] - Siivoaa Trakt-kokoelmasi automaattisesti vastaamaan Kodin kirjastoa[CR]- Synkronoi katselutilanteet Kodin ja Traktin välillä[CR] - Arvioi elokuvat ja jaksot niiden katselun päätyttyä helposti[CR][CR]Erityiskiitos lisäosan kehitykseen osallistuneille! Näet nämä lahjakkaat kehittäjät muutoshistoriasta.</description>
+        <description lang="fr_FR">Scrobblez automatiquement sur Trakt.tv tous les épisodes TV et les films que vous regardez ! Gardez un historique complet de tout ce que vous avez regardé et prenez part à une communauté globale d'amateurs de TV et de films. Enregistrez-vous avec un compte gratuit sur http://trakt.tv pour accéder à des tonnes de fonctionnalités : - Scrobbler automatiquement ce que vous regardez - Applications mobiles pour iPhone, iPad, Android et Windows Phone - Partager ce que vous regardez (en temps réel) et vos évaluations sur Facebook et Twitter - Calendrier personnalisé pour ne plus jamais rater un épisode - Suivez vos amis et les personnes qui vous intéressent - Utilisez des listes pour ne plus oublier ce que vous voulez regarder - Synchronisez vos collections de media pour impressionner vos amis - Créez des listes personnalisées autour des sujets que vous choisissez - Suivez facilement votre progression dans toutes les saisons et épisodes des séries TV - Comparez votre progression à des listes comme le Top 250 IMDb - Découvrez de nouvelles séries et de nouveaux films en vous basant sur vos habitudes de visionnage - Widget pour votre signature de forum Que fait cette extension ? - Scrobble automatiquement tous les épisodes TV et les films que vous regardez - Synchronise vos collections d'épisodes TV et de films avec Trakt (déclenché après une mise à jour de la médiathèque) - Nettoie automatiquement votre collection Trakt pour qu'elle concorde avec Kodi - Garde l'état des visionnages synchronisé entre Kodi et Trakt - Note les films et épisodes après les avoir regardés Remerciements spéciaux à tous ceux qui ont apporté leur contribution à cette extension ! Allez faire un tour sur l'historique des mises à jour et le journal des changements pour voir ces talentueux développeurs.</description>
+        <description lang="ga">Scroblaigh go huathoibríoch gach eipeasóid teilifíse agus scannán atá á bhféachaint agat chuig Trakt.tv! Coinnigh stair chuimsitheach de gach rud atá feicthe agat agus bí i do bhall de phobal domhanda díograiseoirí teilifíse agus scannán. Cláraigh le haghaidh cuntas saor in aisce ag http://trakt.tv agus faigh neart gnéithe:[CR][CR]- Scrobáil go huathoibríoch cad atá á fhéachaint agat[CR]- Aipeanna soghluaiste do iPhone, iPad, Android, agus Windows Phone[CR]- Roinn cad atá á fhéachaint agat (i bhfíor-am) agus rátáil le Facebook agus Twitter[CR]- Féilire pearsantaithe ionas nach gcaillfidh tú seó teilifíse riamh[CR]- Lean do chairde agus daoine a bhfuil suim agat iontu[CR]- Bain úsáid as liostaí faire ionas nach ndéanfaidh tú dearmad ar cad atá le féachaint air[CR]- Rianaigh do bhailiúcháin meán agus déan iontas ar do chairde[CR]- Cruthaigh liostaí saincheaptha timpeall ar aon ábhair is mian leat[CR]- Rianaigh go héasca do dhul chun cinn i do sheó teilifíse thar gach séasúr agus eipeasóid[CR]- Rianaigh do dhul chun cinn i gcoinne liostaí tionscail ar nós Top 250 IMDb[CR]- Faigh amach seónna agus scannáin nua bunaithe ar do nósanna féachana[CR]- Giuirléidí do do shíniú fóraim[CR][CR]Cad is féidir leis an mbreiseán seo a dhéanamh?[CR][CR]- Scrobáil go huathoibríoch gach eipeasóid teilifíse agus scannán atá á fhéachaint agat[CR]- Sioncrónaigh d'eipeasóid teilifíse agus bailiúcháin scannán chuig Trakt (curtha i ngníomh tar éis nuashonrú leabharlainne)[CR]- Glan do bhailiúchán Trakt go huathoibríoch ionas go mbeidh sé ag teacht le Kodi[CR]- Coinnigh stádais faire sioncrónaithe idir Kodi agus Trakt[CR]- Rátáil scannáin agus eipeasóid tar éis féachaint orthu[CR][CR]Buíochas speisialta do gach duine a chuir leis an mbreiseán seo! Seiceáil an stair tiomantais agus an logáil athruithe chun na forbróirí cumasacha seo a fheiceáil.</description>
+        <description lang="he_IL">Automatically scrobble all TV episodes and movies you are watching to Trakt.tv! Keep a comprehensive history of everything you've watched and be part of a global community of TV and movie enthusiasts. Sign up for a free account at http://trakt.tv and get a ton of features:[CR][CR]- Automatically scrobble what you're watching[CR]- Mobile apps for iPhone, iPad, Android, and Windows Phone[CR]- Share what you're watching (in real time) and rating to facebook and twitter[CR]- Personalized calendar so you never miss a TV show[CR]- Follow your friends and people you're interesed in[CR]- Use watchlists so you don't forget to what to watch[CR]- Track your media collections and impress your friends[CR]- Create custom lists around any topics you choose[CR]- Easily track your TV show progress across all seasons and episodes[CR]- Track your progress against industry lists such as the IMDb Top 250[CR]- Discover new shows and movies based on your viewing habits[CR]- Widgets for your forum signature[CR][CR]What can this addon do?[CR][CR]- Automatically scrobble all TV episodes and movies you are watching[CR]- Sync your TV episode and movie collections to Trakt (triggered after a library update)[CR]- Auto clean your Trakt collection so that it matches up with Kodi[CR]- Keep watched statuses synced between Kodi and Trakt[CR]- Rate movies and episode after watching them[CR][CR]Special thanks to all who contributed to this plugin! Check the commit history and changelog to see these talented developers.</description>
+        <description lang="he_IL">Automatically scrobble all TV episodes and movies you are watching to Trakt.tv! Keep a comprehensive history of everything you've watched and be part of a global community of TV and movie enthusiasts. Sign up for a free account at http://trakt.tv and get a ton of features:[CR][CR]- Automatically scrobble what you're watching[CR]- Mobile apps for iPhone, iPad, Android, and Windows Phone[CR]- Share what you're watching (in real time) and rating to facebook and twitter[CR]- Personalized calendar so you never miss a TV show[CR]- Follow your friends and people you're interesed in[CR]- Use watchlists so you don't forget to what to watch[CR]- Track your media collections and impress your friends[CR]- Create custom lists around any topics you choose[CR]- Easily track your TV show progress across all seasons and episodes[CR]- Track your progress against industry lists such as the IMDb Top 250[CR]- Discover new shows and movies based on your viewing habits[CR]- Widgets for your forum signature[CR][CR]What can this addon do?[CR][CR]- Automatically scrobble all TV episodes and movies you are watching[CR]- Sync your TV episode and movie collections to Trakt (triggered after a library update)[CR]- Auto clean your Trakt collection so that it matches up with Kodi[CR]- Keep watched statuses synced between Kodi and Trakt[CR]- Rate movies and episode after watching them[CR][CR]Special thanks to all who contributed to this plugin! Check the commit history and changelog to see these talented developers.</description>
+        <description lang="hr_HR">Automatski sklobrajte sve TV epizode i filmove koje gledate na Trakt.tv! Vodite opsežnu povijest svega što ste gledali i budite dio globalne zajednice TV i filmskih entuzijasta. Prijavite se na besplatan račun na http://trakt.tv i dobijte mnogo značajki:[CR][CR]- Automatski skroblajte što gledate[CR]- Mobilne aplikacije za iPhone, iPad, Android, i Windows telefon[CR]- Dijelite što gledate (u stvarnom vremenu) i ocijenite na facebooku i twitteru[CR]- Personaliziran kalendar tako da nikada ne propustite TV emisiju[CR]- Slijedite svoje prijatelje i ljude koji vas zanimaju u[CR]- Koristite Popise gledanja tako da ne zaboravite što ste gledali[CR]- Pratite svoje medijske kolekcije i impresionirajte svoje prijateljte[CR]- Stvorite prilagođene popise o bili kojoj temi koju odaberete[CR]- Jednostavno pratite vaš napredak TV serije diljem svih sezona i epizoda[CR]- Pratite vaš napredak nasuprot industrijskih popisa poput IMDb Top 250[CR]- Otkrijete nove TV serije i filmove temeljene na vašim navikama gledanja[CR]- Widgeti za vaš potpis na forumu[CR][CR]Što sve može ovaj dodatak?[CR][CR]- Automatski skroblat sve TV epizode i filmove koje gledate[CR]- Uskladiti vaše TV epizode i filmske kolekcije na Trakt (pokrenuto nakon nadopune videoteke)[CR]- Automatsko čišćenje vaše Trakt kolekcije tako da se poklapa s Kodijem[CR]- Zadržava stanje gledanja usklađenim između Kodija i Trakta[CR]- Ocjenjuje filmove i epizode nakon gledanja[CR][CR]Posebno hvala svima koji su doprinijeli ovom dodatku! Provjerite povijest podneska i zapis promjena kako bi vidjeli te talentirane razvijatelje.</description>
+        <description lang="hu_HU">Automatikusan átmásolja az összes TV epizódot és filmet, amit nézel a Trakt.tv-re! Tartsa meg az összes általad nézett sorozat részletes előzményeit, és légy része a tévé- és filmrajongók globális közösségének. Regisztrálj ingyenes fiókot a http://trakt oldalon. tv, és rengeteg funkciót kapsz: [CR][CR]- Automatikusan lekottázza, amit néztél[CR]- Mobilalkalmazások iPhone-ra, iPadre, Androidra, és Windows Phone[CR]- Megoszthatod, hogy mit nézel (valós időben) és milyen értékeléssel a facebookon és a twitteren[CR]- Személyre szabott naptár, hogy soha ne maradj le egy tévéműsorról sem[CR]- Kövesd barátaidat és azokat, akik iránt érdeklődsz[CR]- Használj nézési listákat, hogy ne felejtsd el, mit érdemes nézni[CR]- Kövesd nyomon a médiagyűjteményedet és nyűgözd le barátaidat[CR]- Egyéni listák létrehozása bármilyen témakörben[CR]- Könnyedén nyomon követheted a tévéműsorok előrehaladását az összes évad és epizód tekintetében[CR]- Nyomon követheted a fejlődésedet az iparági listákhoz képest, mint például az IMDb Top 250[CR]- Új műsorok és filmek felfedezése a nézési szokásaid alapján[CR]- Widgetek a fórum aláírásodhoz[CR][CR]Mit tud ez a bővítmény? [CR][CR]- Automatikusan lekottázhatja az összes TV epizódot és filmet, amit nézel[CR]- Szinkronizálhatja a TV epizód és film gyűjteményedet a Trakt-al (könyvtár frissítés után aktiválódik)[CR]- Automatikusan rendbe teheti a Trakt gyűjteményedet, hogy az egyezzen a Kodi-val[CR]- Szinkronizálja a megtekintett állapotokat a Kodi és a Trakt között[CR]- Értékelheted a filmeket és epizódokat a megtekintésük után[CR][CR]Külön köszönet mindenkinek, aki hozzájárult ehhez a pluginhez! Nézd meg a commit history-t és a changelog-ot, hogy lásd ezeket a tehetséges fejlesztőket.</description>
+        <description lang="it_IT">Esegui automaticamente lo scrobbling di tutti gli episodi televisivi e dei film che guardi su Trakt.tv! Mantieni uno storico completo di tutto ciò che hai visto e prendi parte a una comunità globale di appassionati di TV e film. Registrati per avere un account gratuito su http://trakt.tv e ottieni una tonnellata di funzioni:[CR][CR]- Scrobbling automatico di quello che stai guardando[CR]- Applicazioni mobili per iPhone, iPad, Android e Windows Phone[CR]- Condividi su Facebook e Twitter ciò che guardi (in tempo reale) e la tua valutazione[CR]- Calendario personalizzato in modo da non perdere mai una puntata di uno show televisivo[CR]- Segui i tuoi amici e le persone che ti interessano[CR]- Usa la Watchlist in modo da non dimenticare cosa guardare[CR]- Tieni traccia delle tue raccolte multimediali e impressiona i tuoi amici[CR]- Crea liste personalizzate su qualsiasi argomento[CR]- Monitora facilmente i tuoi progressi nella visione degli show televisivi in tutte le stagioni ed episodi[CR]- Confronta i tuoi progressi con le liste di settore come la IMDb Top 250[CR]- Scopri nuovi spettacoli e film in base alle tue abitudini di visione[CR]- Widget per la firma del forum[CR][CR]Che cosa può fare questa add-on?[CR][CR]- Scrobble automatico di tutti gli episodi televisivi e film che vengono guardati[CR]- Sincronizzazione dei tuoi episodi TV e delle collezioni di film di Trakt (attivata dopo un aggiornamento della libreria)[CR]- Pulizia automatica della collezione Trakt in modo da farla corrispondere con Kodi[CR]- Mantenere lo stato delle visioni sincronizzate tra Kodi e Trakt[CR]- Votazione di ogni puntata o film dopo la visualizzazione[CR][CR]Un ringraziamento speciale a tutti coloro che hanno contribuito a questo plugin! Controllate la storia dei commit e la lista dei cambiamenti per vedere questi sviluppatori di talento.</description>
+        <description lang="ko_KR">시청 중인 모든 TV 쇼 에피소드와 영화 정보를 자동으로 Trakt.tv에 전송합니다! 사용자가 시청한 모든 이력을 자세히 보관하고 전세계의 TV, 영화 커뮤니티의 일원으로 참여하세요. http://Trakt.tv에서 무료 회원으로 가입하고 다양한 기능을 활용하세요:[CR][CR]- 시청 중인 영화와 에피소드 정보를 자동으로 전송[CR]- iPhone, iPad, Android, Windows Phone 앱 지원[CR]- 시청 중 정보를 (실시간)으로 Facebook과 twitter로 공유하고 평가[CR]- 개인 캘린더로 TV 쇼 본방송을 놓치지 마세요[CR]- 친구와 관심있는 사람을 팔로우 하세요[CR]- 꼭 봐야 할 것들을 잊지 않기 위해 Watclist를 사용하세요[CR]- 여러분의 컬렉션을 관리하고 친구들을 감동 시키세요[CR]- 여러분이 선택한 모든 주제의 목록을 만드세요[CR]- 여러분의 TV 쇼 시청 진행 상태를 시즌별 에피소드별로 쉽게 기록하고 관리하세요[CR]- 여러분의 시청 상태를 IMDb Top 250 같은 목록과 비교해 보세요[CR]- 여러분이 시청한 자료를 토대로 새로운 영화와 TV쇼를 찾아보세요[CR]- 커뮤니티 포럼의 Widgets 으로 활용하세요[CR][CR]이 애든온이 할 수 있는 것은?[CR][CR]- 시청 중인 영화와 에피소드 정보를 자동으로 전송[CR]- 여러분의 TV 에피소드와 영화 컬렉션을 Trakt와 동기화 (라이브러리를 업데이트할 때 작동)[CR]- Kodi 라이브러리와 일치하도록 Trakt 컬렉션 자동 정리[CR]- Kodi와 Trakt 사이의 시청 정보 동기화[CR]- 영화와 에피소드를 시청한 후 평가하기[CR][CR]이 플러그인에 공헌한 모든 이에게 감사드립니다! 재능있는 이 개발자들을 확인하려면 커밋 이력과 변경사항을 확인하기 바랍니다.</description>
+        <description lang="lt_LT">Automatiškai užregistruoti visus TV epizodus ir filmus, kuriuos žiūrite, Trakt.tv sistemoje! Laikykite išsamią istoriją visko, ką peržiūrėjote ir būkite globalios TV ir filmų entuziastų bendruomenės dalimi. Susikurkite nemokamą paskyrą http://trakt.tv puslapyje ir gaukite daugybę funkcionalumų:[CR][CR]- Automatiškai užregistruokite tai, ką žiūrite[CR]- Mobilios programelės, skirtos iPhone, iPad, Android ir Windows Phone[CR]- Dalinkitės tuo, ką žiūrite (realiuoju laiku) ir įvertinimais facebook ir twitter sistemose[CR]- Suasmenintas kalendorius, kad niekada nepraleistumėte TV laidos[CR]- Sekite savo draugus ir žmones, kuriais domitės[CR]- Naudokite peržiūros sąrašą, kad nepamirštumėte ką norite peržiūrėti[CR]- Sekite savo media kolekciją ir padarykite įspūdį savo draugams[CR]- Sukurkite savus sąrašus bet kokia pasirinkta tema[CR]- Lengvai sekite TV laidos progresą tarp visų sezonų ir epizodų[CR]- Sekite savo progresą tarp industrinių sąrašų, tokių kaip IMDb Top 250[CR]- Atraskite naujas laidas ir filmus pagal savo žiūrėjimo įpročius[CR]- Valdiklis jūsų forumo paskyros parašui[CR][CR]Ką gali šis priedas?[CR][CR]- Automatiškai registruoti visus TV epizodus ir filmus, kuriuos žiūrite[CR]- Sinchronizuoti jūsų TV epizodų ir filmų kolekciją su Trakt.tv (vykdoma po bibliotekos atnaujinimo)[CR]- Automatiškai išvalyti jūsų Trakt.tv kolekciją, kad ji sutaptų su Kodi[CR]- Išlaikyti peržiūrėjimo būsenas sinchronizuotas tarp Kodi ir Trakt.tv[CR]- Įvertinti filmus ir epizodus juos peržiūrėjus[CR][CR]Specialus ačiū visiems, kurie prisidėjo prie šio įskiepio! Patikrinkite kodo istoriją ir pakeitimų sąrašą, kad pamatytumėte šiuos talentingus kūrėjus.</description>
+        <description lang="nl_NL">Scrobble automatisch alle TV afleveringen en films die je aan bekijken bent naar Trakt.tv! Hou een uitgebreide historie bij van alles wat je hebt bekeken en maak deel uit van een wereldwijde gemeenschap van TV- en filmliefhebbers. Schrijf je in voor een gratis account op http://trakt.tv en krijg een enorme hoeveelheid aan mogelijkheden:[CR][CR]- Automatisch scrobblen wat je aan het bekijken bent[CR]- Mobiele apps voor iPhone, iPad, Android en Windows Phone[CR]- Deel wat je aan het bekijken ben (gelijktijdig) en stuur je waardering door naar Facebook en Twitter[CR]- Persoonlijke kalender zodat je nooit een TV aflevering mist[CR]- Volg je vrienden en mensen waarin je ben geïnteresseerd[CR]- Gebruik kijklijsten zodat je niets mist van wat je wilt kijken[CR]- Leg je eigen mediaverzameling aan en maak indruk op je vrienden[CR]- Maak aangepaste lijsten over onderwerpen die je zelf kiest[CR]- Volg het verloop van je tv serie voor alle seizoenen en afleveringen[CR]- Vergelijk je bekeken films en series met bekende lijsten zoals de IMDb Top 250[CR]- Ontdek nieuwe series en films gebaseerd op jouw kijk gewoonten[CR]- Widgets voor jouw forum handtekening[CR][CR]Wat kan deze add-on doen?[CR][CR]- Automatisch scrobblen van alle TV afleveringen en films die je aan het bekijken bent[CR]- Synchroniseer je TV afleveringen en film collecties naar Trakt (start na een bibliotheekupdate)[CR]- Automatisch opschonen van je Trakt collectie zodat deze overeenkomt met Kodi[CR]- Houdt de bekeken status gesynchroniseerd tussen Kodi en Trakt[CR]- Geef een cijfer aan films en afleveringen na ze te hebben bekeken[CR][CR]Speciale dank aan allen die hebben meegeholpen met deze plugin! Bekijk de commentaar historie en wijzigingenlijst om deze getalenteerde ontwikkelaars te zien.</description>
+        <description lang="pl_PL">Automatyczna rejestracja obejrzanych odcinków seriali i filmów w serwisie Trakt.tv! Przechowuj pełną historię wszystkich obejrzanych mediów i bądź częścią globalnej społeczności entuzjastów multimediów. Zarejestruj swoje konto za darmo na http://trakt.tv i uzyskaj dostęp do mnóstwa funkcji:[CR]- automatycznej rejestracji obejrzanych mediów[CR]- mobilnych aplikacji na iPhone'a, iPada, Androida i Windows Phone[CR]- publikacji obejrzanych mediów i ich oceny (w czasie rzeczywistym) w serwisach Facebook i Twitter[CR]- osobistego kalendarza, żebyś nigdy nie przegapił emisji serialu[CR]- śledzenia aktywności znajomych i osób, którymi się interesujesz[CR]- listy pozycji do obejrzenia, żebyś nigdy nie zapomniał tego, co chcesz obejrzeć[CR]- udostępniania swojej kolekcji mediów, którą możesz zaimponować swoim znajomym[CR]- tworzenia niestandardowych list skupionych na wybranym temacie[CR]- łatwego śledzenia postępów oglądania sezonów i odcinków serialu[CR]- porównywania własnych postępów oglądania z publicznymi listami takimi jak lista Top 250 serwisu IMDb[CR]- odkrywanie nowych seriali i filmów na podstawie preferencji[CR][CR]Co potrafi ten dodatek?[CR][CR]- rejestrować automatycznie odtwarzania wszystkich odcinków seriali i filmów[CR]- synchronizację biblioteki filmów i odcinków seriali z kolekcją Trakt (uruchamianą po aktualizacji biblioteki)[CR]- czyszczenie kolekcji Trakt w celu pełnego dopasowania z biblioteką Kodi[CR]- utrzymywanie synchronizacji stanów obejrzenia między biblioteką Kodi a kolekcją Trakt[CR]- możliwość oceny filmów i odcinków seriali zaraz po obejrzeniu[CR][CR]Specjalne podziękowania dla wszystkich, którzy wnieśli swój wkład w tworzenie tego dodatku! Przejrzyj historię i dziennik zmian, aby poznać tych utalentowanych programistów.</description>
+        <description lang="pt_BR">Scrobble automaticamente todos os episódios e filmes da TV que você está assistindo ao trakt.tv! Mantenha uma história abrangente de tudo o que você assistiu e faça parte de uma comunidade global de entusiastas de TV e cinema. Inscreva-se para uma conta gratuita em http://trakt.tv e obtenha uma tonelada de recursos: [CR] [CR]- Recorde automaticamente o que você está assistindo [CR]- aplicativos móveis para iPhone, iPad, Android e Windows Telefone [CR]- Compartilhe o que você está assistindo (em tempo real) e classificação no Facebook e Twitter [CR]- Calendário personalizado para que você nunca perca um programa de TV [CR]- siga seus amigos e pessoas em que você está interrompido [ CR]- Use listas de observação para não se esquecer do que assistir [CR]- Rastreie suas coleções de mídia e impressione seus amigos [CR]- Crie listas personalizadas em torno de todos os tópicos que você escolher [CR]- rastrear facilmente seu programa de TV Progress LoveR Todas as estações e episódios [CR]- acompanhe seu progresso contra listas da indústria, como o IMDB Top 250 [CR]- Descubra novos shows e filmes com base em seus hábitos de visualização [CR]- widgets para sua assinatura do fórum [CR] [CR] O que Este addon pode fazer? [Cr] [Cr]- Descobrir automaticamente todos os episódios e filmes da TV que você está assistindo [Cr]- Sincronize seu episódio de TV e coleções de filmes com trakt (acionado após uma atualização da biblioteca) [Cr]- Limpe seu trakt Coleção para que combine com Kodi [CR]- Mantenha os status assistidos sincronizados entre Kodi e Trakt [Cr]- Classifique filmes e episódios depois de assisti-los [CR] [CR] agradecimentos especiais a todos que contribuíram para este plugin! Verifique o histórico de mudanças e o Changelog para ver esses desenvolvedores talentosos.</description>
+        <description lang="pt_BR">Scrobble automaticamente todos os episódios e filmes da TV que você está assistindo ao trakt.tv! Mantenha uma história abrangente de tudo o que você assistiu e faça parte de uma comunidade global de entusiastas de TV e cinema. Inscreva-se para uma conta gratuita em http://trakt.tv e obtenha uma tonelada de recursos: [CR] [CR]- Recorde automaticamente o que você está assistindo [CR]- aplicativos móveis para iPhone, iPad, Android e Windows Telefone [CR]- Compartilhe o que você está assistindo (em tempo real) e classificação no Facebook e Twitter [CR]- Calendário personalizado para que você nunca perca um programa de TV [CR]- siga seus amigos e pessoas em que você está interrompido [ CR]- Use listas de observação para não se esquecer do que assistir [CR]- Rastreie suas coleções de mídia e impressione seus amigos [CR]- Crie listas personalizadas em torno de todos os tópicos que você escolher [CR]- rastrear facilmente seu programa de TV Progress LoveR Todas as estações e episódios [CR]- acompanhe seu progresso contra listas da indústria, como o IMDB Top 250 [CR]- Descubra novos shows e filmes com base em seus hábitos de visualização [CR]- widgets para sua assinatura do fórum [CR] [CR] O que Este addon pode fazer? [Cr] [Cr]- Descobrir automaticamente todos os episódios e filmes da TV que você está assistindo [Cr]- Sincronize seu episódio de TV e coleções de filmes com trakt (acionado após uma atualização da biblioteca) [Cr]- Limpe seu trakt Coleção para que combine com Kodi [CR]- Mantenha os status assistidos sincronizados entre Kodi e Trakt [Cr]- Classifique filmes e episódios depois de assisti-los [CR] [CR] agradecimentos especiais a todos que contribuíram para este plugin! Verifique o histórico de mudanças e o Changelog para ver esses desenvolvedores talentosos.</description>
+        <description lang="pt_PT">Automaticamente faça scrobble de filmes e séries que está a ver para o Trakt.tv! Mantenha um histórico de tudo o que visualizou e faça parte de uma comunidade de entusiastas de filmes e séries. Inscreva-se gratuitamente para uma conta em http://trakt.tv e receba uma tonelada de funcionalidades:[CR][CR]- Scrobble automático quando está a visualizar[CR]- Aplicações moveis para iPhone, iPad, Android, Windows Phone e Blackberry[CR]- Partilhe o que está a visualizar (em tempo real) e as suas classificações no facebook e twitter[CR]- Calendário personalizado de forma a nunca perder uma série[CR]- Siga os seus amigos e pessoas de interesse[CR]- Use listas para não esquecer o que ver[CR]- Mostre as suas bibliotecas de filmes e séries aos seus amigos[CR]- Crie listas personalizadas sobre os assuntos que quiser[CR]- Verifique que espisódios já visualizou e quais faltam ver[CR]- Veja que filmes tem do IMDB TOP 250[CR]- Descubra novos filmes e séries com base nos que já viu[CR]- Widgets para usar na assinatura de fóruns[CR][CR]O que pode este addon fazer?[CR]- Scrobble automático de todos os filmes e episódios de séries que está a ver[CR]- Sincronização dos filmes e episódios de séries vistos com o Trakt (após um update da biblioteca)[CR]- Limpeza automática do Trakt de forma a ficar igual ao Kodi[CR]- Manter as visualizações sincronizadas entre o Trakt e o Kodi[CR]- Classifique filmes e episódios após visualização[CR][CR]Um obrigado especial a todos os que contribuíram para este plugin! Veja o github e o changelog para ver quem são estes programadores talentosos.</description>
+        <description lang="pt_PT">Automaticamente faça scrobble de filmes e séries que está a ver para o Trakt.tv! Mantenha um histórico de tudo o que visualizou e faça parte de uma comunidade de entusiastas de filmes e séries. Inscreva-se gratuitamente para uma conta em http://trakt.tv e receba uma tonelada de funcionalidades:[CR][CR]- Scrobble automático quando está a visualizar[CR]- Aplicações moveis para iPhone, iPad, Android, Windows Phone e Blackberry[CR]- Partilhe o que está a visualizar (em tempo real) e as suas classificações no facebook e twitter[CR]- Calendário personalizado de forma a nunca perder uma série[CR]- Siga os seus amigos e pessoas de interesse[CR]- Use listas para não esquecer o que ver[CR]- Mostre as suas bibliotecas de filmes e séries aos seus amigos[CR]- Crie listas personalizadas sobre os assuntos que quiser[CR]- Verifique que espisódios já visualizou e quais faltam ver[CR]- Veja que filmes tem do IMDB TOP 250[CR]- Descubra novos filmes e séries com base nos que já viu[CR]- Widgets para usar na assinatura de fóruns[CR][CR]O que pode este addon fazer?[CR]- Scrobble automático de todos os filmes e episódios de séries que está a ver[CR]- Sincronização dos filmes e episódios de séries vistos com o Trakt (após um update da biblioteca)[CR]- Limpeza automática do Trakt de forma a ficar igual ao Kodi[CR]- Manter as visualizações sincronizadas entre o Trakt e o Kodi[CR]- Classifique filmes e episódios após visualização[CR][CR]Um obrigado especial a todos os que contribuíram para este plugin! Veja o github e o changelog para ver quem são estes programadores talentosos.</description>
+        <description lang="sk_SK">Automaticky synchronizujte informácie na Trakt.tv o všetkých seriáloch a filmoch ktoré sledujete.</description>
+        <description lang="sv_SE">Skrobbla automatiskt alla TV-serie avsnitt och filmer du tittar på till Trakt.tv! Samla en innehållsrik historik om allt du tittar på och var en del av ett globalt kollektiv av TV och filmentusiaster. Skapa ett gratis konto på http://trakt.tv och ta del av massor av funktioner.[CR][CR]- Skrobbla automatiskt vad du tittar på[CR]- Appar för iPhone, iPad, Android och Windows Phone[CR]- Dela vad du tittar på (i realtid) samt dina betyg på Facebook och Twitter[CR]- Personlig kalender så du aldrig missar en TV serie[CR]- Följ dina vänner och andra intressanta personer[CR]- Använd att se listor så du inte glömmer vad du skall se[CR]- Spåra dina media samlingar och imponera på dina vänner[CR]- Skapa listor för olika ämnen som du väljer[CR]- Spåra lätt hur mycket av en TV serie du sett, över alla säsonger och avsnitt[CR]- Jämför hur mycket film du har sett mot flera viktiga listor inom industrin, t.ex. IMDb Top 250[CR]- Upptäck nya TV serier och filmer baserat på din historik[CR]- Widgets för din forum signatur[CR][CR]Vad kan detta addon göra?[CR][CR]- Skrobbla automatiskt alla TV-serie avsnitt och filmer du tittar på[CR]- Synkronisera dina samlingar av film och Tv-serier till Trakt (startas efter en uppdatering av ditt bibliotek i Kodi)[CR]- Städa automatiskt din Trakt samling så den stämmer med Kodi.[CR]- Synkronisera sedd/osedd status mellan Kodi och Trakt[CR]- Betygsätt filmer och TV-serier avsnitt efter du har sett dem[CR][CR]Ett stort tack till alla som bidragit till detta plugin! Se loggen för tillägg och ändringar för att se vilka dessa talangfulla utvecklare är.</description>
+        <description lang="uk_UA">Автоматично скробліть на Trakt.tv всі серіали та фільми, які ви переглядаєте! Ведіть повну історію ваших переглядів та станьте частиною міжнародної спільноти шанувальників кінематографу. Зареєструйте безкоштовний акаунт на http://trakt.tv та отримайте доступ до таких можливостей:[CR][CR]- Автоматичний скроблінг при перегляді[CR]- Мобільні додатки для iPhone, iPad, Android та Windows Phone[CR]- Діліться вашими переглядами та оцінками на facebook та twitter[CR]- Ваш персональний календар з яким ви ніколи не пропустите новий епізод улюбленого серіалу[CR]- Користуйтесь закладками щоб не забути що переглянути пізніше[CR]- Відстежуйте ваші медіа колекції та вразьте своїх друзів[CR]- Створюйте власні списки на будь-яку тему[CR]- Легко відстежуйте прогрес ваших серіалів, епізодів та сезонів[CR]- Відстежуйте прогрес перегляду найпопулярніших списків, таких як \\"Топ 250 фільмів IMDb\\"[CR]- Відривайте для себе нові серіали та фільми на основі ваших попередніх переглядів[CR] - Віджети для унікального банеру профіля на форумі[CR][CR]Що вміє цей додаток?[CR][CR]- Автоматично скроблити всі серіали та фільми які ви переглядаєте[CR]- Синхронізувати ваші колекції фільмів та серіалів до сервісу Trakt(спрацьовує при оновленні каталогу)[CR]- Автоматично очищати ваші Trakt колекції для синхронізації з локальним каталогом[CR]- Синхронізувати статус переглянутих між Kodi та Trakt[CR]- Оцінювати фільми та серіали після перегляду[CR][CR] Окрема подяка всім, хто долучився до розробки цього додатку! Огляньте історію змін щоб переглянути список цих талановитих розробників.</description>
+        <description lang="zh_CN">自动记录您正在观看的所有电视剧和电影到Trakt.tv！全面记录你看过的一切，成为全球电视和电影爱好者社区的一部分。在http://trakt.tv注册一个免费帐户，即可获得大量功能：[CR]；[CR]；-自动滚动您正在观看的内容[CR]；-iPhone、iPad、Android和Windows phone上的移动应用程序[CR]；-(实时)分享您正在观看的内容，并将其评分到Facebook和Twitter&amp;10；-个性化日历，让您永远不会错过任何电视节目[CR]；-关注您的朋友和您感兴趣的人&amp;使用观看列表，这样您就不会忘记要看什么。-跟踪您的媒体收藏并打动您的朋友[CR]；-围绕您选择的任何主题创建自定义列表[CR]；-轻松跟踪您的电视节目在所有季节和剧集中的进度-对照行业列表(如IMDB排名前250&amp;10；)跟踪您的进度-根据您的观看习惯发现新的剧集和电影[CR]；-用于论坛签名的小工具[CR]；[CR]；[CR]；[CR]；-自动滚动所有电视剧和电影。-将您的电视剧集和电影集同步到Trakt(在库更新后触发)[CR]；-自动清理您的Trakt集，以便它与Kodi&amp;10；匹配-保持在Kodi和Trakt&amp;10；之间同步的观看状态-在观看电影和集之后对它们进行评级[CR]；[CR]；特别感谢所有对此插件做出贡献的人！查看提交历史记录和更改日志，查看这些有才华的开发人员。</description>
+    </extension>
+</addon><addon id="script.tv.show.next.aired" name="TV Show - Next Aired" version="9.0.1" provider-name="WayneD,marcelveldt and others">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0" />
+        <import addon="script.module.thetvdb" version="1.0.34" />
+        <import addon="script.module.infotagger" version="0.0.3" />
     </requires>
     <extension point="xbmc.python.script" library="default.py">
         <provides>executable</provides>
     </extension>
+    <extension point="xbmc.service" library="service.py" start="login" />
     <extension point="xbmc.addon.metadata">
+        <summary lang="bg">Информация за предстоящите ТВ сериали.</summary>
+        <summary lang="ca">Agafar informació de les sèries de TV que es retransmetran pròximament.</summary>
+        <summary lang="de">Erhalten Sie Infos über die nächsten Ausstrahlungstermine der Serien in Ihrer Bibliothek. </summary>
+        <summary lang="el">Λήψη πληροφοριών για την Επόμενη Προβολή των Τηλ. Σειρών</summary>
+        <summary lang="en">Get info for TV Shows Next Aired.</summary>
+        <summary lang="en_NZ">Get info for TV Shows Next Aired.</summary>
+        <summary lang="en_US">Get info for TV Shows Next Aired.</summary>
+        <summary lang="es">Obtener información de las siguientes emisiones de series.</summary>
+        <summary lang="es_MX">Obtener información de las siguientes emisiones de series.</summary>
+        <summary lang="fr">Obtenir les prochaines dates de diffusion de vos séries TV.</summary>
+        <summary lang="fr_CA">Obtenir les infos de prochaine diffusion des séries télé.</summary>
+        <summary lang="gl">Obter a info. das Seguintes Emisións das Series de TV.</summary>
+        <summary lang="he">קבל פרטי השידור הבא של תכניות הטלוויזיה.</summary>
+        <summary lang="hr">Nabavite informacije za sljedeću emitiranu TV seriju.</summary>
+        <summary lang="hu">Információ a sorozatok következő vetítési idejéről.</summary>
+        <summary lang="it">Ottieni info per le Serie TV trasmesse prossimamente.</summary>
+        <summary lang="ko">TV 쇼 방송 일정을 가져옵니다.</summary>
+        <summary lang="lt">Gauti TV laidos kitos transliacijos informaciją.</summary>
+        <summary lang="nl">Ophalen info voor komende TV afleveringen.</summary>
+        <summary lang="no">Hent informasjon om kommende TV-programmer.</summary>
+        <summary lang="pl">Pobieraj informacje o odcinkach seriali wkrótce na antenie.</summary>
+        <summary lang="pt">Obter info para Próximas Exibições de Séries TV.</summary>
+        <summary lang="pt_BR">Saiba sobre próximas exibições de séries de TV.</summary>
+        <summary lang="ro">Află despre emisiuni care urmează să fie difuzate</summary>
+        <summary lang="ru">Информация о следующих ТВ передачах.</summary>
+        <summary lang="sl">Pridobi informacije TV oddaj ki se bodo predvajale.</summary>
+        <summary lang="sv">Hämta info för nästa sändning av TV-serier.</summary>
+        <summary lang="zh">获取即将播出的剧集的信息。</summary>
+        <description lang="bg">Сваля информация за предстоящите ТВ сериали. Вече никога няма да пропускате епизод от ТВ сериали, които следите.</description>
+        <description lang="ca">Agafar informació de les sèries de TV que es retransmetran pròximament. No te'n perdràs cap mai més.</description>
+        <description lang="de">TV Show Next Aired liefert Termin-Informationen über die anstehenden Episoden der Serien aus der Datenbank. Dazu gibt es eine Wochenansicht mit allen in der nächsten Woche laufenden Episoden sowie (bei vorhandenem Skin Support) die direkte Integration der Informationen in die Ansichten des jeweiligen Skins. Sie werden nie wieder eine Folge verpassen.</description>
+        <description lang="el">Λήψη πληροφοριών για την Επόμενη Προβολή των Τηλ. Σειρών. Δε θα ξαναχάσετε επεισόδιο ποτέ.</description>
+        <description lang="en">Get info for TV Shows Next Aired. You'll never miss one again.</description>
+        <description lang="en_NZ">Get info for TV Shows Next Aired. You'll never miss one again.</description>
+        <description lang="en_US">Get info for TV Shows Next Aired. You'll never miss one again.</description>
+        <description lang="es">Obtener información de las siguientes emisiones de series. Nunca te perderás una de nuevo.</description>
+        <description lang="es_MX">Obtener información de las siguientes emisiones de series. Nunca te perderás una de nuevo.</description>
+        <description lang="fr">Ce script interroge votre médiathèque puis vas récupérer les infos sur les prochaines diffusions de vos séries. vous n'en manquerez plus aucune.</description>
+        <description lang="fr_CA">Obtenir les infos de prochaine diffusion des séries télé. Vous n'en manquerez plus jamais une.</description>
+        <description lang="gl">Obter a info. das Seguintes Emisións das Series de TV. Non esquecerá ningunha.</description>
+        <description lang="he">קבל פרטי השידור הבא של תכניות הטלוויזיה. לעולם לא תחמיץ שוב פרק.</description>
+        <description lang="hr">Nabavite informacije za sljedeću emitiranu TV seriju. Nikada nećete propustiti nijednu.</description>
+        <description lang="hu">Információ a sorozatok következő vetítési idejéről. Soha nem marad le mégegyszer semmiről.</description>
+        <description lang="it">Ottieni info per le Serie TV trasmesse prossimamente. Non ne perderai più una.</description>
+        <description lang="ko">TV 쇼 방송 일정을 가져옵니다. 놓치는 일은 절대 없을 것입니다.</description>
+        <description lang="lt">Gauti TV laidos kitos transliacijos informaciją. Jūs niekada daugiau jos nepraleisite.</description>
+        <description lang="nl">Ophalen info voor komende TV shows. Je zult ze nooit meer missen.</description>
+        <description lang="no">Få informasjon om neste TV-sending. Du vil aldri gå glipp av en episode igjen.</description>
+        <description lang="pl">Pobieraj informacje o odcinkach seriali wkrótce na antenie. Nigdy już żadnego nie przegapisz.</description>
+        <description lang="pt">Obter info para Próximas Exibições de Séries TV. Nunca mais vai perder uma.</description>
+        <description lang="pt_BR">Saiba sobre próximas exibições de séries de TV. Você nunca perderá um episódio.</description>
+        <description lang="ro">Află despre emisiuni care urmează să fie difuzate. Nu vei mai rata nici una.</description>
+        <description lang="ru">Получает информацию о следующих ТВ передачах. Теперь Вы никогда не пропустите ни одну ТВ передачу.</description>
+        <description lang="sl">Pridobi informacije TV oddaj ki se bodo predvajale. Nikoli več ne boste zamudili nobene epizode.</description>
+        <description lang="sv">Hämta info för nästa sändning av TV-Serie. Du kommer inte att missa en igen.</description>
+        <description lang="zh">获取即将播出的剧集的信息。你不会再错过好节目了。</description>
         <language />
-        <summary lang="en_GB">ToolBox Script</summary>
-        <description lang="en_GB">This script exposes several python functions to the UI engine as well as some other stuff to make life for skinners a bit easier.</description>
         <platform>all</platform>
-        <license>GPL-2.0-only</license>
-        <forum>http://forum.kodi.tv/showthread.php?tid=207618</forum>
-        <source>https://github.com/phil65/script.toolbox</source>
-        <email>phil65@kodi.tv</email>
         <assets>
-            <icon>resources/icon.png</icon>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
         </assets>
+        <license>GPL v2.0</license>
+        <forum>http://forum.xbmc.org/showthread.php?tid=186090</forum>
+        <website>http://github.com/marcelveldt/script.tv.show.next.aired</website>
+        <source>https://github.com/marcelveldt/script.tv.show.next.aired.git</source>
     </extension>
-</addon><addon id="script.wikipedia" version="0.0.8" name="Wikipedia" provider-name="jurialmunkey">
+</addon><addon id="script.videoextras" name="VideoExtras" version="200.00.00" provider-name="AMoo-Miki">
+	<requires>
+    	<import addon="xbmc.python" version="3.0.0" />
+		<import addon="script.module.simplejson" version="3.3.0" />
+  	</requires>
+  	<extension point="xbmc.python.script" library="default.py" />
+	<extension point="xbmc.service" library="service.py" start="login" />
+	<extension point="xbmc.python.pluginsource" library="plugin.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="kodi.context.item" library="contextmenu.py">
+		<item>
+			<label>32028</label>
+			<visible>!String.IsEmpty(Window(videos).Property("VideoExtrasShowContextMenu")) + [Container.Content(movies) | Container.Content(episodes) | Container.Content(tvshows) | Container.Content(seasons) | Container.Content(musicvideos)]</visible>
+		</item>
+	</extension>
+  	<extension point="xbmc.addon.metadata">
+    	<summary lang="ca">Afegeix vídeos extres a les teves pel·lícules i sèries de televisió.</summary>
+    	<summary lang="cs">Přidej Video bonusy k Filmům a TV seriím</summary>
+    	<summary lang="de">Video Extras zu den Filmen und TV-Sendungen in Ihrer Sammlung hinzufügen</summary>
+    	<summary lang="el">Προσθήκη DVD Extras στις Ταινίες και τις Τηλεοπτικές σας Σειρές.</summary>
+    	<summary lang="en">Add Video Extras to your Movies and TV shows.</summary>
+    	<summary lang="es">Añadir extras de vídeo para sus películas y programas de televisión.</summary>
+    	<summary lang="fr">Ajouter des bonus vidéo aux films et séries TV.</summary>
+    	<summary lang="fr_CA">Ajouter des bonus vidéos à vos films et séries télé.</summary>
+    	<summary lang="gl">Engadir Extras de Vídeos aos seus Filmes e Series de TV.</summary>
+    	<summary lang="he">הוסף ספיישלים (Video Extras) לסרטים ולסדרות שלך.</summary>
+    	<summary lang="hr">Dodajte video dodatke vašim filmovima i TV emisijama.</summary>
+    	<summary lang="hu">Videó Extrák a Filmekhez és Sorozatokhoz</summary>
+    	<summary lang="is">Bætir Video Extras við Kvikmyndir og Sjónvarpsþætti</summary>
+    	<summary lang="it">Aggiungi i Video Extra ai tuoi Video e Serie tv</summary>
+    	<summary lang="ko">영화와 TV 쇼 라이브러리에 부가영상 추가</summary>
+    	<summary lang="lt">Pridėkite video priedus filmams ir TV laidoms.</summary>
+    	<summary lang="nl">Voeg Video extra`s toe aan jou Films en TV series.</summary>
+    	<summary lang="pl">Wparcie dodatkowych materiałów dla filmów i seriali telewizyjnych.</summary>
+    	<summary lang="pt">Adicionar Extras de Vídeo aos seus Filmes e Séries TV</summary>
+    	<summary lang="pt_BR">Adiciona extras de vídeos em filmes e seriados.</summary>
+    	<summary lang="sv">Lägg till Video Extras till dina filmer och TV-program</summary>
+    	<description lang="ca">Proporciona una manera d'afegir vídeo extres a la seva biblioteca de vídeo. Mira el wiki per instruccions d'instal·lació.</description>
+    	<description lang="cs">Poskytuje způsob jak přidat Bonusy do vaší video knihovny. Instrukce pro nastavení viz. wiki.</description>
+    	<description lang="de">Bietet eine Möglichkeit, um Videoextras zu Ihrer Videobibliothek hinzuzufügen. Schauen Sie ins Wiki für Installationsanweisungen.</description>
+    	<description lang="el">Σας παρέχει έναν τρόπο να προσθέσετε DVD Extras στη Συλλογή σας. Ελέγξτε τον ιστότοπο του wiki για οδηγίες εγκατάστασης.</description>
+    	<description lang="en">Provides a way to add Video Extras to your Video library. Look at the wiki for setup instructions.</description>
+    	<description lang="es">Proporciona una manera de añadir extras de vídeos a su biblioteca. Mira el wiki para instrucciones de instalación.</description>
+    	<description lang="fr">Fournit une solution pour ajouter des bonus vidéo à la vidéothèque. Consulter le Wiki pour les instructions de paramétrage.</description>
+    	<description lang="fr_CA">Offre une façon d'ajouter des bonus vidéos à votre vidéothèque. Consulter le wiki pour des instructions de configuration.</description>
+    	<description lang="gl">Prové dun camiño para engadir Extras á sea biblioteca de Vídeos. Ver na wiki para instruccións da configuración.</description>
+    	<description lang="he">מספק אפשרות להוסיף ספיישלים (Video Extras) לספריית הוידאו שלך. פנה לוויקי להוראות התקנה.</description>
+    	<description lang="hr">Pruža vam način dodavanja video dodataka u vašu videoteku. Potražite na wiki stranicama informacije za podešavanje.</description>
+    	<description lang="hu">Biztosítja a lehetőséget hogy Extrákat adjon hozzá a Videó Médiatárához. Nézze meg a wiki-t a telepítés beállításához.</description>
+    	<description lang="is">Gerir kleyft að bæta við Video Extras við myndasöfnin þín. Skoðaðu wiki til að sjá hvernig þetta er sett upp. Video Extras heldur utan um smámyndir og Fanart og fl og sér á skipulegan hátt um að geyma og halda utan um það.</description>
+    	<description lang="it">Provvede un modo per aggiungere Video Extra alla tua biblioteca Video. Consulta il wiki per le istruzioni di configurazione..</description>
+    	<description lang="ko">비디오 라이브러리에 부가영상(보너스 영상, 셔플, 다른 버전 등)을 추가할 수 있게 합니다. 설치 방법은 Kodi 위키를 참조하세요.</description>
+    	<description lang="lt">Suteikia būdą pridėti video priedus į vaizdo biblioteką. Nustatymo instrukcijas galite rasti vikio puslapyje.</description>
+    	<description lang="nl">Biedt een manier om Video extra`s toe te voegen aan jou videobibliotheek. Kijk op de wiki voor instellingsinstructies.</description>
+    	<description lang="pl">Umożliwia dodanie dodatkowych materiałów wideo do biblioteki wideo. Zapoznaj się z informacjami na stronach Wiki w celu poprawnej konfiguracji. </description>
+    	<description lang="pt">Permite adicionar extras de vídeo à sua Biblioteca de Vídeos. Leia o wiki para mais instruções de configuração.</description>
+    	<description lang="pt_BR">Prove um caminho para vídeo extras via info de vídeo. Ver o wiki para instruções de configuração.</description>
+    	<description lang="sv">Tillhandahåller ett sätt att lägga till Video Extras till ditt filmbibliotek. Se wiki för inställningsanvisningar.</description>
+    	<disclaimer lang="cs">Tvůrci skinů: https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="de">Skin-Ersteller, bitte schaut für Informationen über die Integration in euren Skin im Wiki:
+https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="el">Skinners, ελέγξτε τον ιστότοπο για πληροφορίες σχετικά με την ενσωμάτωση στο κέλυφός σας: https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="en">Skinners, please see the wiki to know how to integrate it in your skin: https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="es">Desarrolladores, por favor ver el Wiki para saber como integrarlo en tu Skin
+https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="fr">Développeurs de thème, merci de lire le Wiki afin d'obtenir les informations pour l'intégrer à votre thème : https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="fr_CA">Habilleurs, consultez le wiki pour savoir comment l'intégrer à votre habillage : https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="gl">Autores de temas, por favor vexan a wiki para saber como integralo no seu tema:
+https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="ko">스킨 제작자 여러분, 스킨에 통합하는 방법은 위키를 참조하기 바랍니다: https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="lt">Teminių išvaizdų kūrėjai, instrukcijas kaip integruoti šį priedą į jūsų teminę išvaizdą rasite vikio puslapyje: https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="nl">Skinners, bekijk de wikie om te weten hoe je heet moet integreren in jouw skin: https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="pl">Twórcy skór powinni zapoznać się z informacjami na stronach Wiki, aby dowiedzieć więcej o integracji z dodatkiem: https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="pt">Os autores dos temas deverão consultar o wiki para saberem como integrar este add-on no tema: https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="pt_BR">Skinners, por favor veja o wiki para saber como integrar em sua skin:
+https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<disclaimer lang="sv">Skaltillverkare, använd wikin för att se hur du kan integrera det i ditt skal:
+https://github.com/robwebset/script.videoextras/wiki</disclaimer>
+    	<language />
+    	<platform>all</platform>
+    	<license>See LICENSE.txt</license>
+    	<forum>https://github.com/malvinas2/script.videoextras</forum>
+		<assets>
+			<icon>icon.png</icon>
+			<fanart>fanart.jpg</fanart>
+			<screenshot>resources/screenshot-01.jpg</screenshot>
+			<screenshot>resources/screenshot-02.jpg</screenshot>
+			<screenshot>resources/screenshot-03.jpg</screenshot>
+			<banner>resources/banner.jpg</banner>
+			<logo>resources/logo.png</logo>
+		</assets>
+  </extension>
+</addon><addon id="script.wikipedia" version="0.2.0" name="Wikipedia" provider-name="jurialmunkey">
 <requires>
   <import addon="xbmc.python" version="3.0.0" />
   <import addon="script.module.beautifulsoup4" version="4.9.3" />
-  <import addon="script.module.jurialmunkey" version="0.1.1" />
+  <import addon="script.module.jurialmunkey" version="0.2.35" />
 </requires>
 <extension point="xbmc.python.script" library="resources/script.py" />
 <extension point="xbmc.addon.metadata">
@@ -1162,7 +1725,7 @@ v1.0.19 (2018-03-30)
     <fanart>fanart.jpg</fanart>
   </assets>
 </extension>
-</addon><addon id="service.tvtunes" name="TVTunes" version="2.0.6" provider-name="latts">
+</addon><addon id="service.tvtunes" name="TVTunes" version="2.1.2" provider-name="latts">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0" />
 		<import addon="script.module.simplejson" version="3.17.0+matrix.2" />
@@ -1216,9 +1779,9 @@ v1.0.19 (2018-03-30)
 		<description lang="sv">Detta skript hjälper dig att hitta teman till ditt tv-seriebibliotek från www.televisiontunes.com som sparas i theme.mp3 filer i varje tv-seriemapp som sedan spelas när du öppnar tv-seriemappen (ditt skal måste vara kompatibelt för detta)</description>
 		<language />
 		<platform>all</platform>
-		<news>[B][COLOR=FF2CD13B]v2.0.6[/COLOR][/B] - Release date February 24, 2023[CR]
-[B][COLOR=FFFFA500]MAINTENANCE[/COLOR][/B]
-• I added the ability to play themes while viewing Sets. There is a new setting named "PLAY THEMES WHEN BROWSING SETS LIST" that must be enabled. Thanks to AB30AB for the request!
+		<news>[B][COLOR=FF2CD13B]v2.1.2[/COLOR][/B] - Release date October 31, 2025[CR]
+[B][COLOR=FFFFA500]FIX[/COLOR][/B]
+• I fixed a problem with the random song not playing for the artist while browsing music.
 		</news>
 		<license>See LICENSE.txt</license>
 		<forum>https://forum.kodi.tv/showthread.php?tid=347428</forum>
@@ -1232,10 +1795,10 @@ v1.0.19 (2018-03-30)
 			<logo>resources/logo.png</logo>
 		</assets>
 	</extension>
-</addon><addon id="skin.titan.vanilla" version="22.26.01.21" name="Titan Vanilla" provider-name="malvinas2, marcelveldt, AchillesPunks, cartman.dos, fuchs2468, mardukL, mgonzales">
+</addon><addon id="skin.titan.vanilla" version="22.26.10.31_BETA" name="Titan Vanilla" provider-name="malvinas2, marcelveldt, AchillesPunks, cartman.dos, fuchs2468, mardukL, mgonzales">
 	<requires>
 		<import version="5.18.0" addon="xbmc.gui" />	
-		<import addon="script.skinshortcuts" version="2.0.3" />
+		<import addon="script.skinshortcutsV2" version="2.0.3" />
 		<import addon="script.skin.helper.service" version="1.20.1" />
         <import addon="script.skin.helper.widgets" version="1.20.1" />
         <import addon="script.skin.helper.backgrounds" version="1.0.36" />

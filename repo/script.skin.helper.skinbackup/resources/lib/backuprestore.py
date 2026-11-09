@@ -193,7 +193,7 @@ class BackupRestore:
 
     def backup_skinshortcuts(self, dest_path):
         '''backup skinshortcuts including images'''
-        source_path = try_encode('special://profile/addon_data/script.skinshortcuts/')
+        source_path = try_encode('special://profile/addon_data/script.skinshortcutsV2/')
         if not xbmcvfs.exists(dest_path):
             xbmcvfs.mkdir(dest_path)
         for file in xbmcvfs.listdir(source_path)[1]:
@@ -245,7 +245,7 @@ class BackupRestore:
                             extension = thumb.split(".")[-1]
                             newthumb = os.path.join(dest_path, "%s-thumb-%s.%s" %
                                                     (xbmc.getSkinDir(), normalize_string(defaultid), extension))
-                            newthumb_vfs = "special://profile/addon_data/script.skinshortcuts/%s-thumb-%s.%s" % (
+                            newthumb_vfs = "special://profile/addon_data/script.skinshortcutsV2/%s-thumb-%s.%s" % (
                                 xbmc.getSkinDir(), normalize_string(defaultid), extension)
                             if xbmcvfs.exists(thumb):
                                 copy_file(thumb, newthumb)
@@ -275,7 +275,7 @@ class BackupRestore:
                     extension = background.split(".")[-1]
                     newthumb = os.path.join(dest_path, "%s-background-%s.%s" %
                                             (xbmc.getSkinDir(), normalize_string(defaultid), extension))
-                    newthumb_vfs = "special://profile/addon_data/script.skinshortcuts/%s-background-%s.%s" % (
+                    newthumb_vfs = "special://profile/addon_data/script.skinshortcutsV2/%s-background-%s.%s" % (
                         xbmc.getSkinDir(), normalize_string(defaultid), extension)
                     if xbmcvfs.exists(background):
                         copy_file(background, newthumb)
@@ -396,7 +396,7 @@ class BackupRestore:
         '''restore skinshortcuts files'''
         source_path = temp_path + try_encode("skinshortcuts/")
         if xbmcvfs.exists(source_path):
-            dest_path = try_encode('special://profile/addon_data/script.skinshortcuts/')
+            dest_path = try_encode('special://profile/addon_data/script.skinshortcutsV2/')
             for filename in xbmcvfs.listdir(source_path)[1]:
                 filename = try_decode(filename)
                 sourcefile = source_path + filename
@@ -420,7 +420,7 @@ class BackupRestore:
                     xbmc.executebuiltin(try_encode("Skin.Reset(%s)" % setting[1]))
             else:
                 # restore all skin settings
-                xbmc.executebuiltin("RunScript(script.skinshortcuts,type=resetall&warning=false)")
+                xbmc.executebuiltin("RunScript(script.skinshortcutsV2,type=resetall&warning=false)")
                 xbmc.sleep(250)
                 xbmc.executebuiltin("Skin.ResetSettings")
                 xbmc.sleep(250)

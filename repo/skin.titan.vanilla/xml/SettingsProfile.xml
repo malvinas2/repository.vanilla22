@@ -3,7 +3,9 @@
 <!-- <window type="dialog"> -->
 <window>
 	<defaultcontrol always="true">9000</defaultcontrol>
-	
+	<onload>SetProperty(SettingsProfileSection,1,Home)</onload>	
+	<onload>SetProperty(SettingsProfileSection,223,Home)</onload>	
+	<onload>SetProperty(SettingsProfileSection,1,Home)</onload>	
 	<controls>
 		 <!--Global Background-->
 		<include>GlobalBackground</include>
@@ -40,8 +42,8 @@
 				<width>450</width>
 				<height>96%</height>
 				<itemgap>5</itemgap>
-				<onleft></onleft>
-				<onright></onright>
+				<onleft>noop</onleft>
+				<onright>noop</onright>
 				<onup>9000</onup>
 				<ondown>9000</ondown>
 				<include>animation_window_open_close</include>
@@ -50,7 +52,7 @@
 					<include>SkinSettings_MenuButtonLarge</include>
 					<width>450</width>
 					<onright>4</onright>
-					<onfocus>SetProperty(SettingsProfileSection,1,home)</onfocus>
+					<onfocus>SetProperty(SettingsProfileSection,1,Home)</onfocus>
 					<usealttexture>String.IsEqual(Window(Home).Property(SettingsProfileSection),1)</usealttexture>
 					<label>$LOCALIZE[128]</label>
 					<altlabel>$LOCALIZE[128]</altlabel>
@@ -61,7 +63,7 @@
 					<include>SkinSettings_MenuButtonLarge</include>
 					<width>450</width>
 					<onright>2</onright>
-					<onfocus>SetProperty(SettingsProfileSection,223,home)</onfocus>
+					<onfocus>SetProperty(SettingsProfileSection,223,Home)</onfocus>
 					<usealttexture>String.IsEqual(Window(Home).Property(SettingsProfileSection),223)</usealttexture>
 					<altlabel>$LOCALIZE[13200]</altlabel>
 					<label>$LOCALIZE[13200]</label>
@@ -78,7 +80,7 @@
 				<itemgap>5</itemgap>
 				<orientation>vertical</orientation>
 				<onleft>9000</onleft>
-				<onright></onright>
+				<onright>noop</onright>
 				<onup>9001</onup>
 				<ondown>9001</ondown>
 				<!-- Header -->
@@ -119,189 +121,191 @@
 				</control>
 				<control type="button" id="5">
 					<include>SkinSettings_Button</include>
-					<label>$LOCALIZE[70058]</label>
+					<label>$LOCALIZE[31944]</label>
 					<label2>[B]$INFO[System.ProfileAutoLogin][/B]</label2>
 					<enable>!Window.IsVisible(ProfileSettings) + !System.HasLoginScreen</enable>
 				</control>
 			</control>
 
-
-			<control type="label">
-				<left>605</left>
-				<top>20</top>
-				<width>1100</width>
+			<control type="group">
 				<visible>String.IsEqual(Window(Home).Property(SettingsProfileSection),223)</visible>
-				<include>SkinSettings_Header</include>
-				<label>$LOCALIZE[13200]</label>
-				<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-			</control>
-
-			<control type="panel" id="2">
-				<description>Control Area</description>
-				<visible>String.IsEqual(Window(Home).Property(SettingsProfileSection),223)</visible>
-				<left>605</left>
-				<top>95</top>
-				<width>1230</width>
-				<height>80%</height>
-				<onright></onright>
-				<onup>2</onup>
-				<onleft>223</onleft>
-				<ondown>2</ondown>
-				<!-- Header -->
 				<control type="label">
+					<left>605</left>
+					<top>20</top>
+					<width>1100</width>
+					<!-- <visible>String.IsEqual(Window(Home).Property(SettingsProfileSection),223)</visible> -->
 					<include>SkinSettings_Header</include>
 					<label>$LOCALIZE[13200]</label>
 					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
 				</control>
 
-				<itemlayout height="350" width="300">
-				    <control type="group">
-						<width>280</width>
-						<height>320</height>
-				
-						<control type="image">
-							<texture border="0">diffuse/poster.png</texture>
-							<colordiffuse>$VAR[ViewDetailsPanelColor]</colordiffuse>
-							<include condition="Skin.String(thumbsborder_unfocused, 0)">thumbborder_0</include>
-							<include condition="Skin.String(thumbsborder_unfocused, 2)">thumbborder_2</include>
-							<include condition="Skin.String(thumbsborder_unfocused, 4)">thumbborder_4</include>
-							<include condition="Skin.String(thumbsborder_unfocused, 6)">thumbborder_6</include>
-						</control>
-				
-						<control type="image">
-							<texture border="1" background="true" diffuse="diffuse/poster.png" fallback="DefaultUser.png">$INFO[ListItem.Icon]</texture>
-							<aspectratio scalediffuse="false" aligny="top" align="center">stretch</aspectratio>
-							<bordersize>8</bordersize>
-						</control>
-						
-						<!--Panel-->
-						<control type="image">
-							<top></top>
-							<bottom>0</bottom>
-							<height>120</height>
-							<bordersize>8</bordersize>
-							<texture border="1">diffuse/poster_tag.png</texture>
-							<colordiffuse>$INFO[Skin.String(TagOverlaysPanelColor)]</colordiffuse>
-						</control>
-						<control type="label">
-							<left>15</left>
-							<right>15</right>
-							<top></top>
-							<bottom>55</bottom>
-							<height>65</height>
-							<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
-							<align>left</align>
-							<aligny>center</aligny>
-							<label>$INFO[ListItem.Label]</label>
-							<font>Reg22</font>
-							<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
-						</control>
-	
-						<control type="label">
-							<left>15</left>
-							<right>15</right>
-							<top></top>
-							<bottom>30</bottom>
-							<height>65</height>
-							<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
-							<align>left</align>
-							<aligny>center</aligny>
-							<label>$LOCALIZE[70059]:</label>
-							<font>Reg22</font>
-							<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
-							<visible>!String.IsEqual(Listitem.Label,$LOCALIZE[20058])</visible>
-						</control>
-						
-						<control type="label">
-							<left>15</left>
-							<right>15</right>
-							<top></top>
-							<bottom>5</bottom>
-							<height>65</height>
-							<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
-							<align>left</align>
-							<aligny>center</aligny>
-							<label fallback="13170">$INFO[ListItem.Label2]</label>
-							<font>Reg22</font>
-							<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
-							<visible>!String.IsEqual(Listitem.Label,$LOCALIZE[20058])</visible>
-						</control>
-					</control>
-				</itemlayout>				
+				<control type="panel" id="2">
+					<description>Control Area</description>
+					<!-- <visible>String.IsEqual(Window(Home).Property(SettingsProfileSection),223)</visible> -->
+					<left>605</left>
+					<top>95</top>
+					<width>1230</width>
+					<height>80%</height>
+					<onright>noop</onright>
+					<onup>2</onup>
+					<onleft>223</onleft>
+					<ondown>2</ondown>
+					<!-- Header -->
+					<!-- <control type="label">
+						<include>SkinSettings_Header</include>
+						<label>blupblup$LOCALIZE[13200]</label>
+						<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+					</control> -->
 
-				<focusedlayout height="350" width="300">
-				    <control type="group">
-						<width>280</width>
-						<height>320</height>
-				
-						<control type="image">
-							<texture border="0">diffuse/poster.png</texture>
-							<colordiffuse>$VAR[ViewDetailsFocusColor]</colordiffuse>
-							<include condition="Skin.String(thumbsborder_focused, 2)">thumbborder_2</include>
-							<include condition="Skin.String(thumbsborder_focused, 4)">thumbborder_4</include>
-							<include condition="Skin.String(thumbsborder_focused, 6)">thumbborder_6</include>
-						</control>
+					<itemlayout height="350" width="300">
+						<control type="group">
+							<width>280</width>
+							<height>320</height>
+					
+							<control type="image">
+								<texture border="0">diffuse/poster.png</texture>
+								<colordiffuse>$VAR[ViewDetailsPanelColor]</colordiffuse>
+								<include condition="Skin.String(thumbsborder_unfocused, 0)">thumbborder_0</include>
+								<include condition="Skin.String(thumbsborder_unfocused, 2)">thumbborder_2</include>
+								<include condition="Skin.String(thumbsborder_unfocused, 4)">thumbborder_4</include>
+								<include condition="Skin.String(thumbsborder_unfocused, 6)">thumbborder_6</include>
+							</control>
+					
+							<control type="image">
+								<texture border="1" background="true" diffuse="diffuse/poster.png" fallback="DefaultUser.png">$INFO[ListItem.Icon]</texture>
+								<aspectratio scalediffuse="false" aligny="top" align="center">stretch</aspectratio>
+								<bordersize>8</bordersize>
+							</control>
+							
+							<!--Panel-->
+							<control type="image">
+								<top></top>
+								<bottom>0</bottom>
+								<height>120</height>
+								<bordersize>8</bordersize>
+								<texture border="1">diffuse/poster_tag.png</texture>
+								<colordiffuse>$INFO[Skin.String(TagOverlaysPanelColor)]</colordiffuse>
+							</control>
+							<control type="label">
+								<left>15</left>
+								<right>15</right>
+								<top></top>
+								<bottom>55</bottom>
+								<height>65</height>
+								<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
+								<align>left</align>
+								<aligny>center</aligny>
+								<label>$INFO[ListItem.Label]</label>
+								<font>Reg22</font>
+								<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
+							</control>
 		
-						<control type="image">
-							<texture border="1" background="true" diffuse="diffuse/poster.png" fallback="DefaultUser.png">$INFO[ListItem.Icon]</texture>
-							<aspectratio scalediffuse="false" aligny="top" align="center">stretch</aspectratio>
-							<bordersize>8</bordersize>
+							<control type="label">
+								<left>15</left>
+								<right>15</right>
+								<top></top>
+								<bottom>30</bottom>
+								<height>65</height>
+								<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
+								<align>left</align>
+								<aligny>center</aligny>
+								<label>$LOCALIZE[31945]:</label>
+								<font>Reg22</font>
+								<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
+								<visible>!String.IsEqual(Listitem.Label,$LOCALIZE[20058])</visible>
+							</control>
+							
+							<control type="label">
+								<left>15</left>
+								<right>15</right>
+								<top></top>
+								<bottom>5</bottom>
+								<height>65</height>
+								<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
+								<align>left</align>
+								<aligny>center</aligny>
+								<label fallback="13170">$INFO[ListItem.Label2]</label>
+								<font>Reg22</font>
+								<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
+								<visible>!String.IsEqual(Listitem.Label,$LOCALIZE[20058])</visible>
+							</control>
 						</control>
-						
-			           <!--Panel-->
-						<control type="image">
-							<top></top>
-							<bottom>0</bottom>
-							<height>120</height>
-							<bordersize>8</bordersize>
-							<texture border="1">diffuse/poster_tag.png</texture>
-							<colordiffuse>$INFO[Skin.String(TagOverlaysPanelColor)]</colordiffuse>
+					</itemlayout>				
+
+					<focusedlayout height="350" width="300">
+						<control type="group">
+							<width>280</width>
+							<height>320</height>
+					
+							<control type="image">
+								<texture border="0">diffuse/poster.png</texture>
+								<colordiffuse>$VAR[ViewDetailsFocusColor]</colordiffuse>
+								<include condition="Skin.String(thumbsborder_focused, 2)">thumbborder_2</include>
+								<include condition="Skin.String(thumbsborder_focused, 4)">thumbborder_4</include>
+								<include condition="Skin.String(thumbsborder_focused, 6)">thumbborder_6</include>
+							</control>
+			
+							<control type="image">
+								<texture border="1" background="true" diffuse="diffuse/poster.png" fallback="DefaultUser.png">$INFO[ListItem.Icon]</texture>
+								<aspectratio scalediffuse="false" aligny="top" align="center">stretch</aspectratio>
+								<bordersize>8</bordersize>
+							</control>
+							
+						   <!--Panel-->
+							<control type="image">
+								<top></top>
+								<bottom>0</bottom>
+								<height>120</height>
+								<bordersize>8</bordersize>
+								<texture border="1">diffuse/poster_tag.png</texture>
+								<colordiffuse>$INFO[Skin.String(TagOverlaysPanelColor)]</colordiffuse>
+							</control>
+							<control type="label">
+								<left>15</left>
+								<right>15</right>
+								<top></top>
+								<bottom>55</bottom>
+								<height>65</height>
+								<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
+								<align>left</align>
+								<aligny>center</aligny>
+								<label>$INFO[ListItem.Label]</label>
+								<font>Reg22</font>
+								<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
+							</control>
+		
+							<control type="label">
+								<left>15</left>
+								<right>15</right>
+								<top></top>
+								<bottom>30</bottom>
+								<height>65</height>
+								<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
+								<align>left</align>
+								<aligny>center</aligny>
+								<label>$LOCALIZE[31945]:</label>
+								<font>Reg22</font>
+								<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
+								<visible>!String.IsEqual(Listitem.Label,$LOCALIZE[20058])</visible>
+							</control>
+							
+							<control type="label">
+								<left>15</left>
+								<right>15</right>
+								<top></top>
+								<bottom>5</bottom>
+								<height>65</height>
+								<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
+								<align>left</align>
+								<aligny>center</aligny>
+								<label fallback="13170">$INFO[ListItem.Label2]</label>
+								<font>Reg22</font>
+								<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
+								<visible>!String.IsEqual(Listitem.Label,$LOCALIZE[20058])</visible>
+							</control>
 						</control>
-						<control type="label">
-							<left>15</left>
-							<right>15</right>
-							<top></top>
-							<bottom>55</bottom>
-							<height>65</height>
-							<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
-							<align>left</align>
-							<aligny>center</aligny>
-							<label>$INFO[ListItem.Label]</label>
-							<font>Reg22</font>
-							<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
-						</control>
-	
-						<control type="label">
-							<left>15</left>
-							<right>15</right>
-							<top></top>
-							<bottom>30</bottom>
-							<height>65</height>
-							<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
-							<align>left</align>
-							<aligny>center</aligny>
-							<label>$LOCALIZE[70059]:</label>
-							<font>Reg22</font>
-							<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
-							<visible>!String.IsEqual(Listitem.Label,$LOCALIZE[20058])</visible>
-						</control>
-						
-						<control type="label">
-							<left>15</left>
-							<right>15</right>
-							<top></top>
-							<bottom>5</bottom>
-							<height>65</height>
-							<include condition="Skin.HasSetting(ThumbsLabelAlignmentCenter)">aligncenter</include>
-							<align>left</align>
-							<aligny>center</aligny>
-							<label fallback="13170">$INFO[ListItem.Label2]</label>
-							<font>Reg22</font>
-							<textcolor>$INFO[Skin.String(TagOverlaysTextColor)]</textcolor>
-							<visible>!String.IsEqual(Listitem.Label,$LOCALIZE[20058])</visible>
-						</control>
-					</control>
-				</focusedlayout>	
+					</focusedlayout>	
+				</control>
 			</control>
 		</control>
 		

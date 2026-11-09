@@ -5,7 +5,8 @@
 	<onload>SetFocus(9000)</onload>
 	<onload>ClearProperty(ShowViewSubMenu,home)</onload>
 	<onload>SetProperty(netflixview,active,home)</onload>
-	<onfocus condition="Control.IsVisible(510)">SetProperty(SkinHelper.WidgetContainer,510,home)</onfocus>
+	<onload condition="Control.IsVisible(510)">SetProperty(SkinHelper.WidgetContainer,510,home)</onload>
+	<!-- <onfocus condition="Control.IsVisible(510)">SetProperty(SkinHelper.WidgetContainer,510,home)</onfocus> -->
 	<onunload>ClearProperty(ShowViewSubMenu,home)</onunload>
 	<onunload condition="!String.Contains(Skin.String(HomeLayout),netflix)">ClearProperty(netflixview,home)</onunload>
 	<onunload>ClearProperty(SkinHelper.WidgetContainer,home)</onunload>

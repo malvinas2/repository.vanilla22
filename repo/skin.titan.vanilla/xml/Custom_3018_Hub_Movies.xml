@@ -9,7 +9,7 @@
 	<onunload condition="!String.Contains(Skin.String(HomeLayout),netflix)">ClearProperty(netflixview,home)</onunload>
 	<onunload>ClearProperty(SkinHelper.WidgetContainer,home)</onunload>
 	<controls>
-		 <include>GlobalBackground</include>
+		<include>GlobalBackground</include>
 		<include>HomeNetflix2</include>
 	</controls>
 </window>

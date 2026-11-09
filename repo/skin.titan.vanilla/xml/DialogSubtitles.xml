@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
-	<onunload>ClearProperty(filename_formatted,home)</onunload>
-	<onload>RunScript(script.skin.helper.service,action=GETPLAYERFILENAME,output=filename_formatted)</onload>
 	<controls>
 		<control type="group" id="250">
 			<top>50</top>
@@ -11,7 +9,7 @@
 				<left>230</left>
 				<top>90</top>
 				<width>1510</width>
-				<height>650</height>
+				<height>750</height>
 				<texture border="15">diffuse/bgpanel.png</texture>
 				<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
 			</control>
@@ -20,7 +18,7 @@
 				<left>230</left>
 				<top>90</top>
 				<width>1510</width>
-				<height>650</height>
+				<height>750</height>
 				<texture border="15">diffuse/bgpanel.png</texture>
 				<bordersize>10</bordersize>
 				<colordiffuse>$INFO[Skin.String(GeneralPanelsColor)]</colordiffuse>
@@ -29,53 +27,187 @@
 			<control type="group">
 				<control type="label" id="100">
 					<!--textarea-->
-					<left>305</left>
+					<description>Heading</description>
+					<left>570</left>
 					<top>130</top>
 					<width>780</width>
 					<height>50</height>
-					<font>Reg45</font>
-					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-					<align>Left</align>
-					<wrapmultiline>false</wrapmultiline>
+					<include>DialogHeader</include>
+					<align>center</align>
+					<label></label>
 				</control>
 				<control type="label" id="140">
 					<description>textarea</description>
-					<left>305</left>
+					<left>570</left>
 					<top>180</top>
 					<width>780</width>
 					<height>50</height>
 					<font>Reg25</font>
 					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-					<align>Left</align>
+					<align>center</align>
 					<wrapmultiline>false</wrapmultiline>
 				</control>
 			</control>
 			<!-- close dialog -->
 			<control type="group">
 				<include>animation_fade_visible_hidden</include>
-				<left>1180</left>
+				<left>1650</left>
 				<top>130</top>
 				<include condition="Skin.HasSetting(EnableTouchSupport)">close_button</include>
 			</control>
+
 			<!--Left Menu-->
 			<control type="group">
 				<control type="image">
 					<!--Inner-->
 					<left>275</left>
 					<top>240</top>
+					<height>500</height>
+					<width>430</width>
+					<texture border="5">dialogs/default/inner.png</texture>
+				</control>
+				<control type="button" id="160">
+					<description>Manual search button</description>
+					<align>left</align>
+					<aligny>center</aligny>
+					<textoffsetx>50</textoffsetx>
+					<left>275</left>
+					<top>160</top>
+					<width>430</width>
+					<height>60</height>
+					<onleft>120</onleft>
+					<onright>120</onright>
+					<onup>150</onup>
+					<ondown>150</ondown>
+					<label>$LOCALIZE[24120]</label>
+				</control>
+				<control type="list" id="150">
+					<!--List 150-->
+					<left>275</left>
+					<top>240</top>
+					<height>500</height>
+					<width>430</width>
+					<onleft>noop</onleft>
+					<onright>151</onright>
+					<onup>160</onup>
+					<ondown>8002</ondown>
+					<viewtype label="535">list</viewtype>
+					<scrolltime>200</scrolltime>
+					<pagecontrol>151</pagecontrol>
+					<itemlayout width="430" height="60">
+						<control type="label">
+							<left>40</left>
+							<top>0</top>
+							<width>400</width>
+							<height>60</height>
+							<font>Light28</font>
+							<aligny>center</aligny>
+							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+							<selectedcolor>$INFO[Skin.String(GeneralTextColor)]</selectedcolor>
+							<align>left</align>
+							<label>$INFO[ListItem.Label]</label>
+						</control>
+						<control type="image">
+							<left>20</left>
+							<top>0</top>
+							<width>390</width>
+							<height>60</height>
+							<texture>dialogs/default/separator.png</texture>
+						</control>
+					</itemlayout>
+					<focusedlayout width="430" height="60">
+						<control type="group">
+							<visible>!Control.HasFocus(150)</visible>
+							<control type="image">
+								<!--Button-->
+								<left>0</left>
+								<top>0</top>
+								<width>430</width>
+								<height>60</height>
+								<texture colordiffuse="$INFO[Skin.String(ButtonFocusColor)]" border="5">diffuse/panel_trans.png</texture>
+							</control>
+							<control type="image">
+								<left>20</left>
+								<top>0</top>
+								<width>390</width>
+								<height>60</height>
+								<texture>dialogs/default/separator.png</texture>
+							</control>						
+							<control type="label">
+								<left>40</left>
+								<top>0</top>
+								<width>400</width>
+								<height>60</height>
+								<font>Light28</font>
+								<aligny>center</aligny>
+								<textcolor>$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
+								<selectedcolor>$INFO[Skin.String(ButtonFocusTextColor)]</selectedcolor>
+								<align>left</align>
+								<label>$INFO[ListItem.Label]</label>
+								<scroll>true</scroll>
+							</control>						
+						</control>
+						<control type="group">
+							<visible>Control.HasFocus(150)</visible>					
+							<control type="image">
+								<!--Button-->
+								<left>0</left>
+								<top>0</top>
+								<width>430</width>
+								<height>60</height>
+								<texture colordiffuse="$INFO[Skin.String(ButtonFocusColor)]" border="5">diffuse/panel.png</texture>
+								<!-- <visible>!ListItem.IsSelected</visible> -->
+							</control>
+							<control type="label">
+								<left>40</left>
+								<top>0</top>
+								<width>400</width>
+								<height>60</height>
+								<font>Light28</font>
+								<aligny>center</aligny>
+								<textcolor>$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
+								<selectedcolor>$INFO[Skin.String(ButtonFocusTextColor)]</selectedcolor>
+								<align>left</align>
+								<label>$INFO[ListItem.Label]</label>
+								<scroll>true</scroll>
+							</control>
+						</control>					
+					</focusedlayout>
+				</control>
+				<control type="scrollbar" id="151">
+					<left>715</left>
+					<top>240</top>
+					<height>500</height>
+					<onup>151</onup>
+					<ondown>151</ondown>
+					<onleft>150</onleft>
+					<onright>120</onright>
+					<showonepage>true</showonepage>
+					<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(151) | Skin.HasSetting(EnableTouchSupport) | Container(150).Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
+					<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(151) | Skin.HasSetting(EnableTouchSupport) | Container(150).Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
+				</control>
+			</control>
+			
+			
+			<!--Right Menu-->
+			<control type="group">
+				<control type="image">
+					<!--Inner-->
+					<left>750</left>
+					<top>240</top>
 					<width>950</width>
-					<height>400</height>
+					<height>500</height>
 					<texture border="5">dialogs/default/inner.png</texture>
 				</control>
 				<control type="list" id="120">
 					<!--List 120-->
-					<left>275</left>
+					<left>750</left>
 					<top>240</top>
 					<width>950</width>
-					<height>400</height>
+					<height>500</height>
 					<!--onleft>121</onleft-->
-					<onleft></onleft>
-					<onright>150</onright>
+					<onleft>151</onleft>
+					<onright>121</onright>
 					<onup>120</onup>
 					<ondown>120</ondown>
 					<viewtype label="535">list</viewtype>
@@ -94,24 +226,20 @@
 							<!-- https://forum.kodi.tv/showthread.php?tid=223987 -->
 							<aspectratio>keep</aspectratio>
 						</control>
-						<!--Rating-->
-						<control type="label">
-							<left>120</left>
-							<top>0</top>
-							<width>60</width>
-							<height>50</height>
-							<font>Light30</font>
-							<aligny>center</aligny>
-							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-							<selectedcolor>$INFO[Skin.String(ButtonFocusColor)]</selectedcolor>
-							<align>left</align>
-							<label>$INFO[ListItem.ActualIcon]</label>
+						<!--Rating-->			
+						<control type="image">
+							<left>100</left>
+							<top>5</top>
+							<width>100</width>
+							<height>45</height>
+							<texture fallback="leftrating/rating0.png">$INFO[ListItem.ActualIcon,leftrating/rating,.png]</texture>
+							<aspectratio>keep</aspectratio>
 						</control>
 						<control type="label">
 							<!--Label 2-->
-							<left>200</left>
+							<left>210</left>
 							<top>0</top>
-							<width>650</width>
+							<width>660</width>
 							<height>50</height>
 							<font>Light28</font>
 							<aligny>center</aligny>
@@ -120,12 +248,22 @@
 							<align>left</align>
 							<info>ListItem.Label2</info>
 						</control>
+						<!-- closed caption image -->
+						<control type="image">
+							<left>875</left>
+							<top>2</top>
+							<width>60</width>
+							<height>30</height>
+							<texture>flags/flags_large/cc.png</texture>
+							<visible>ListItem.property(hearing_imp)</visible>
+							<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
+						</control>
 						<!-- sync image -->
 						<control type="image">
-							<left>830</left>
-							<top>-4</top>
-							<width>121</width>
-							<height>56</height>
+							<left>875</left>
+							<top>22</top>
+							<width>60</width>
+							<height>30</height>
 							<texture>flags/subsync.png</texture>
 							<visible>ListItem.property(sync)</visible>
 							<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
@@ -152,24 +290,20 @@
 								<texture background="true">$VAR[LanguageFlagIconPath]$INFO[ListItem.Art(thumb)].png</texture>
 								<aspectratio>keep</aspectratio>
 							</control>
-							<!--Rating-->
-							<control type="label">
-								<left>120</left>
-								<top>0</top>
-								<width>60</width>
-								<height>50</height>
-								<font>Light30</font>
-								<aligny>center</aligny>
-								<textcolor>$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
-								<selectedcolor>$INFO[Skin.String(ButtonFocusTextColor)]</selectedcolor>
-								<align>left</align>
-								<label>$INFO[ListItem.ActualIcon]</label>
+							<!--Rating-->			
+							<control type="image">
+								<left>100</left>
+								<top>5</top>
+								<width>100</width>
+								<height>45</height>
+								<texture fallback="leftrating/rating0.png">$INFO[ListItem.ActualIcon,leftrating/rating,.png]</texture>
+								<aspectratio>keep</aspectratio>
 							</control>
 							<control type="label">
 								<!--Label 2-->
-								<left>200</left>
+								<left>210</left>
 								<top>0</top>
-								<width>650</width>
+								<width>660</width>
 								<height>50</height>
 								<font>Light28</font>
 								<aligny>center</aligny>
@@ -180,14 +314,25 @@
 								<scroll>true</scroll>
 								<visible>Control.HasFocus(120)</visible>
 							</control>
+							<!-- closed caption image -->
 							<control type="image">
-								<left>830</left>
-								<top>-4</top>
-								<width>121</width>
-								<height>56</height>
+								<left>875</left>
+								<top>2</top>
+								<width>60</width>
+								<height>30</height>
+								<texture>flags/flags_large/cc.png</texture>
+								<visible>ListItem.property(hearing_imp)</visible>
+								<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
+							</control>
+							<!-- sync image -->
+							<control type="image">
+								<left>875</left>
+								<top>22</top>
+								<width>60</width>
+								<height>30</height>
 								<texture>flags/subsync.png</texture>
 								<visible>ListItem.property(sync)</visible>
-								<colordiffuse>$INFO[Skin.String(ButtonFocusTextColor)]</colordiffuse>
+								<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
 							</control>
 						</control>
 						<control type="group">
@@ -201,24 +346,20 @@
 								<texture background="true">$VAR[LanguageFlagIconPath]$INFO[ListItem.Art(thumb)].png</texture>
 								<aspectratio>keep</aspectratio>
 							</control>
-							<!--Rating-->
-							<control type="label">
-								<left>120</left>
-								<top>0</top>
-								<width>60</width>
-								<height>50</height>
-								<font>Light30</font>
-								<aligny>center</aligny>
-								<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-								<selectedcolor>$INFO[Skin.String(ButtonFocusColor)]</selectedcolor>
-								<align>left</align>
-								<label>$INFO[ListItem.ActualIcon]</label>
-							</control>
+							<!--Rating-->			
+							<control type="image">
+								<left>100</left>
+								<top>5</top>
+								<width>100</width>
+								<height>45</height>
+								<texture fallback="leftrating/rating0.png">$INFO[ListItem.ActualIcon,leftrating/rating,.png]</texture>
+								<aspectratio>keep</aspectratio>
+							</control>							
 							<control type="label">
 								<!--Label 2-->
-								<left>200</left>
+								<left>210</left>
 								<top>0</top>
-								<width>650</width>
+								<width>660</width>
 								<height>50</height>
 								<font>Light28</font>
 								<aligny>center</aligny>
@@ -227,12 +368,22 @@
 								<align>left</align>
 								<info>ListItem.Label2</info>
 							</control>
+							<!-- closed caption image -->
+							<control type="image">
+								<left>875</left>
+								<top>2</top>
+								<width>60</width>
+								<height>30</height>
+								<texture>flags/flags_large/cc.png</texture>
+								<visible>ListItem.property(hearing_imp)</visible>
+								<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
+							</control>
 							<!-- sync image -->
 							<control type="image">
-								<left>830</left>
-								<top>-4</top>
-								<width>121</width>
-								<height>56</height>
+								<left>875</left>
+								<top>2</top>
+								<width>60</width>
+								<height>30</height>
 								<texture>flags/subsync.png</texture>
 								<visible>ListItem.property(sync)</visible>
 								<colordiffuse>$INFO[Skin.String(GeneralTextColor)]</colordiffuse>
@@ -241,194 +392,67 @@
 					</focusedlayout>
 				</control>
 				<control type="scrollbar" id="121">
-					<left>1235</left>
-					<top>240</top>
-					<height>400</height>
-					<onup>60</onup>
-					<ondown>60</ondown>
-					<onleft>3</onleft>
-					<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
-					<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
-				</control>
-				<control type="label">
-					<!--filename-->
-					<left>295</left>
-					<top>655</top>
-					<width>910</width>
-					<height>50</height>
-					<font>Light25</font>
-					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-					<align>Left</align>
-					<label>$INFO[Window(Home).Property(filename_formatted)]</label>
-					<wrapmultiline>false</wrapmultiline>
-					<scroll>true</scroll>
-				</control>
-			</control>
-			<!--Right Menu-->
-			<control type="group">
-				<control type="image">
-					<!--Inner-->
-					<left>1270</left>
-					<top>240</top>
-					<height>400</height>
-					<width>430</width>
-					<texture border="5">dialogs/default/inner.png</texture>
-				</control>
-				<control type="button" id="160">
-					<description>Manual search button</description>
-					<align>left</align>
-					<aligny>center</aligny>
-					<textoffsetx>50</textoffsetx>
-					<left>1270</left>
-					<top>120</top>
-					<width>430</width>
-					<height>60</height>
-					<onleft>120</onleft>
-					<onright>120</onright>
-					<onup>150</onup>
-					<ondown>150</ondown>
-					<label>$LOCALIZE[24120]</label>
-				</control>
-				<control type="list" id="150">
-					<!--List 150-->
-					<left>1270</left>
-					<top>240</top>
-					<height>400</height>
-					<width>430</width>
-					<onleft>120</onleft>
-					<onright>120</onright>
-					<onup>160</onup>
-					<ondown>150</ondown>
-					<viewtype label="535">list</viewtype>
-					<scrolltime>200</scrolltime>
-					<pagecontrol>151</pagecontrol>
-					<itemlayout width="450" height="60">
-						<control type="label">
-							<left>40</left>
-							<top>0</top>
-							<width>400</width>
-							<height>60</height>
-							<font>Light28</font>
-							<aligny>center</aligny>
-							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-							<selectedcolor>$INFO[Skin.String(GeneralTextColor)]</selectedcolor>
-							<align>left</align>
-							<info>ListItem.Label</info>
-							<visible>!ListItem.property(man)</visible>
-						</control>
-						<control type="label">
-							<left>40</left>
-							<top>0</top>
-							<width>400</width>
-							<height>60</height>
-							<font>Light28</font>
-							<aligny>center</aligny>
-							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-							<selectedcolor>$INFO[Skin.String(GeneralTextColor)]</selectedcolor>
-							<align>left</align>
-							<info>ListItem.Label</info>
-							<visible>ListItem.property(man)</visible>
-						</control>
-						<control type="image">
-							<left>20</left>
-							<top>0</top>
-							<width>420</width>
-							<height>60</height>
-							<texture>dialogs/default/separator.png</texture>
-						</control>
-					</itemlayout>
-					<focusedlayout width="450" height="60">
-						<control type="image">
-							<!--Button-->
-							<left>0</left>
-							<top>0</top>
-							<width>450</width>
-							<height>60</height>
-							<texture border="5">diffuse/panel.png</texture>
-							<colordiffuse>$INFO[Skin.String(ButtonFocusColor)]</colordiffuse>
-							<visible>Control.HasFocus(150)</visible>
-						</control>
-						<control type="label">
-							<visible>Control.HasFocus(150)</visible>
-							<left>40</left>
-							<top>0</top>
-							<width>400</width>
-							<height>60</height>
-							<font>Light28</font>
-							<aligny>center</aligny>
-							<textcolor>$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
-							<selectedcolor>$INFO[Skin.String(ButtonFocusTextColor)]</selectedcolor>
-							<align>left</align>
-							<info>ListItem.Label</info>
-							<visible>!ListItem.property(man)</visible>
-							<scroll>true</scroll>
-						</control>
-						<control type="label">
-							<visible>Control.HasFocus(150)</visible>
-							<left>40</left>
-							<top>0</top>
-							<width>400</width>
-							<height>60</height>
-							<font>Light28</font>
-							<aligny>center</aligny>
-							<textcolor>$INFO[Skin.String(ButtonFocusTextColor)]</textcolor>
-							<align>left</align>
-							<info>ListItem.Label</info>
-							<visible>ListItem.property(man)</visible>
-							<scroll>true</scroll>
-						</control>
-						<control type="label">
-							<visible>!Control.HasFocus(150)</visible>
-							<left>40</left>
-							<top>0</top>
-							<width>400</width>
-							<height>60</height>
-							<font>Light28</font>
-							<aligny>center</aligny>
-							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-							<selectedcolor>$INFO[Skin.String(GeneralTextColor)]</selectedcolor>
-							<align>left</align>
-							<info>ListItem.Label</info>
-							<visible>!ListItem.property(man)</visible>
-							<scroll>true</scroll>
-						</control>
-						<control type="label">
-							<visible>!Control.HasFocus(150)</visible>
-							<left>40</left>
-							<top>0</top>
-							<width>400</width>
-							<height>60</height>
-							<font>Light28</font>
-							<aligny>center</aligny>
-							<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
-							<selectedcolor>$INFO[Skin.String(GeneralTextColor)]</selectedcolor>
-							<align>left</align>
-							<info>ListItem.Label</info>
-							<visible>ListItem.property(man)</visible>
-							<scroll>true</scroll>
-						</control>
-						<control type="image">
-							<left>20</left>
-							<top>0</top>
-							<width>420</width>
-							<height>60</height>
-							<texture>dialogs/default/separator.png</texture>
-							<visible>!Control.HasFocus(150)</visible>
-						</control>
-					</focusedlayout>
-				</control>
-				<control type="scrollbar" id="151">
 					<left>1705</left>
 					<top>240</top>
-					<height>400</height>
-					<onup>60</onup>
-					<ondown>60</ondown>
-					<onleft>3</onleft>
-					<showonepage>true</showonepage>
-					<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
-					<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(60) | Skin.HasSetting(EnableTouchSupport) | Container.Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
+					<height>500</height>
+					<onup>121</onup>
+					<ondown>121</ondown>
+					<onleft>120</onleft>
+					<animation effect="fade" start="0" end="100" time="400" condition="Control.HasFocus(121) | Skin.HasSetting(EnableTouchSupport) | Container(120).Scrolling | Skin.HasSetting(alwaysShowScrollbars)">Conditional</animation>
+					<animation effect="fade" start="100" end="0" time="400" condition="![Control.HasFocus(121) | Skin.HasSetting(EnableTouchSupport) | Container(120).Scrolling | Skin.HasSetting(alwaysShowScrollbars)]">Conditional</animation>
+				</control>
+			</control>				
+			<control type="label">
+				<!--filename-->
+				<left>750</left>
+				<top></top>
+				<bottom>220</bottom>
+				<width>500</width>
+				<height>35</height>
+				<font>font12</font>
+				<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+				<align>left</align>
+				<label>$INFO[Player.Filename]</label>
+				<wrapmultiline>false</wrapmultiline>
+				<scroll>true</scroll>
+			</control>
+			<control type="group" id="130">
+				<!--filename-->
+				<left></left>
+				<right>220</right>
+				<top></top>
+				<bottom>220</bottom>
+				<width>380</width>
+				<height>35</height>
+				<control type="label">
+					<description>notification about local subtitle available</description>
+					<font>font12</font>
+					<textcolor>$INFO[Skin.String(GeneralTextColor)]</textcolor>
+					<align>right</align>
+					<wrapmultiline>false</wrapmultiline>
+					<scroll>true</scroll>
+					<width>380</width>
+					<height>35</height>
+					<label>$LOCALIZE[31349]</label>
 				</control>
 			</control>
+			<control type="grouplist" id="8002">
+				<left>265</left>
+				<top>750</top>
+				<!-- <bottom>10</bottom> -->
+				<orientation>horizontal</orientation>
+				<itemgap>20</itemgap>
+				<onup>150</onup>
+				<ondown>150</ondown>
+				<onleft>150</onleft>
+				<onright>150</onright>		
+				<control type="button" id="301">
+					<description>Clear</description>
+					<label>$LOCALIZE[31308]</label>
+					<include>DialogButtonOther</include>
+					<onclick>Action(close)</onclick>
+				</control>
+			</control>	
 		</control>
 	</controls>
 </window>

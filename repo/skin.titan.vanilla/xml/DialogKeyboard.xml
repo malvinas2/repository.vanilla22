@@ -202,7 +202,6 @@
 				<ondown>1000</ondown>
 				<align>left</align>
 				<aligny>center</aligny>
-				<scroll>true</scroll>
 				<label>$INFO[Control.GetLabel(311)]</label>
 				<font>Reg30</font>
 				<include>KeyBoardKeyRadio</include>
@@ -493,13 +492,13 @@
 					<control type="button" id="165">
 						<!-- (3,5) key button -->
 						<onup>145</onup>
-						<ondown>8</ondown>
+						<ondown>32</ondown>
 						<include>KeyBoardKey</include>
 					</control>
 					<control type="button" id="166">
 						<!-- (3,6) key button -->
 						<onup>146</onup>
-						<ondown>8</ondown>
+						<ondown>32</ondown>
 						<include>KeyBoardKey</include>
 					</control>
 					<control type="button" id="167">
@@ -547,14 +546,14 @@
 					<!-- SPACE -->
 					<control type="button" id="32">
 						<onup>4000</onup>
-						<width>690</width>
+						<width>808</width>
 						<label>$LOCALIZE[20182]</label>
 						<include>KeyBoardKey</include>
 					</control>
 					<!-- BACKSPACE -->
 					<control type="button" id="8">
 						<onup>4000</onup>
-						<width>410</width>
+						<width>340</width>
 						<label>$LOCALIZE[20181]</label>
 						<include>KeyBoardKey</include>
 					</control>

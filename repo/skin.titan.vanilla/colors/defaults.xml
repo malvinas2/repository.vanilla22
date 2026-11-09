@@ -60,5 +60,8 @@
 	<color name="ddwhite">DDFFFFFF</color>  
 	<color name="eewhite">EEFFFFFF</color>
 	
+	<!--Estuary-->
+	<color name="border_alpha">60FFFFFF</color>
+	<color name="disabled">40FFFFFF</color>
 	
 </colors>

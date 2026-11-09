@@ -185,7 +185,7 @@
 				<height>80</height>
 				<align>center</align>
 				<onleft>605</onleft>
-				<onright>70045</onright>
+				<onright>31931</onright>
 				<label>$LOCALIZE[31308]</label>
 				<include>DialogButtonOther</include>
 				<onclick>Close</onclick>

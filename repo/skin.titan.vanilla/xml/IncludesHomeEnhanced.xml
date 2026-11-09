@@ -110,7 +110,7 @@
 				<texturefocus></texturefocus>
 				<focusedcolor>darkgrey</focusedcolor>
 				<label>$VAR[submenuheader]</label>
-				<onclick></onclick>
+				<onclick>noop</onclick>
 				<onleft>4444</onleft>
 				<visible>Integer.IsGreater(Container(4444).NumItems,0) + Control.IsVisible(4444)</visible>
 			</control>
@@ -125,7 +125,6 @@
 				<onleft condition="Skin.HasSetting(EnhancedHome_Circular)">77777</onleft>
 				<onleft condition="!Skin.HasSetting(EnhancedHome_Circular)">300</onleft>
 				<ondown>300</ondown>
-				<itemgap>0</itemgap>
 				<onback>300</onback>
 				<onup condition="Skin.HasSetting(ShowProfile)">Control.SetFocus(890,0)</onup>
 				<include>animation_fade_visible_hidden</include>
@@ -184,7 +183,6 @@
 				<orientation>horizontal</orientation>
 				<onleft>4445</onleft>
 				<onright>4445</onright>
-				<itemgap>0</itemgap>
 				<ondown>300</ondown>
 				<onup condition="Skin.HasSetting(ShowProfile)">Control.SetFocus(890,0)</onup>
 				<include>animation_fade_visible_hidden</include>
@@ -384,7 +382,9 @@
 				<include>HiddenHomeMenuButtonEnhancedHome</include>
 			</control>
 		</focusedlayout>
-		<content><include>skinshortcuts-mainmenu</include></content>
+		<content>
+			<include>skinshortcuts-mainmenu</include>
+		</content>
 	</include>
 	
 	<include name="EnhancedHomeSpotLightWidgetLayout">

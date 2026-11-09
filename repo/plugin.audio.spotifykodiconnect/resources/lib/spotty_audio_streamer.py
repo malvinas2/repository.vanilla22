@@ -1,0 +1,744 @@
+import json
+import os
+import struct
+import subprocess
+import threading
+import time
+from dataclasses import dataclass
+from io import BytesIO
+from typing import Callable, Optional, Tuple
+
+from xbmc import LOGDEBUG, LOGWARNING, LOGERROR
+
+from spotty import Spotty
+from utils import bytes_to_megabytes, kill_process_by_pid, log_msg, log_exception
+
+SPOTIFY_TRACK_PREFIX = "spotify:track:"
+
+SPOTIFY_BITRATE = "320"
+_VALID_BITRATES = ("96", "160", "320")
+_VALID_GAIN_TYPES = ("auto", "track", "album")
+_DEFAULT_GAIN_TYPE = "track"
+
+_PCM_BYTES_PER_SEC = 176400  # 44.1 kHz * 2 ch * 2 bytes/sample
+_WAV_HEADER_SIZE = 44
+_PCM_FRAME_BYTES = 4
+_THROTTLE_LEAD_BYTES = 2097152
+STARTUP_REAL_PCM_WAIT_SECONDS = 15.0
+
+# Maximum bytes of PCM silence to pad at the end of a stream when spotty exits
+# cleanly but short of the WAV-declared length. 10 seconds @ 176400 B/s = 1,764,000.
+# Duration mismatches between the declared track length and spotty's actual output
+# are typically < 10 s; larger gaps indicate a real error and should not be masked.
+_SILENCE_PADDING_MAX_BYTES = _PCM_BYTES_PER_SEC * 10
+
+
+@dataclass(frozen=True)
+class SpottyStreamSpec:
+    """Immutable track/settings snapshot used by one HTTP response."""
+
+    track_id: str
+    track_duration: float
+    wav_header: bytes
+    track_length: int
+    bitrate: str
+    normalization_gain_type: str
+    initial_volume: int
+
+
+def _clamp_volume(value: int) -> int:
+    """Clamp volume to 1-100 for spotty --initial-volume."""
+    try:
+        v = int(value)
+        return max(1, min(100, v))
+    except (TypeError, ValueError):
+        return 35
+
+
+def _get_kodi_chunk_size() -> int:
+    """Read Kodi's file-cache chunk size, with the legacy setting as fallback."""
+    try:
+        import xbmc
+    except Exception:
+        return 1048576
+
+    for setting_id in ("filecache.chunksize", "cache.chunksize"):
+        try:
+            raw = xbmc.executeJSONRPC(
+                json.dumps(
+                    {
+                        "jsonrpc": "2.0",
+                        "method": "Settings.GetSettingValue",
+                        "params": {"setting": setting_id},
+                        "id": 1,
+                    }
+                )
+            )
+            res = json.loads(raw)
+            val = int(res.get("result", {}).get("value", 0))
+            if val > 0:
+                return val
+        except Exception:
+            continue
+    return 1048576  # Default fallback
+
+
+class SpottyAudioStreamer:
+    """
+    Streams PCM audio from the spotty binary (librespot) as WAV, for a single track.
+    Uses a background file cache via spotty_cache to handle seeks instantly.
+    """
+
+    def __init__(self, spotty: Spotty, initial_volume: int = 35):
+        self.__spotty = spotty
+        self.initial_volume = _clamp_volume(initial_volume)
+        self.chunk_size = _get_kodi_chunk_size()
+
+        self.__track_id: str = ""
+        self.__track_duration: float = 0
+        self.__wav_header: bytes = bytes()
+        self.__track_length: int = 0
+
+        self.__notify_track_finished: Callable[[str], None] = lambda x: None
+        self.__terminate_generation = 0
+
+        # Streaming settings — updated by the HTTP layer before each track.
+        self.normalization_gain_type: str = _DEFAULT_GAIN_TYPE
+        self.bitrate: str = SPOTIFY_BITRATE
+        self.use_autoplay: bool = False
+
+    def set_initial_volume(self, value: int) -> None:
+        """Set volume (1–100) for the next spotty run."""
+        self.initial_volume = _clamp_volume(value)
+
+    def get_track_length(self) -> int:
+        """Total byte length of the WAV stream (header + PCM) for the current track."""
+        return self.__track_length
+
+    def get_track_duration(self) -> float:
+        """Track duration in seconds used for the WAV header."""
+        return self.__track_duration
+
+    def get_stream_spec(self) -> SpottyStreamSpec:
+        """Capture the current track and downloader settings immutably."""
+        return SpottyStreamSpec(
+            track_id=self.__track_id,
+            track_duration=self.__track_duration,
+            wav_header=bytes(self.__wav_header),
+            track_length=self.__track_length,
+            bitrate=self.bitrate,
+            normalization_gain_type=self.normalization_gain_type,
+            initial_volume=self.initial_volume,
+        )
+
+    def restore_stream_spec(self, stream_spec: SpottyStreamSpec) -> None:
+        """Restore a previously captured track/settings snapshot."""
+        self.__track_id = stream_spec.track_id
+        self.__track_duration = stream_spec.track_duration
+        self.__wav_header = bytes(stream_spec.wav_header)
+        self.__track_length = stream_spec.track_length
+        self.bitrate = stream_spec.bitrate
+        self.normalization_gain_type = stream_spec.normalization_gain_type
+        self.initial_volume = stream_spec.initial_volume
+
+    def set_track(self, track_id: str, track_duration: float) -> None:
+        """Set the track to stream; builds WAV header for PCM/WAV streaming."""
+        self.__track_id = track_id
+        try:
+            if track_duration <= 0:
+                log_msg(
+                    f"Warning: Invalid track duration {track_duration} for track {track_id}. Using 1s fallback.",
+                    LOGWARNING,
+                )
+                self.__track_duration = 1
+            else:
+                self.__track_duration = float(track_duration)
+        except (TypeError, ValueError):
+            log_msg(
+                f"Warning: Could not parse track duration {track_duration} for track {track_id}. Using 1s fallback.",
+                LOGWARNING,
+            )
+            self.__track_duration = 1
+
+        self.__wav_header, self.__track_length = create_wav_header_for_duration(
+            self.__track_duration
+        )
+
+    def set_notify_track_finished(self, func: Callable[[str], None]) -> None:
+        """Set callback invoked when the full track has been sent (not on every range chunk)."""
+        self.__notify_track_finished = func
+
+    def _log_transfer(self, state: str, stream_track_id: Optional[str] = None, **kwargs) -> None:
+        parts = [f"track={stream_track_id or self.__track_id}", f"state={state}"]
+        for k, v in kwargs.items():
+            parts.append(f"{k}={v}")
+        log_msg(" | ".join(parts), LOGDEBUG)
+
+    def _prime_startup_real_pcm(
+        self,
+        downloader,
+        range_begin: int,
+        wav_header: bytes,
+        track_length: int,
+        stream_generation: int,
+        track_id: str,
+    ) -> bool:
+        pcm_start = len(wav_header)
+        downloader_real_start = max(pcm_start, int(downloader.start_byte))
+        requested_real_start = max(pcm_start, int(range_begin))
+        if (
+            downloader_real_start > requested_real_start
+            or requested_real_start >= track_length
+            or self._is_terminated(stream_generation)
+        ):
+            return False
+        # Serve an unaligned partial tail only after a following complete frame.
+        # The requested frame must also exist, or have valid clean-finish padding.
+        requested_frame = (requested_real_start - pcm_start) // _PCM_FRAME_BYTES
+        first_full_frame = (
+            downloader_real_start - pcm_start + _PCM_FRAME_BYTES - 1
+        ) // _PCM_FRAME_BYTES
+        requested_real_end = pcm_start + (
+            max(requested_frame, first_full_frame) + 1
+        ) * _PCM_FRAME_BYTES
+        if requested_real_end > track_length:
+            return False
+        # real_pcm_bytes starts at downloader_real_start, excluding header/gap bytes.
+        target_real_pcm_bytes = requested_real_end - downloader_real_start
+        minimum_real_pcm_bytes = (
+            pcm_start + (first_full_frame + 1) * _PCM_FRAME_BYTES - downloader_real_start
+        )
+
+        header_bytes_in_buffer = max(0, pcm_start - downloader.start_byte)
+        target_bytes_in_buf = header_bytes_in_buffer + target_real_pcm_bytes
+
+        def _real_pcm_bytes() -> int:
+            explicit = getattr(downloader, "real_pcm_bytes", None)
+            if explicit is not None:
+                return max(0, int(explicit or 0))
+            # Compatibility for tests/older downloader doubles.
+            return max(0, int(downloader.written_bytes) - header_bytes_in_buffer)
+
+        def _ready_locked() -> bool:
+            real_pcm = _real_pcm_bytes()
+            has_requested_pcm = real_pcm >= target_real_pcm_bytes
+            has_clean_padding = (
+                downloader.is_finished
+                and real_pcm >= minimum_real_pcm_bytes
+                and downloader.written_bytes >= target_bytes_in_buf
+            )
+            return (
+                (has_requested_pcm or has_clean_padding)
+                and not downloader.error
+                and not downloader.aborted
+                and not self._is_terminated(stream_generation)
+            )
+
+        with downloader.cond:
+            if _ready_locked():
+                return True
+            written = downloader.written_bytes
+
+        self._log_transfer(
+            "startup-prime-wait",
+            stream_track_id=track_id,
+            target=target_bytes_in_buf,
+            written=written,
+        )
+        deadline = time.monotonic() + STARTUP_REAL_PCM_WAIT_SECONDS
+        while not self._is_terminated(stream_generation):
+            with downloader.cond:
+                ready = _ready_locked()
+                terminal = downloader.is_finished or downloader.error or downloader.aborted
+                if ready or terminal:
+                    break
+
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            wait_for_real_pcm = getattr(downloader, "wait_for_real_pcm", None)
+            if callable(wait_for_real_pcm):
+                wait_for_real_pcm(
+                    target_real_pcm_bytes, timeout=min(0.25, remaining),
+                    cancelled=lambda: self._is_terminated(stream_generation),
+                )
+            else:
+                downloader.wait_for_bytes(
+                    target_bytes_in_buf, timeout=min(0.25, remaining),
+                    cancelled=lambda: self._is_terminated(stream_generation),
+                )
+
+        with downloader.cond:
+            written = downloader.written_bytes
+            real_pcm_bytes = _real_pcm_bytes()
+            finished = downloader.is_finished
+            error = downloader.error
+            aborted = downloader.aborted
+            ready = _ready_locked()
+        self._log_transfer(
+            "startup-prime-ready",
+            stream_track_id=track_id,
+            target=target_bytes_in_buf,
+            written=written,
+            real_pcm_target=target_real_pcm_bytes,
+            real_pcm_written=real_pcm_bytes,
+            ready=ready,
+            finished=finished,
+            error=error,
+            aborted=aborted,
+        )
+        return ready
+
+    def terminate_stream(self) -> bool:
+        """Signal the current generator to stop."""
+        self.__terminate_generation += 1
+        from spotty_cache import SpottyCacheManager
+
+        SpottyCacheManager.notify_readers()
+        return True
+
+    def _is_terminated(self, stream_generation: int) -> bool:
+        return stream_generation != self.__terminate_generation
+
+    def get_stream_generation(self) -> int:
+        return self.__terminate_generation
+
+    def _get_or_start_downloader(
+        self,
+        stream_spec: SpottyStreamSpec,
+        range_begin: int,
+        stream_generation=None,
+    ):
+        from spotty_cache import SpottyCacheManager
+
+        if stream_generation is None:
+            stream_generation = self.__terminate_generation
+        if self._is_terminated(stream_generation):
+            return None
+        track_id = stream_spec.track_id
+        downloader = SpottyCacheManager.find_best_downloader(
+            track_id, range_begin, stream_spec, self.__spotty,
+        )
+
+        start_byte = range_begin
+        if downloader is not None and not (
+            range_begin > downloader.start_byte + downloader.written_bytes + 2097152
+            and not downloader.is_finished
+        ):
+            start_byte = downloader.start_byte
+        return SpottyCacheManager.get_or_start(
+            self.__spotty, track_id, stream_spec.track_duration, start_byte,
+            stream_spec.bitrate, stream_spec.normalization_gain_type,
+            stream_spec.initial_volume, stream_spec.wav_header, stream_spec.track_length,
+            request_byte=range_begin,
+            cancelled=lambda: self._is_terminated(stream_generation),
+        )
+
+    def _startup_failed_before_real_pcm(
+        self, downloader, range_begin: int, wav_header: bytes
+    ) -> bool:
+        pcm_start = len(wav_header)
+        explicit_has_real_pcm = None
+        if not hasattr(downloader, "real_pcm_bytes"):
+            has_real_pcm = getattr(downloader, "has_real_pcm", None)
+            explicit_has_real_pcm = has_real_pcm() if callable(has_real_pcm) else None
+        with downloader.cond:
+            real_pcm_bytes = getattr(downloader, "real_pcm_bytes", None)
+            if real_pcm_bytes is not None:
+                no_real_pcm = int(real_pcm_bytes or 0) <= 0
+            elif explicit_has_real_pcm is not None:
+                no_real_pcm = not explicit_has_real_pcm
+            else:
+                written = int(getattr(downloader, "written_bytes", 0) or 0)
+                start_byte = int(getattr(downloader, "start_byte", 0) or 0)
+                no_real_pcm = written <= max(0, pcm_start - start_byte)
+            failed = (
+                bool(getattr(downloader, "error", False))
+                or bool(getattr(downloader, "aborted", False))
+                or bool(getattr(downloader, "is_finished", False))
+            )
+
+        return failed and no_real_pcm
+
+    def _cleanup_failed_startup_downloader(
+        self, downloader, stream_generation: int, wav_header: bytes
+    ) -> None:
+        # A superseded reader may share the downloader with the current generation.
+        if self._is_terminated(stream_generation):
+            return
+        pcm_start = len(wav_header)
+        real_start = max(pcm_start, int(downloader.start_byte))
+        minimum_real_pcm = (pcm_start - real_start) % _PCM_FRAME_BYTES + _PCM_FRAME_BYTES
+        with downloader.cond:
+            if self._is_terminated(stream_generation):
+                return
+            real_pcm = getattr(downloader, "real_pcm_bytes", None)
+            if real_pcm is None:
+                real_pcm = downloader.written_bytes - max(0, pcm_start - downloader.start_byte)
+            # Preserve healthy finished audio when only the requested position is unavailable.
+            if (
+                downloader.is_finished
+                and not downloader.error
+                and not downloader.aborted
+                and real_pcm >= minimum_real_pcm
+            ):
+                return
+            downloader.aborted = True
+            downloader.cond.notify_all()
+        try:
+            downloader.cleanup()
+        except Exception as ex:
+            log_exception(ex, "cleanup_failed_startup_downloader")
+
+    def prepare_part_audio_stream(
+        self,
+        range_begin: int,
+        stream_spec: Optional[SpottyStreamSpec] = None,
+        downloader=None,
+        stream_generation=None,
+    ) -> bool:
+        """Start downloader and verify startup does not fail before real PCM."""
+        stream_spec = stream_spec or self.get_stream_spec()
+        track_id = stream_spec.track_id
+        track_length = stream_spec.track_length
+        wav_header = stream_spec.wav_header
+        if stream_generation is None:
+            stream_generation = self.__terminate_generation
+        started_at = time.monotonic()
+        downloader = downloader or self._get_or_start_downloader(stream_spec, range_begin, stream_generation)
+        if downloader is None:
+            return False
+
+        ready = self._prime_startup_real_pcm(
+            downloader,
+            range_begin,
+            wav_header,
+            track_length,
+            stream_generation,
+            track_id,
+        )
+        if not ready or self._startup_failed_before_real_pcm(downloader, range_begin, wav_header):
+            with downloader.cond:
+                state = (
+                    f"real_pcm={int(getattr(downloader, 'real_pcm_bytes', 0) or 0)}, "
+                    f"finished={bool(downloader.is_finished)}, "
+                    f"error={bool(downloader.error)}, aborted={bool(downloader.aborted)}"
+                )
+            # superseded=True: a newer request or a release ended this startup,
+            # not Spotty.
+            log_msg(
+                f"Spotify startup for {track_id} at byte {range_begin} failed before real PCM "
+                f"after {time.monotonic() - started_at:.1f}s ({state}, "
+                f"superseded={self._is_terminated(stream_generation)}).",
+                LOGWARNING,
+            )
+            self._cleanup_failed_startup_downloader(downloader, stream_generation, wav_header)
+            return False
+        return True
+
+    def send_part_audio_stream(
+        self,
+        range_len: int,
+        range_begin: int,
+        defer_kill_previous: bool = False,
+        start_sec: int = 0,
+        stream_spec: Optional[SpottyStreamSpec] = None,
+        downloader=None,
+        stream_generation=None,
+    ):
+        """Return a generator permanently bound to one track specification."""
+        # This wrapper intentionally contains no yield. Capturing here, rather
+        # than on first iteration, keeps later set_track() calls from retargeting
+        # an older WSGI response whose body has not been iterated yet.
+        captured_spec = stream_spec or self.get_stream_spec()
+        captured_generation = self.__terminate_generation if stream_generation is None else stream_generation
+        return self._send_part_audio_stream(
+            range_len,
+            range_begin,
+            defer_kill_previous,
+            start_sec,
+            captured_spec,
+            captured_generation,
+            downloader,
+        )
+
+    def _send_part_audio_stream(
+        self,
+        range_len: int,
+        range_begin: int,
+        defer_kill_previous: bool = False,
+        start_sec: int = 0,
+        stream_spec: Optional[SpottyStreamSpec] = None,
+        stream_generation: Optional[int] = None,
+        downloader=None,
+    ):
+        """Yield committed WAV ranges from the background downloader."""
+        # Capture track-specific state at entry — set_track() may be called concurrently
+        # when Kodi pre-loads the next track via QueueNextFileEx while this generator is
+        # still draining the current one.  Local copies insulate this generator from those
+        # updates so we always stream the correct track from the cache.
+        stream_spec = stream_spec or self.get_stream_spec()
+        track_id = stream_spec.track_id
+        track_length = stream_spec.track_length
+        wav_header = stream_spec.wav_header
+
+        if stream_generation is None:
+            stream_generation = self.__terminate_generation
+        if self._is_terminated(stream_generation):
+            return
+        bytes_sent = 0
+
+        downloader = downloader or self._get_or_start_downloader(stream_spec, range_begin, stream_generation)
+        if downloader is None:
+            return
+        if not downloader.identity_valid():
+            downloader.cleanup()
+            return
+
+        # Rate-throttle: keep the HTTP connection alive for the full track duration so
+        # Kodi's QueueNextFileEx fires while our connection is still active.
+        # Without throttling, tracks opened via QueueNextFileEx are pre-buffered by Kodi
+        # at full speed (40+ MB in ~6 seconds), closing the connection minutes before the
+        # *next* QueueNextFileEx fires — causing "Unhandled exception" and cascading skips.
+        # Allow a 2 MB initial burst so Kodi's decode buffer fills instantly, then pace
+        # at 176400 B/s (44.1 kHz × 2 ch × 2 bytes).  From-start and early
+        # follow-up range readers are throttled; true mid-song seeks respond
+        # immediately.
+        _PCM_BYTES_PER_SEC = 176400  # 44.1 kHz × 2 ch × 2 bytes/sample
+        # Throttle for from-start requests (range_begin == 0) AND for WAV-header
+        # restarts (range_begin == 44, i.e. "prev" skips the 44-byte header).
+        # Kodi may also close the header GET and continue with an early range
+        # reader. Treat those as the same active stream, not as seeks with a new
+        # burst budget. Mid-song seeks beyond the lead window still respond
+        # immediately.
+        _WAV_HEADER_SIZE = 44
+        stream_start_time = time.monotonic() if range_begin <= _THROTTLE_LEAD_BYTES else None
+
+        self._log_transfer("start", stream_track_id=track_id, range_begin=range_begin)
+
+        buf_offset = range_begin - downloader.start_byte
+        consumer_id = None
+
+        try:
+            with downloader.cond:
+                consumer_id = downloader.attach_reader_locked(buf_offset)
+
+            ready = self._prime_startup_real_pcm(
+                downloader,
+                range_begin,
+                wav_header,
+                track_length,
+                stream_generation,
+                track_id,
+            )
+            if not ready or self._startup_failed_before_real_pcm(
+                downloader, range_begin, wav_header
+            ):
+                self._log_transfer(
+                    "error",
+                    stream_track_id=track_id,
+                    msg="Background downloader did not reach real PCM startup target",
+                )
+                self._cleanup_failed_startup_downloader(downloader, stream_generation, wav_header)
+                return
+
+            while bytes_sent < range_len and not self._is_terminated(stream_generation):
+                target_bytes_in_buf = buf_offset + bytes_sent + 1
+                downloader.wait_for_bytes(
+                    target_bytes_in_buf, timeout=1.0,
+                    cancelled=lambda: self._is_terminated(stream_generation),
+                )
+
+                if self._is_terminated(stream_generation):
+                    break
+
+                chunk = None
+                with downloader.cond:
+                    available = downloader.written_bytes - buf_offset - bytes_sent
+                    if downloader.error and available <= 0:
+                        self._log_transfer(
+                            "error",
+                            stream_track_id=track_id,
+                            msg="Background downloader hit an error",
+                        )
+                        break
+                    if downloader.aborted and available <= 0:
+                        # An aborted downloader will never write again; stop
+                        # instead of spinning on wait_for_bytes().
+                        self._log_transfer(
+                            "aborted",
+                            stream_track_id=track_id,
+                            msg="Background downloader was aborted",
+                        )
+                        break
+                    is_finished = downloader.is_finished
+                    if available > 0:
+                        to_read = min(self.chunk_size, 1048576, available, range_len - bytes_sent)
+                        read_start = buf_offset + bytes_sent
+                        buf_idx = read_start - downloader._trim_offset
+                        if buf_idx < 0:
+                            self._log_transfer(
+                                "trimmed",
+                                stream_track_id=track_id,
+                                msg="Requested byte trimmed from buffer head",
+                                read_start=read_start,
+                                trim_offset=downloader._trim_offset,
+                            )
+                            break
+                if available > 0:
+                    chunk = downloader.read_range(read_start, to_read)
+                    if self._is_terminated(stream_generation):
+                        break
+                    with downloader.cond:
+                        if not chunk and downloader.aborted:
+                            # cleanup() cleared the buffer of an aborted
+                            # downloader; nothing more will ever arrive.
+                            self._log_transfer(
+                                "aborted",
+                                stream_track_id=track_id,
+                                msg="Background downloader buffer was released",
+                            )
+                            break
+                        # Advances this reader, trims the head and wakes a
+                        # backpressure-paused writer when there is room.
+                        if chunk:
+                            downloader.advance_consumer_locked(consumer_id, read_start + len(chunk))
+                    if not chunk:
+                        break
+
+                if chunk:
+                    if bytes_sent == 0 and not downloader.identity_valid():
+                        downloader.cleanup()
+                        return
+                    yield chunk
+                    bytes_sent += len(chunk)
+                    if bytes_sent % 10485760 < self.chunk_size:
+                        self._log_transfer(
+                            "progress",
+                            stream_track_id=track_id,
+                            bytes_sent=bytes_sent,
+                        )
+                    # Throttle to real-time rate after the initial burst window.
+                    # Sleep in 100 ms increments so terminate signals are honoured quickly.
+                    if stream_start_time is not None:
+                        elapsed = time.monotonic() - stream_start_time
+                        budget = elapsed * _PCM_BYTES_PER_SEC + _THROTTLE_LEAD_BYTES
+                        stream_position = range_begin + bytes_sent
+                        if stream_position > budget:
+                            sleep_needed = (stream_position - budget) / _PCM_BYTES_PER_SEC
+                            sleep_end = time.monotonic() + sleep_needed
+                            while time.monotonic() < sleep_end and not self._is_terminated(
+                                stream_generation
+                            ):
+                                time.sleep(0.1)
+                elif is_finished:
+                    break
+
+            # Pad only small tail mismatches. Large gaps mean spotty delivered an
+            # incomplete track; padding those turns a failed stream into minutes
+            # of fake silence while Kodi's OSD keeps advancing.
+            remaining = range_len - bytes_sent
+            if remaining > 0 and not self._is_terminated(stream_generation):
+                with downloader.cond:
+                    dl_finished = downloader.is_finished
+                    dl_error = downloader.error
+                    dl_aborted = downloader.aborted
+                if dl_finished and not dl_error and not dl_aborted:
+                    if remaining <= _SILENCE_PADDING_MAX_BYTES:
+                        log_msg(
+                            f"Padding {remaining} bytes of silence for {track_id}"
+                            f" (downloader finished short of declared length,"
+                            f" sent={bytes_sent}, expected={range_len})",
+                            LOGWARNING,
+                        )
+                        silence_chunk = bytes(min(self.chunk_size, 1048576))
+                        while remaining > 0 and not self._is_terminated(stream_generation):
+                            to_yield = min(len(silence_chunk), remaining)
+                            yield silence_chunk[:to_yield]
+                            bytes_sent += to_yield
+                            remaining -= to_yield
+                    else:
+                        log_msg(
+                            f"Not padding {remaining} bytes of silence for {track_id}"
+                            f" (downloader finished far short of declared length,"
+                            f" sent={bytes_sent}, expected={range_len})",
+                            LOGWARNING,
+                        )
+
+            end_of_range = range_begin + bytes_sent
+            if (
+                track_length > 0
+                and range_begin <= _WAV_HEADER_SIZE
+                and end_of_range >= track_length
+            ):
+                self.__notify_track_finished(track_id)
+            self._log_transfer(
+                "finished",
+                stream_track_id=track_id,
+                range_begin=range_begin,
+                bytes_sent=bytes_sent,
+            )
+
+        except Exception as ex:
+            self._log_transfer(
+                "exception",
+                stream_track_id=track_id,
+                range_begin=range_begin,
+                bytes_sent=bytes_sent,
+                ex=ex,
+            )
+            log_exception(ex, "send_part_audio_stream")
+        finally:
+            if consumer_id is not None:
+                with downloader.cond:
+                    downloader.release_reader_locked(consumer_id)
+            from spotty_cache import SpottyCacheManager
+
+            SpottyCacheManager.enforce_memory_budget()
+
+
+def create_wav_header_for_duration(duration_sec: float) -> Tuple[bytes, int]:
+    """Create a WAV header and total stream length for a given duration (no side effects)."""
+    try:
+        file = BytesIO()
+        num_samples = round(44100 * max(1.0, float(duration_sec)))
+        channels = 2
+        sample_rate = 44100
+        bits_per_sample = 16
+        block_align = channels * (bits_per_sample // 8)
+
+        # Generate format chunk.
+        format_chunk_spec = "<4sLHHLLHH"
+        format_chunk = struct.pack(
+            format_chunk_spec,
+            b"fmt ",
+            16,
+            1,
+            channels,
+            sample_rate,
+            sample_rate * block_align,
+            block_align,
+            bits_per_sample,
+        )
+
+        # Generate data chunk.
+        data_chunk_spec = "<4sL"
+        data_size = int(num_samples * block_align)
+        data_chunk = struct.pack(data_chunk_spec, b"data", data_size)
+
+        # Standard WAV: RIFF size = 36 + data_size
+        riff_size = 36 + data_size
+        main_header_spec = "<4sL4s"
+        main_header = struct.pack(main_header_spec, b"RIFF", riff_size, b"WAVE")
+
+        file.write(main_header)
+        file.write(format_chunk)
+        file.write(data_chunk)
+
+        header_bytes = file.getvalue()
+        header_len = len(header_bytes)
+        total_length = header_len + data_size
+        return header_bytes, total_length
+    except Exception as exc:
+        log_exception(exc, "Failed to create wave header (static).")
+        raise

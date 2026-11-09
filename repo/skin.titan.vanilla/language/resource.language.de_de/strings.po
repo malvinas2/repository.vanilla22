@@ -1,3 +1,19 @@
+#  1. Reserved String ID Ranges (strings.po) 
+#
+#  When creating strings.po files in your skin's language folder, you should use specific ID ranges to avoid conflicts with other add-ons: 
+#
+#  31000 – 31999: Reserved for skins.
+#  30000 – 30999: Reserved for plugins/plugin settings.
+#  32000 – 32999: Reserved for scripts.
+#  33000 – 33999: Reserved for common strings used in add-ons. 
+#  Anything below 30000 is typically reserved for the core Kodi application. 
+#
+#  For strings higher than 33999 use $ADDON[addon_id string_id] instead of $LOCALIZE[string_id]
+#  Using $ADDON you're free to use any id even if it "conflicts" with core strings, they are stored on a different map
+
+
+
+
 # Kodi Media Center language file
 # Addon Name: Titan
 # Addon id: skin.titan
@@ -20,15 +36,15 @@ msgctxt "#10005"
 msgid "Music"
 msgstr "Musik"
 
-msgctxt "#30035"
+msgctxt "#31956"
 msgid "Continue watching in $INFO[Window.Property(remaining)] seconds"
 msgstr "Wiedergabe fortsetzen in $INFO[Window.Property(remaining)] Sekunden"
 
-msgctxt "#30036"
+msgctxt "#31957"
 msgid "Up next in $INFO[Window.Property(remaining)] seconds"
 msgstr "Als Nächstes in $INFO[Window.Property(remaining)] Sekunden"
 
-msgctxt "#30037"
+msgctxt "#31958"
 msgid "Next episode in $INFO[Window.Property(remaining)] seconds"
 msgstr "Nächste Episode in $INFO[Window.Property(remaining)] Sekunden"
 
@@ -363,14 +379,6 @@ msgstr "Liedtexte während der Wiedergabe von Musik einschalten"
 msgctxt "#31088"
 msgid "Live-TV"
 msgstr "Live-Fernsehen"
-
-msgctxt "#31089"
-msgid "XBMB3C add-on"
-msgstr "XBMB3C Addon"
-
-msgctxt "#31090"
-msgid "XBMB3C settings"
-msgstr "XBMB3C-Einstellungen"
 
 msgctxt "#31091"
 msgid "Mediabrowser"
@@ -2926,7 +2934,7 @@ msgstr "Automatische Erstellung von gekachelten Hintergründen aktivieren"
 
 msgctxt "#31813"
 msgid "Diffuse color for lyrics overlay"
-msgstr ""
+msgstr "Farbüberlagerung für Songtexte"
 
 msgctxt "#31814"
 msgid "Textcolor for unfocused lyrics"
@@ -2980,10 +2988,6 @@ msgctxt "#31826"
 msgid "Select country flags / icons"
 msgstr "Wähle Länderfahnen/-symbole"
 
-msgctxt "#31822"
-msgid "No widget assigned [click to configure]"
-msgstr "Kein Widget zugewiesen (klicken zum konfigurieren)"
-
 msgctxt "#31827"
 msgid "Internal Artwork Dialog"
 msgstr "Interner Artwork Dialog"
@@ -3006,262 +3010,386 @@ msgctxt "#31831"
 msgid "Origin"
 msgstr "Herkunft"
 
-msgctxt "#31954"
+msgctxt "#31832"
+msgid "Binary"
+msgstr "Binär"
+
+msgctxt "#31833"
+msgid "Changes for version"
+msgstr "Änderungen für Version"
+
+msgctxt "#31834"
 msgid "Stop"
 msgstr "Stop"
 
-msgctxt "#61112"
+msgctxt "#31835"
 msgid "Toggle audio stream"
 msgstr "Tonspur wechseln"
 
-msgctxt "#61005"
+msgctxt "#31836"
 msgid "Watch as 2D"
 msgstr "In 2D ansehen"
 
-msgctxt "#70001"
+msgctxt "#31837"
 msgid "Search local library"
 msgstr "Lokale Bibliothek durchsuchen"
 
-msgctxt "#70002"
+msgctxt "#31838"
 msgid "Search add-ons"
 msgstr "Addons durchsuchen"
 
-msgctxt "#70003"
+msgctxt "#31839"
 msgid "Search YouTube"
 msgstr "YouTube durchsuchen"
 
-msgctxt "#70004"
+msgctxt "#31890"
 msgid "Search TheMovieDB"
 msgstr "TheMovieDB durchsuchen"
 
-msgctxt "#70005"
+msgctxt "#31891"
 msgid "Visualisation settings"
 msgstr "Visualisierungs-Einstellungen"
 
-msgctxt "#70006"
+msgctxt "#31892"
 msgid "Choose presets"
 msgstr "Presets wählen"
 
-msgctxt "#70007"
+msgctxt "#31893"
 msgid "Lyrics add-on"
 msgstr "Liedtexte-Addon"
 
-msgctxt "#70008"
+msgctxt "#31894"
 msgid "Lyrics add-on settings"
 msgstr "Liedtexte-Addon-Einstellungen"
 
-msgctxt "#70009"
+msgctxt "#31895"
 msgid "Settings"
 msgstr "Einstellungen"
 
-msgctxt "#70010"
+msgctxt "#31896"
 msgid "Select Program"
 msgstr "Programm auswählen"
 
-msgctxt "#70011"
+msgctxt "#31897"
 msgid "Select Resolution"
 msgstr "Auflösung auswählen"
 
-msgctxt "#70012"
+msgctxt "#31898"
 msgid "Search Term"
 msgstr "Suchbegriff"
 
-msgctxt "#70013"
+msgctxt "#31899"
 msgid "Teletext"
 msgstr "Videotext"
 
-msgctxt "#70014"
+msgctxt "#31900"
 msgid "Visualisation"
 msgstr "Visualisierung"
 
-msgctxt "#70015"
+msgctxt "#31901"
 msgid "Playlist"
 msgstr "Wiedergabeliste"
 
-msgctxt "#70016"
+msgctxt "#31902"
 msgid "Previous Track"
 msgstr "Vorheriger Titel"
 
-msgctxt "#70017"
+msgctxt "#31903"
 msgid "Rewind"
 msgstr "Rückwärts"
 
-msgctxt "#70018"
+msgctxt "#31904"
 msgid "Forward"
 msgstr "Vorwärts"
 
-msgctxt "#70019"
+msgctxt "#31905"
 msgid "Next Track"
 msgstr "Nächster Titel"
 
-msgctxt "#70020"
+msgctxt "#31906"
 msgid "Play"
 msgstr "Wiedergabe"
 
-msgctxt "#70021"
+msgctxt "#31907"
 msgid "Pause"
 msgstr "Pause"
 
-msgctxt "#70022"
+msgctxt "#31908"
 msgid "RDS"
 msgstr "RDS"
 
-msgctxt "#70023"
+msgctxt "#31909"
 msgid "Previous Chapter"
 msgstr "Vorheriges Kapitel"
 
-msgctxt "#70024"
+msgctxt "#31910"
 msgid "Next Chapter"
 msgstr "Nächstes Kapitel"
 
-msgctxt "#70025"
+msgctxt "#31911"
 msgid "Big step back"
 msgstr "Sprung rückwärts"
 
-msgctxt "#70026"
+msgctxt "#31912"
 msgid "Big step forward"
 msgstr "Sprung vorwärts"
 
-msgctxt "#70027"
+msgctxt "#31913"
 msgid "Previous Channel"
 msgstr "Vorheriger Sender"
 
-msgctxt "#70028"
+msgctxt "#31914"
 msgid "Next Channel"
 msgstr "Nächster Sender"
 
-msgctxt "#70029"
+msgctxt "#31915"
 msgid "Group"
 msgstr "Sendergruppe"
 
-msgctxt "#70030"
+msgctxt "#31916"
 msgid "Sort by"
 msgstr "Sortieren nach"
 
-msgctxt "#70031"
+msgctxt "#31917"
 msgid "Order"
 msgstr "Reihenfolge"
 
-msgctxt "#70032"
+msgctxt "#31918"
 msgid "Search Wikipedia"
 msgstr "Wikipedia durchsuchen"
 
-msgctxt "#70033"
+msgctxt "#31919"
 msgid "Toggle subtitle"
 msgstr "Untertitel umschalten"
 
-msgctxt "#70034"
+msgctxt "#31920"
 msgid "Show EDL (Edit decision list) Marker"
 msgstr "Zeige Schnittlistenmarker"
 
-msgctxt "#70035"
+msgctxt "#31921"
 msgid "Show Chapter Marker"
 msgstr "Zeige Kapitelmarker"
 
-msgctxt "#70036"
+msgctxt "#31922"
 msgid "Disable clock in Now Playing Info Bar"
 msgstr "Deaktiviere Uhrzeit in der Gerade läuft Infoleiste"
 
-msgctxt "#70037"
+msgctxt "#31923"
 msgid "Show SceneMarker"
 msgstr "Zeige Szenenmarkierungen"
 
-msgctxt "#70038"
+msgctxt "#31924"
 msgid "Show CutMarker"
 msgstr "Zeige Schnittmarker"
 
-msgctxt "#70039"
+msgctxt "#31925"
 msgid "EDL Marker Color"
 msgstr "Farbe für Schnittlistenmaker"
 
-msgctxt "#70040"
+msgctxt "#31926"
 msgid "Chapter Marker Color"
 msgstr "Farbe für Kapitelmarker"
 
-msgctxt "#70041"
+msgctxt "#31927"
 msgid "SceneMarker Color"
 msgstr "Farbe für Szenenmarker"
 
-msgctxt "#70042"
+msgctxt "#31928"
 msgid "CutMarker Color"
 msgstr "Farbe für Schnittmarker"
 
-msgctxt "#70043"
+msgctxt "#31929"
 msgid "Marker"
 msgstr "Markierungen"
 
-msgctxt "#70044"
+msgctxt "#31930"
 msgid "Catch-up TV"
 msgstr "Mediathek"
 
-msgctxt "#70045"
+msgctxt "#31931"
 msgid "Search"
 msgstr "Suche"
 
-msgctxt "#70046"
+msgctxt "#31932"
 msgid "Weather"
 msgstr "Wetter"
 
-msgctxt "#70047"
+msgctxt "#31933"
 msgid "Favorites"
 msgstr "Favoriten"
 
-msgctxt "#70048"
+msgctxt "#31934"
 msgid "Show detailed plot in video infopanel (optional)"
 msgstr "Handlung detailliert im Video-Infopanel anzeigen (optional)"
 
-msgctxt "#70049"
+msgctxt "#31935"
 msgid "Detailed Information"
 msgstr "Ausführliche Infos"
 
-msgctxt "#70050"
+msgctxt "#31936"
 msgid "Misc options"
 msgstr "Sonstige Einstellungen"
 
-msgctxt "#70051"
+msgctxt "#31937"
 msgid "Channel Settings"
 msgstr "Kanaleinstellungen"
 
-msgctxt "#70052"
+msgctxt "#31938"
 msgid "Same director"
 msgstr "Filme dieses Regisseurs"
 
-msgctxt "#70053"
+msgctxt "#31939"
 msgid "Play speed"
 msgstr "Wiedergabegeschwindigkeit"
 
-msgctxt "#70054"
+msgctxt "#31940"
 msgid "6 hours back"
 msgstr "6 Stunden zurück"
 
-msgctxt "#70055"
+msgctxt "#31941"
 msgid "6 hours forward"
 msgstr "6 Stunden vor"
 
-msgctxt "#70056"
+msgctxt "#31942"
 msgid "Show detailed plot or extended information on OSD"
 msgstr "Zeige ausführlichen Plot oder ausführliche Information im OSD"
 
-msgctxt "#70057"
+msgctxt "#31943"
 msgid "Use increased maxtempo of 2.1 for playback speed [B](needs manual modification of advancedsettings.xml)[/B]"
 msgstr "Erhöhte Maximalgeschwindigkeit bei Wiedergabe [B](benötigt manuelle Anpassung der Advancedsettings.xml)[/B]"
 
-msgctxt "#70058"
+msgctxt "#31944"
 msgid "Automatic Login on startup"
 msgstr "Automatische Anmeldung beim Programmstart"
 
-msgctxt "#70059"
+msgctxt "#31945"
 msgid "Last logged in"
 msgstr "Zuletzt angemeldet"
 
-msgctxt "#71026"
+msgctxt "#31946"
+msgid "Audio channels"
+msgstr "Audiokanäle"
+
+msgctxt "#31947"
+msgid "Samplerate"
+msgstr "Samplerate"
+
+msgctxt "#31948"
+msgid "Bitrate"
+msgstr "Bitrate"
+
+msgctxt "#31949"
+msgid "Bits per Sample"
+msgstr "Bits per Sample"
+
+msgctxt "#31950"
+msgid "Beats per Minute"
+msgstr "Beats per Minute"
+
+msgctxt "#31951"
+msgid "Audio codec"
+msgstr "Audiocodec"
+
+msgctxt "#31952"
+msgid "File extension"
+msgstr "Dateiendung"
+
+msgctxt "#31953"
 msgid "Timeshift"
 msgstr "Timeshift"
 
-msgctxt "#91830"
+msgctxt "#31954"
 msgid "items"
 msgstr "Einträge"
 
-msgctxt "#91831"
+msgctxt "#31955"
 msgid "Color"
 msgstr "Farbe"
+
+# bis einschließlich 31958 belegt
+
+msgctxt "#31089"
+msgid "Audio-/Video Information"
+msgstr "Audio-/Video Informationen"
+
+msgctxt "#31090"
+msgid "Videocodec"
+msgstr "Videocodec"
+
+msgctxt "#31006"
+msgid "Video Resolution"
+msgstr "Videoauflösung"
+
+msgctxt "#31007"
+msgid "Video Aspect"
+msgstr "Videoseitenverhältnis"
+
+msgctxt "#31008"
+msgid "Videobitrate"
+msgstr "Videobitrate"
+
+msgctxt "#31009"
+msgid "Audiobitrate"
+msgstr "Audiobitrate"
+
+msgctxt "#31123"
+msgid "Audio Language"
+msgstr "Audiosprache"
+
+msgctxt "#31252"
+msgid "HDR Type"
+msgstr "HDR-Typ"
+
+msgctxt "#31346"
+msgid "PVR"
+msgstr "PVR"
+
+msgctxt "#31347"
+msgid "Rated"
+msgstr "Altersfreigabe"
+
+msgctxt "#31348"
+msgid "No information available"
+msgstr "Keine Informationen verfügbar"
+
+msgctxt "#31349"
+msgid "Local subtitle available"
+msgstr "Lokaler Untertitel verfügbar"
+
+msgctxt "#31350"
+msgid "Media Details"
+msgstr ""
+
+msgctxt "#31351"
+msgid "No favourites found. You can add items from media and other views by using the context menu."
+msgstr "Keine Favoriten gefunden. Es können Einträge aus Medien- und anderen Ansichten über das Kontextmenü hinzugefügt werden."
+
+msgctxt "#31352"
+msgid "Actions"
+msgstr "Aktionen"
+
+msgctxt "#31520"
+msgid "Media Information"
+msgstr "Medien-Informationen"
+
+msgctxt "#31353"
+msgid "BookmarkMarker Color"
+msgstr "Farbe für Lesezeichen-Marker"
+
+
+# noch frei: 
+
+# 31006-31009  X
+# 31089  X
+# 31090  X
+# 31095  (X)
+# 31098  (X)
+# 31101  (X)
+# 31123  (X)
+# 31252  (X)
+# 31354-31398
+# 31411-31420
+# 31520   (X)
+# 31575-31580
+# 31823-31826 (X)
+# 31840-31889

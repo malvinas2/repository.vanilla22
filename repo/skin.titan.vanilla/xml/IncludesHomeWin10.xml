@@ -193,7 +193,6 @@
 				<top>15%</top>
 				<width>370</width>
 				<height>85%</height>
-				<itemgap>0</itemgap>
 				<onleft>1</onleft>
 				<onright condition="Integer.IsGreater(Container(4445).NumItems,0)">4444</onright>
 				<onright condition="!Integer.IsGreater(Container(4445).NumItems,0)">77777</onright>
@@ -289,7 +288,6 @@
 				<visible>!Skin.HasSetting(DisableAllSubmenus)</visible>
 				<width>310</width>
 				<height>380</height>
-				<itemgap>3</itemgap>
 				<onleft>300</onleft>
 				<onleft>ClearProperty(submenu,home)</onleft>
 				<onright>ClearProperty(submenu,home)</onright>
@@ -299,8 +297,6 @@
 				<ondown>4444</ondown>
 				<onback>300</onback>
 				<onback>ClearProperty(submenu,home)</onback>
-				<focusposition>0</focusposition>
-				<movement>3</movement>
 				<itemlayout width="320" height="65">
 					<control type="label">
 						<left>10</left>

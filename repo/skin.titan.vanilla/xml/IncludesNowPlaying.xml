@@ -155,6 +155,7 @@
 				<texture background="true">$VAR[VideoPlayerClearart]</texture>
 				<aspectratio align="right" aligny="center">keep</aspectratio>
 				<visible>!Skin.HasSetting(EnableTouchSupport)</visible>
+				<!-- <visible>!Skin.HasSetting(DisableNowPlayingClearArt)</visible> -->
 				<visible>!String.IsEmpty(Control.GetLabel(884455)) + !Skin.HasSetting(DisableNowPlayingClearArt)</visible>
 			</control>
 			

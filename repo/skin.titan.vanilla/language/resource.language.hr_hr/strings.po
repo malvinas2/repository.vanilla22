@@ -344,14 +344,6 @@ msgctxt "#31088"
 msgid "Live-TV"
 msgstr "TV uživo"
 
-msgctxt "#31089"
-msgid "XBMB3C add-on"
-msgstr "XBMB3C dodatak"
-
-msgctxt "#31090"
-msgid "XBMB3C settings"
-msgstr "XBMB3C postavke"
-
 msgctxt "#31091"
 msgid "Mediabrowser"
 msgstr "MediaBrowser"
@@ -1785,14 +1777,14 @@ msgid "Use fixed focus"
 msgstr "Koristi fiksirani fokus"
 
 
-msgctxt "#30035"
+msgctxt "#31956"
 msgid "Continue watching in $INFO[Window.Property(remaining)] seconds"
 msgstr "Nastavite gledati u $INFO[Window.Property(remaining)] sekunde"
 
-msgctxt "#30036"
+msgctxt "#31957"
 msgid "Up next in $INFO[Window.Property(remaining)] seconds"
 msgstr "Sljedeće u $INFO[Window.Property(remaining)] sekunde"
 
-msgctxt "#30037"
+msgctxt "#31958"
 msgid "Next episode in $INFO[Window.Property(remaining)] seconds"
 msgstr "Sljedeća epizoda u $INFO[Window.Property(remaining)] sekunde"

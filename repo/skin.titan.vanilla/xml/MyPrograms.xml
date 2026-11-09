@@ -75,6 +75,28 @@
 					<onclick>right</onclick>
 					<onclick>Filter</onclick>
 				</control>
+
+				<control type="image" id="6201">
+					<!--Seperator-->
+					<width>458</width>
+					<height>10</height>
+					<align>left</align>
+					<texture>common/menu-separator.png</texture>
+				</control>
+				
+				<control type="button" id="621">
+					<description>Get more</description>
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[21452]</label>
+					<onclick>ActivateWindow(addonbrowser,addons://more/executable/,return)</onclick>
+					<visible>Container.Content(addons)</visible>
+				</control>
+				<control type="button" id="624">
+					<include>SideBladeMenuButton</include>
+					<label>$LOCALIZE[10140]</label>
+					<onclick>Addon.OpenSettings($INFO[Container.PluginName])</onclick>
+					<visible>!String.IsEmpty(Container.PluginName)</visible>
+				</control>
 				
 				<include>SideBladeViewCommands</include>
 

@@ -8,7 +8,7 @@
 '''
 
 import os, sys
-from resources.lib.utils import create_main_entry, log_msg
+from resources.lib.utils import create_main_entry
 from operator import itemgetter
 import xbmc
 from urllib.parse import quote_plus
@@ -153,14 +153,9 @@ class Pvr(object):
         item["file"] = "plugin://script.skin.helper.service?action=playchannel&channelid=%s"\
             % (channeldata["channelid"])
         item["channel"] = channelname
-        item["channelid"] = ""
-        item["dbid"] = ""	
-        if item.get("media_type"):
-            item["type"] = item.get("media_type")
-        else:
-            item["type"] = "musicvideo"
+        item["type"] = "channel"
         item["label"] = channelname
-        #item["channelid"] = channeldata["channelid"]
+        item["channelid"] = channeldata["channelid"]
         if not channellogo:
             channellogo = self.metadatautils.get_channellogo(channelname)
         if channellogo:
@@ -191,28 +186,21 @@ class Pvr(object):
 
     def process_timer(self, item):
         '''transform the json received from kodi into something we can use'''
-        item["file"] = "plugin://script.skin.helper.service?action=playchannel&channelid=%s"\
-            % (item["channelid"])
+        item["file"] = "plugin://script.skin.helper.service/?action=launch&path=" + \
+            quote_plus("ReplaceWindow(tvtimers),return")
         if not item["channelid"] == -1:
             channel_details = self.metadatautils.kodidb.channel(item["channelid"])
             channelname = channel_details["label"]
         else:
             channelname = ""
-        log_msg("get_pvr_all - process_timer from json ==%s=" %  (item))
-        item["channelid"] = ""
-        item["dbid"] = ""	
         item["channel"] = channelname
-        summary = item.get("summary", "")
-        item["type"] = "musicvideo"
+        item["plot"] = item.get("summary", "")
+        item["type"] = "recording"
         item["isFolder"] = False
         if self.enable_artwork:
             self.metadatautils.extend_dict(item, self.metadatautils.get_pvr_artwork(item["title"], item["channel"]))
-        channellogo = self.metadatautils.get_channellogo(channelname)	
-        if item.get("media_type"):
-            item["type"] = item.get("media_type")
-        else:
-            item["type"] = "musicvideo"
-        item["plot"] = "%s[CR]%s"  % (summary, item.get("plot", ""))
+        item["type"] = "recording"
+        channellogo = self.metadatautils.get_channellogo(channelname)
         if channellogo:
             if not item.get("art"):
                 item["art"] = {}

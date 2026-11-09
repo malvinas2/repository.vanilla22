@@ -59,6 +59,12 @@
 					<include>SideBladeMenuButton</include>
 					<align>left</align>
 				</control>
+				<control type="button" id="26">
+					<!--Repeat-->
+					<label></label>
+					<include>SideBladeMenuButton</include>
+					<align>left</align>
+				</control>
 				<control type="button" id="21">
 					<!--Save-->
 					<label>$LOCALIZE[190]</label>
@@ -77,6 +83,7 @@
 					<include>SideBladeMenuButton</include>
 					<align>left</align>
 				</control>
+
 				<control type="image" id="6201">
 					<!--Seperator-->
 					<width>458</width>
